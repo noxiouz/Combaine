@@ -8,7 +8,7 @@ setup(
         packages = [
         'combaine',
         'combaine.combainer',
-        'combaine.combainer.Schedule',
+        'combaine.combainer.Scheduler',
         'combaine.combainer.Observer',
         'combaine.plugins.Aggregators',
         'combaine.plugins.DataGrid',
