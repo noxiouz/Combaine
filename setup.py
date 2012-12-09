@@ -5,6 +5,9 @@ except ImportError:
 
 setup(
         name = "Combaine",
+        version = "0.5.0",
+        author = "noxiouz",
+        license = "GPL3",
         packages = [
         'combaine',
         'combaine.combainer',
