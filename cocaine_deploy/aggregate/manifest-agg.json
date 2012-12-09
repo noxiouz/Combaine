@@ -1,0 +1,17 @@
+{
+    "type" : "python",
+    "engine" : {
+        "heartbeat-timeout" : 300,
+        "suicide-timeout": 300,
+        "pool-limit" : 16,
+        "queue-limit" : 10000,
+        "grow-threshold" : 1
+    },
+    "drivers" : {
+        "aggregate_group" : {
+            "type" : "native-server",
+            "emit": "aggregate_group",
+            "endpoint": "tcp://*:9505"
+        }
+    }
+}

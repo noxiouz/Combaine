@@ -1,0 +1,33 @@
+{
+    "type" : "python",
+    "engine" : {
+        "heartbeat-timeout" : 300,
+        "suicide-timeout": 300,
+        "pool-limit" : 8,
+        "queue-limit" : 10000,
+        "grow-threshold" : 1
+    },
+    "drivers" : {
+        "agave_send" : {
+            "type" : "recurring-timer",
+            "emit": "agave_send",
+            "interval": 60000
+        },
+        "drop_local_databases" : {
+            "type" : "recurring-timer",
+            "emit": "drop_local_databases",
+            "interval": 60000
+        },
+        "clear_remote_db" : {
+            "type" : "recurring-timer",
+            "emit": "clear_remote_db",
+            "interval": 1800000
+        },
+        "cem_create_list" : {
+            "type" : "recurring-timer",
+            "emit": "cem_create_list",
+            "interval": 300000
+        }
+    }
+}
+

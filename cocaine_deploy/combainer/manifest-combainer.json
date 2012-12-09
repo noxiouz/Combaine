@@ -1,0 +1,17 @@
+{
+    "type" : "python",
+    "engine" : {
+    "heartbeat-timeout" : 200,
+    "suicide-timeout": 300,
+    "pool-limit" : 3,
+    "queue-limit" : 4,
+    "grow-threshold" : 1
+                },
+    "drivers" : {
+        "cloudMain" : {
+        "type" : "recurring-timer",
+        "emit": "cloudMain",
+        "interval": 10000
+                    }
+            }
+}
