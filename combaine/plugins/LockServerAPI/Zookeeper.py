@@ -21,7 +21,7 @@
 from __abstractlockserver import BaseLockServer
 
 
-import ZKeeperAPI.zkapi as ZK
+from combaine.common.ZKeeperAPI import zkapi as ZK
 from socket import gethostname
 
 import logging

@@ -3,7 +3,7 @@
 import unittest
 
 import sys, os
-sys.path[0] = '/'.join(os.path.abspath('.').split('/')[:-1])
+sys.path.append('/'.join(os.path.abspath('.').split('/')[:-1]))
 
 class import_test(unittest.TestCase):
 
@@ -41,7 +41,7 @@ class import_test(unittest.TestCase):
 
     def test_fetcher(self):
         try:
-            from combaine.plugins import DataFetcher 
+            from combaine.plugins import DataFetcher
         except Exception, err:
             print err
             res = False
@@ -52,7 +52,29 @@ class import_test(unittest.TestCase):
 
     def test_datagrid(self):
         try:
-            from combaine.plugins import DataGrid 
+            from combaine.plugins import DataGrid
+        except Exception, err:
+            print err
+            res = False
+        else:
+            res = True
+        finally:
+            self.assertTrue(res)
+
+    def test_startCombainer(self):
+        try:
+            import startCombainer
+        except Exception, err:
+            print err
+            res = False
+        else:
+            res = True
+        finally:
+            self.assertTrue(res)
+
+    def test_zkapi(self):
+        try:
+            from combaine.plugins.LockServerAPI import Zookeeper
         except Exception, err:
             print err
             res = False

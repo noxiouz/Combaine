@@ -24,7 +24,7 @@ import sys
 import json
 
 from combaine.combainer import combainer
-import configlog
+from combaine.common import configlog
 
 
 log = logging.getLogger('combaine')
