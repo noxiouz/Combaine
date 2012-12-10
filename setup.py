@@ -3,6 +3,7 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
+
 setup(
         name = "Combaine",
         version = "0.5.0",
