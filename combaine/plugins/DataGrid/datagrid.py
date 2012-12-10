@@ -1,27 +1,8 @@
+from __abstractdatagrid import AbstractDataGrid
 
 import logging
 import os
 import random
-
-class AbstractDataGrid(object):
-    
-    def __init__(self, **config):
-        raise Exception
-
-    def preparePlace(self, info, index_field):
-        """ info - all information about elementary data structure for create table. """ 
-        raise Exception
-
-    def putData(self, data):
-        """ data - iteratable structure of records. Such as streams in MySQL or Dict in Mongo"""
-        raise Exception
-
-    def tablename(self):
-        return self.tablename
-
-    def perfomCustomQuery(self, query):
-        raise Exception
-
 
 import MySQLdb
 from MySQLdb.cursors import DictCursor
@@ -119,8 +100,4 @@ class MySqlDG(AbstractDataGrid):
         cursor.close()
         return _ret
 
-def DataGridFactory(**config):
-    types = { 'MySQL' : MySqlDG,
-              'raw'      : None
-    }
-    return  types[config["type"]](**config)
+PLUGIN_CLASS = MySqlDG

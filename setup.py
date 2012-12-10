@@ -24,4 +24,7 @@ setup(
             'combaine.plugins.StorageAPI',
             'combaine.plugins.LockServerAPI',
         ],
+        py_modules = [
+            'startCombainer'
+        ]
 )

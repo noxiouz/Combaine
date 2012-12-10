@@ -1,21 +1,10 @@
+from _abstractfetcher import AbstractFetcher
 
 import logging
 import time
-
-class AbstractGetter(object):
-    
-    def __init__(self):
-        raise Exception
-
-    def getData(self):
-        """ Must return a generator object """
-        raise Exception
-
-    filter = None
-
 import httplib
 
-class Timetail(AbstractGetter):
+class Timetail(AbstractFetcher):
 
     def __init__(self, **config):
         self.log = logging.getLogger('combaine')
@@ -50,9 +39,4 @@ class Timetail(AbstractGetter):
             print err
             return None
 
-def GetterFactory(**config):
-    types = { 'timetail' : Timetail,
-              'raw'      : None
-    }
-    return  types[ config["type"]](**config)
-
+PLUGIN_CLASS = Timetail

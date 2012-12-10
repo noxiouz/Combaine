@@ -23,7 +23,7 @@ import time
 import sys
 import json
 
-import combainer
+from combaine.combainer import combainer
 import configlog
 
 

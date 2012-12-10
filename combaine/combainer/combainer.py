@@ -21,9 +21,9 @@
 import logging
 import urllib
 import time
-import collections 
-import os 
-import json 
+import collections
+import os
+import json
 import hashlib
 import signal
 import sys
@@ -31,8 +31,8 @@ import re
 #import pprint
 import random
 
-import LockServerAPI.lockserver
-import StorageAPI.storage
+from combaine.plugins import LockServerAPI
+from combaine.plugins import StorageAPI
 #import Receiver
 import Observer.client
 import Scheduler.scheduler
@@ -295,7 +295,7 @@ class Combainer():
             if len(self.parsing_confs) == 1:
                 config["app_id"] = "%s@%s" % (config["app_id"], self.parsing_confs[0].split('.')[0]) # strip .json
             #-----------
-            self.storage = StorageAPI.storage.StorageFactory(**config)
+            self.storage = StorageAPI.StorageFactory(**config)
         except Exception, err:
             log.error('Cannot create storage object: %s' % str(err))
             return False
@@ -313,7 +313,7 @@ class Combainer():
         """
         try:
             log.debug('Create LockServer object %s' % str(config))
-            self.lockserver = LockServerAPI.lockserver.LockServerFactory(**config)
+            self.lockserver = LockServerAPI.LockServerFactory(**config)
         except Exception, err:
             log.error('Cannon create LockServer object: %s' % str(err))
             return False
