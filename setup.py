@@ -39,3 +39,4 @@ setup(
             ('/usr/lib/yandex/combaine/cocaine_deploy/',['./start_me_to_deploy.sh']),
         ]
 )
+
