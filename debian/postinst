@@ -1,0 +1,9 @@
+#! /bin/sh
+
+LOGDIR="/var/log/combaine"
+
+if [ ! -d "$LOGDIR" ]; then
+    mkdir $LOGDIR
+fi
+
+chown cocaine $LOGDIR

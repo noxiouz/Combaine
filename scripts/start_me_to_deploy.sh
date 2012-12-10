@@ -1,0 +1,37 @@
+#! /bin/bash
+
+
+DEPLOY_DIR="/usr/lib/yandex/combaine/cocaine_deploy/"
+
+echo 'Clear old applications........'
+
+for app in 'combainer@1' 'parsing@1' 'recurring@1' 'aggregate@1';
+do
+    rm -rf /var/lib/cocaine/apps/$app
+    rm -rf /var/spool/cocaine/$app
+    rm -rf /var/cache/cocaine/apps/$app
+done
+
+
+echo 'Deploy new....................'
+
+cd $DEPLOY_DIR/combainer && tar -zcvf combainer.tar.gz ./__init__.py && echo 'OK'
+cocaine-tool upload -m $DEPLOY_DIR/combainer/manifest-combainer.json -p $DEPLOY_DIR/combainer/combainer.tar.gz -n combainer@1
+
+cd $DEPLOY_DIR/parsing && tar -zcvf parsing.tar.gz ./__init__.py && echo 'OK'
+cocaine-tool upload -m $DEPLOY_DIR/parsing/manifest-parsing.json -p $DEPLOY_DIR/parsing/parsing.tar.gz -n parsing@1
+
+cd $DEPLOY_DIR/aggregate && tar -zcvf aggregate.tar.gz ./__init__.py && echo 'OK'
+cocaine-tool upload -m $DEPLOY_DIR/aggregate/manifest-agg.json -p $DEPLOY_DIR/aggregate/aggregate.tar.gz -n aggregate@1
+
+cd $DEPLOY_DIR/recurring && tar -zcvf recurring.tar.gz ./__init__.py && echo 'OK'
+cocaine-tool upload -m $DEPLOY_DIR/recurring/manifest-recurring.json -p $DEPLOY_DIR/recurring/recurring.tar.gz -n recurring@1
+
+
+echo 'Clean temp....................'
+rm -f $DEPLOY_DIR/combainer/combainer.tar.gz && echo 'OK'
+rm -f $DEPLOY_DIR/parsing/parsing.tar.gz && echo 'OK'
+rm -f $DEPLOY_DIR/aggregate/aggregate.tar.gz && echo 'OK'
+rm -f $DEPLOY_DIR/recurring/recurring.tar.gz && echo 'OK'
+
+/etc/init.d/combaine-machine start
