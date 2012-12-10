@@ -18,6 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __abstractlockserver import BaseLockServer
+
 
 import ZKeeperAPI.zkapi as ZK
 from socket import gethostname
@@ -31,31 +33,6 @@ class losingLockExc(Exception):
     def __str__(self):
         return "Lock is not mine"
 
-class BaseLockServer():
-    """ """
-    def __init__(self):
-        raise Exception
-
-    def getlock(self):
-        raise Exception
-
-    def setLockName(self):
-        raise Exception
-
-    def releaselock(self):
-        raise Exception
-
-    def destroy(self):
-        raise Exception
-
-    def log(self, level, message):
-        logger.debug(message)
-
-    def checkLock(self):
-        raise Exception
-
-    def destroy(self):
-        raise Exception
 
 class ZKLockServer(BaseLockServer):
     """Zookeeper based lockserver. """
@@ -114,6 +91,8 @@ class ZKLockServer(BaseLockServer):
         else:
             self.log('ERROR','Cannot disconnect from LS')
             return False
+
+PLUGIN_CLASS = ZKLockServer
 
 #==========================================
 #
@@ -183,17 +162,3 @@ class ZKLockServer(BaseLockServer):
 #            return False
 #        else:
 #            return True
-
-
-
-def LockServerFactory(**config):
-    types = { "Zookeeper"   : ZKLockServer,
-              #"Zookeeper"   : KazooLockServer,
-    }
-    try:
-        instance = types[config["type"]](**config)
-    except KeyError, errmsg:
-        print "Unknown type of lockserver. Type must be one of "+" ".join(types.keys())
-    else:
-        return instance
-    return None
