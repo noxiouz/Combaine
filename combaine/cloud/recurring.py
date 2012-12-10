@@ -4,7 +4,7 @@
 from cocaine.decorators import timer
 import time, httplib, logging, os, hashlib, re
 import common
-import LockServerAPI.lockserver
+import combaine.plugins.LockServerAPI
 
 global global_config
 global_config = common.generate_cloud_config()
@@ -39,7 +39,7 @@ def clear_remote_db():
 		zk_clear_config = global_config['zk_config']
 		zk_clear_config['app_id'] = 'zk_clear_db'
 		zk_clear_config['name'] = 'clear_db_lock'
-		lock_server = LockServerAPI.lockserver.LockServerFactory(**zk_clear_config)
+		lock_server = LockServerAPI.LockServerFactory(**zk_clear_config)
 		if not lock_server.getlock():
 			log.info('Could not get lock while trying to clear remote DBs. Terminating.')
 			lock_server.destroy()
