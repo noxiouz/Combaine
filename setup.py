@@ -24,17 +24,4 @@ setup(
             'combaine.plugins.StorageAPI',
             'combaine.plugins.LockServerAPI',
         ],
-        requires = [
-            'python-zmq (>=2.1)', 
-            'cocaine-framework-python (=0.9.5)',
-            'cocaine-generic-slave (=0.9.3)',
-            'cocaine-server (=0.9.3)',
-            'cocaine-core1 (=0.9.3)'
-            'cocaine-tools (=0.9.3)',
-            'libcocaine-common1 (=0.9.3)',
-            'libcocain-dealer1 (=0.9.4)',
-            'libcocaine-plugin-chrono (=0.9.0)',
-            'libcocaine-plugin-dealer (=0.9.0)',
-            'libcocaine-plugin-python (=0.9.0)',
-        ]
 )
