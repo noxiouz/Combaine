@@ -1,21 +1,6 @@
 import re
 
-def coroutine(func):
-    def wrapper():
-        dec = func()
-        dec.next()
-        return dec.send
-    return wrapper
-
-class AbstractAggregator(object):
-    
-    def __init__(self):
-        self.table_regex = re.compile('%TABLENAME%')
-        self.time_regex = re.compile('%%')
-
-    def aggregate(self, datagrid_object):
-        raise Exception
-
+from __abstractaggregator import AbstractAggregator
 
 
 class AverageAggregator(AbstractAggregator):
@@ -35,5 +20,6 @@ class AverageAggregator(AbstractAggregator):
         return ({ 'name' : self.name, 'time': time, 'data' : db.perfomCustomQuery(query)[0][0]} for query, time in queries)
 
 
+PLUGIN_CLASS = AverageAggregator
 
 

@@ -83,5 +83,15 @@ class import_test(unittest.TestCase):
         finally:
             self.assertTrue(res)
 
+    def test_aggregator(self):
+        try:
+            from combaine.plugins import Aggregators
+        except Exception, err:
+            print err
+            res = False
+        else:
+            res = True
+        finally:
+            self.assertTrue(res)
 if __name__ == "__main__":
     unittest.main()
