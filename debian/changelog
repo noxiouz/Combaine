@@ -1,3 +1,27 @@
+combaine (0.5.0-9) lucid; urgency=low
+
+  * oh 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 11 Dec 2012 18:57:29 +0400
+
+combaine (0.5.0-8) lucid; urgency=low
+
+  * fix comaine.cloud
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 11 Dec 2012 18:29:57 +0400
+
+combaine (0.5.0-7) lucid; urgency=low
+
+  * fix cocaine.cloud 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 11 Dec 2012 18:22:32 +0400
+
+combaine (0.5.0-6) lucid; urgency=low
+
+  * pre-stable test package 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 11 Dec 2012 18:12:16 +0400
+
 combaine (0.5.0-5) lucid; urgency=low
 
   * test

@@ -9,3 +9,5 @@ do
     rm -rf /var/cache/cocaine/apps/$app
     /etc/init.d/cocaine-server reload
 done
+
+#DEBHELPER#

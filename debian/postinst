@@ -1,5 +1,6 @@
 #! /bin/sh
 
+
 LOGDIR="/var/log/combaine"
 
 if [ ! -d "$LOGDIR" ]; then
@@ -9,3 +10,5 @@ fi
 touch /home/noxiouz/AAAAA
 
 chown cocaine $LOGDIR
+
+#DEBHELPER#
