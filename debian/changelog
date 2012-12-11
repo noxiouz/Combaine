@@ -1,3 +1,15 @@
+combaine (0.5.0-11) lucid; urgency=low
+
+  * fix import in cocaine.cloud.recurring
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 11 Dec 2012 23:20:37 +0400
+
+combaine (0.5.0-10) lucid; urgency=low
+
+  * fix
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 11 Dec 2012 19:19:55 +0400
+
 combaine (0.5.0-9) lucid; urgency=low
 
   * oh 

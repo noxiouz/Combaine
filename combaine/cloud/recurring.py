@@ -4,7 +4,7 @@
 from cocaine.decorators import timer
 import time, httplib, logging, os, hashlib, re
 import common
-import combaine.plugins.LockServerAPI
+from combaine.plugins import LockServerAPI
 
 global global_config
 global_config = common.generate_cloud_config()
