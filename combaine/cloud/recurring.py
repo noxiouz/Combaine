@@ -100,7 +100,7 @@ def cem_create_list():
 		zk_cem_config = global_config['zk_config']
 		zk_cem_config['app_id'] = 'zk_cem_list'
 		zk_cem_config['name'] = 'cem_create_list'
-		lock_server = LockServerAPI.lockserver.LockServerFactory(**zk_cem_config)
+		lock_server = LockServerAPI.LockServerFactory(**zk_cem_config)
 		if not lock_server.getlock():
 			log.info('Could not get lock while trying to clear remote DBs. Terminating.')
 			lock_server.destroy()
@@ -178,7 +178,7 @@ def sub_agave_send(config):
 			zk_agave_config = config['zk_config']
 			zk_agave_config['name'] = coll_name
 			zk_agave_config['app_id'] = 'zk_agave'
-			lock_server = LockServerAPI.lockserver.LockServerFactory(**zk_agave_config)
+			lock_server = LockServerAPI.LockServerFactory(**zk_agave_config)
 			if not lock_server.getlock():
 				log.info('Could not get lock while trying to send ' + coll_name +  ' data to agave. Terminating.')
 				lock_server.destroy()

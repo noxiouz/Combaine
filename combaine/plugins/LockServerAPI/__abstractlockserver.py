@@ -1,5 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
+import logging
+
+logger = logging.getLogger('combaine')
 
 class BaseLockServer(object):
     """ """

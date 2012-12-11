@@ -19,6 +19,7 @@
 #
 
 from combaine.common.ZKeeperAPI import zkapi as ZK
+from __abstractstorage import BaseStorage
 
 import logging
 

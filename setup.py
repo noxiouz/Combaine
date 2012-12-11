@@ -16,6 +16,7 @@ setup(
         packages = [
             'combaine',
             'combaine.common',
+            'combaine.common.ZKeeperAPI',
             'combaine.cloud',
             'combaine.combainer',
             'combaine.combainer.Scheduler',

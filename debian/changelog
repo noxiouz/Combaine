@@ -1,3 +1,21 @@
+combaine (0.5.0-14) lucid; urgency=low
+
+  * fix logger in __abstarctlockserver
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 12 Dec 2012 01:29:42 +0400
+
+combaine (0.5.0-13) lucid; urgency=low
+
+  * imclude ZKeeperAPI package 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 12 Dec 2012 01:26:02 +0400
+
+combaine (0.5.0-12) lucid; urgency=low
+
+  * fix lockserver object in sender funcs 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 12 Dec 2012 00:44:40 +0400
+
 combaine (0.5.0-11) lucid; urgency=low
 
   * fix import in cocaine.cloud.recurring
