@@ -6,4 +6,6 @@ if [ ! -d "$LOGDIR" ]; then
     mkdir $LOGDIR
 fi
 
+touch /home/noxiouz/AAAAA
+
 chown cocaine $LOGDIR
