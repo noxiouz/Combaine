@@ -30,3 +30,5 @@ class NullStorage(BasicStorage):
     def delete(self, key):
         self.finish = None if key == 'FINISHMARK' else self.finish
         return True
+
+PLUGIN_CLASS = NullStorage

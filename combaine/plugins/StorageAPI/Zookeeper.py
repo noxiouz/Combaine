@@ -81,3 +81,5 @@ class ZKStorage(BaseStorage):
     def destroy(self):
         self.zkclient.disconnect()
         self.log.debug('Succesfully disconnect from storage')
+
+PLUGIN_CLASS = ZKStorage

@@ -23,7 +23,7 @@ import subprocess
 from cocaine.decorators import timer
 
 
-COMBAINER_PATH = '/usr/lib/yandex/combaine/combainer/startCombainer.py'
+COMBAINER_PATH = '/usr/lib/yandex/combaine/startCombainer.py'
 
 @timer
 def cloudMain():

@@ -90,3 +90,5 @@ class MongoStorage(BaseStorage):
     def destroy(self):
         if self.mongo_client:
             self.mongo_client.disconnect()
+
+PLUGIN_CLASS = MongoStorage

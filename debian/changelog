@@ -1,3 +1,21 @@
+combaine (0.5.0-17) lucid; urgency=low
+
+  * fix COMBAINER_PATH 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 12 Dec 2012 01:54:51 +0400
+
+combaine (0.5.0-16) lucid; urgency=low
+
+  * fix PLUGIN_CLASSes in StorageAPI
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 12 Dec 2012 01:44:04 +0400
+
+combaine (0.5.0-15) lucid; urgency=low
+
+  * fix import from  __abstractstorage
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 12 Dec 2012 01:39:01 +0400
+
 combaine (0.5.0-14) lucid; urgency=low
 
   * fix logger in __abstarctlockserver
