@@ -2,7 +2,7 @@ Source: combaine
 Section: misc
 Priority: extra
 Maintainer: Anton Tyurin <noxiouz@yandex.ru>
-Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7), python (>= 2.4), python-support
+Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7.0.13), python (>= 2.6), python-support, python-central
 Standards-Version: 3.8.3
 Homepage: https://github.com/noxiouz/Combaine
 
@@ -15,15 +15,17 @@ Depends:
  python-zmq,
  python-pymongo,
  python-simplejson,
- cocaine-framework-python (=0.9.6),
- cocaine-generic-slave (=0.9.3),
- cocaine-server (=0.9.3),
- cocaine-tools (=0.9.3),
- libcocaine-common1 (=0.9.3),
- libcocaine-core1 (=0.9.3),
- libcocaine-dealer1 (=0.9.4),
- libcocaine-plugin-chrono (=0.9.0),
- libcocaine-plugin-dealer (=0.9.0),
- libcocaine-plugin-python (=0.9.0)
+ cocaine-framework-python (= 0.9.6),
+ cocaine-generic-slave (= 0.9.3),
+ cocaine-server (= 0.9.3),
+ cocaine-tools (= 0.9.3),
+ libcocaine-common1 (= 0.9.3),
+ libcocaine-core1 (= 0.9.3),
+ libcocaine-dealer1 (= 0.9.4),
+ libcocaine-plugin-chrono (= 0.9.0),
+ libcocaine-plugin-dealer (= 0.9.0),
+ libcocaine-plugin-python (= 0.9.0),
+ combaine-parsers (>= 0.4.2),
+ combaine-global-configs
 Description: Combaine cloud machine
  Fast cloud
