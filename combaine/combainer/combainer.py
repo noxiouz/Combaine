@@ -375,7 +375,7 @@ class Combainer():
 
     def restoreProgress(self):
         allrecords = self.storage.list()
-        if allrecords == None:
+        if allrecords is None:
             log.error('Cannot read progress data')
             return None
         progress = {}
