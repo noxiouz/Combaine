@@ -31,20 +31,19 @@ class MySqlDG(AbstractDataGrid):
 
     def putData(self, data, tablename):
         try:
-            tablename = tablename.replace('.','_')
-            tablename = tablename.replace('-','_')
-            tablename = tablename.replace('+','_')
-            table_file = open('/dev/shm/%s-%i' % ('COMBAINE', random.randint(0,65535)) ,'w')
+            tablename = tablename.replace('.','_').replace('-','_').replace('+','_')
             line = None
-            for line in data:
-                #print line
-                table_file.write(','.join([str(x) for x in line.values()])+'\n')
-            table_file.close()
+            print "TEST PUTDATA"
+            with open('/dev/shm/%s-%i' % ('COMBAINE', random.randint(0,65535)) ,'w') as table_file:
+                for line in data:
+                    #print line
+                    table_file.write(','.join([str(x) for x in line.values()])+'\n')
+                    #table_file.close()
 
-            if not line:
-                print 'No data'
-                os.remove(table_file.name)
-                return True
+                if not line:
+                    print 'No data'
+                    os.remove(table_file.name)
+                    return False
 
             if not self._preparePlace(line):
                 print "Can't prepare table"
@@ -65,10 +64,13 @@ class MySqlDG(AbstractDataGrid):
             cursor.execute(query)
             self.db.commit()
             cursor.close()
-            os.remove(table_file.name)
+            if os.path.isfile(table_file.name):
+                os.remove(table_file.name)
         except Exception, err:
             self.log.error('Error in putData: %s' % str(err))
             print str(err)
+            if os.path.isfile(table_file.name):
+                os.remove(table_file.name)
             return False
         else:
             self.tablename = tablename
