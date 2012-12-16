@@ -1,6 +1,6 @@
 
 
-def AggregatorFactory(**confi):
+def AggregatorFactory(**config):
     try:
         print 'LoadPlugin'
         plugin_name = config['type']

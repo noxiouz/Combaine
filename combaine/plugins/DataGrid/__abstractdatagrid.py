@@ -6,7 +6,7 @@ class AbstractDataGrid(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def preparePlace(self, info, index_field):
+    def _preparePlace(self, info, index_field):
         """ info - all information about elementary data structure for create table. """ 
         raise Exception
 

@@ -1,4 +1,4 @@
-from _abstractfetcher import AbstractFetcher
+from __abstractfetcher import AbstractFetcher
 
 import logging
 import time
