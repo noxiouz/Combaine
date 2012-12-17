@@ -20,15 +20,22 @@ def loadCloudConfig():
     try:
         path = '/etc/combaine/combaine.json'
         cloud_config = json.load(open(path, 'r'))['cloud_config']
-    except Exception, err:
+	#print cloud_config
+    except Exception as err:
         #log = getLogger('combaine')
         #log.error('Error with combaine.json config: %s' %  str(err))
         print str(err)
+        raise Exception(str(err)+"Error")
         return None
     else:
         return cloud_config
 
-def initLogger(**config):
+#def initLogger(**config):
+try:
+    config = json.load(open('/etc/combaine/combaine.json'))['cloud_config']
+except Exception as err:
+    pass
+else:
     _format = logging.Formatter("%(levelname)-10s %(asctime)s %(message)s")
     app_log = logging.getLogger('combaine')
     log_level = eval('logging.' + config['log_level'])

@@ -19,6 +19,7 @@ class ParsingConfigurator(object):
             _ds = _parsing.get("DistributedStorage")
             _df = _parsing.get("DataFetcher")
             _db = _parsing.get("LocalDatabase")
+            self.parser = _parsing.get("parser")
             if not _ds is None:
                 print "Update ds from parsing"
                 self.ds.update(_ds)
@@ -46,12 +47,6 @@ class ParsingConfigurator(object):
                     if not tmp["type"] is None:
                         print "AAAAA"
                         self.aggregators.append(tmp)
-            print "============== RESULT ================="
-            pprint(self.ds)
-            pprint(self.df)
-            pprint(self.db)
-            print "======================================="
-            pprint(self.aggregators)
         except Exception as err:
             print str(err)
         

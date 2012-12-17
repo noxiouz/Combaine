@@ -1,3 +1,45 @@
+combaine (0.5.0-29) lucid; urgency=low
+
+  * try to fix bug with too many open files 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 14:04:05 +0400
+
+combaine (0.5.0-28) lucid; urgency=low
+
+  * rebuild 
+
+ -- noxiouz <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 10:20:26 +0400
+
+combaine (0.5.0-27) lucid; urgency=low
+
+  * rebuild 
+
+ -- noxiouz <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 10:19:12 +0400
+
+combaine (0.5.0-26) lucid; urgency=low
+
+  * rebuild 
+
+ -- noxiouz <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 10:16:40 +0400
+
+combaine (0.5.0-25) lucid; urgency=low
+
+  * rebuild
+
+ -- noxiouz <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 10:11:02 +0400
+
+combaine (0.5.0-24) lucid; urgency=low
+
+  * log descriptor( 
+
+ -- noxiouz <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 09:51:55 +0400
+
+combaine (0.5.0-23) lucid; urgency=low
+
+  * hz 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 17 Dec 2012 00:29:39 +0400
+
 combaine (0.5.0-22) lucid; urgency=low
 
   * rebuild

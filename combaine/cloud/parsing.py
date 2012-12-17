@@ -13,9 +13,13 @@ import re
 import itertools
 import pprint
 import socket
+import logging
 
 sys.path = sys.path+['/usr/lib/yandex/combaine/']
 from parsers import PARSERS
+
+
+logger = logging.getLogger("combaine")
 
 #dbconfig = {'type' : "mysqldg"}
 #dfconfig = { "timetail_port": 3132,
@@ -35,11 +39,14 @@ from parsers import PARSERS
 #             "type"  : "MongoReplicaSet"
 #}
 
+
+
 def Main(host_name, config_name, group_name, previous_time, current_time):
     # DO INIT LOGGER
+    logger.error('HELLO Im a test message FROM NEW PARSING!!!!!')
     cloud_config = config.loadCloudConfig()
-    config.initLogger(**cloud_config)
-    parsing_config = config.loadParsingConfig(config_name)
+    #config.initLogger(**cloud_config)
+    #parsing_config = config.loadParsingConfig(config_name)
     conf = ParsingConfigurator(config_name)
     db = DataGridFactory(**conf.db)#**dbconfig)  # Get DataGrid
     if db is None:
@@ -53,13 +60,14 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     if ds is None:
         print "DS init Error"
         return
-    print ds
     if not ds.connect('combaine_mid/test_%s' % config_name): # CHANGE NAME OF COLLECTION!!!!
         print 'FAIL'
         return 'failed'
-
+    parser = PARSERS[conf.parser]
+    if parser is None:
+        print "No PARSER"
+        return "Failed"
     aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
-    parser = PARSERS[parsing_config['parser']]
     data = df.getData(host_name, (previous_time, current_time))
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
@@ -94,10 +102,10 @@ def parsing(io):
         try:
             res = Main(host, config, group, prev_time, cur_time)
         except Exception as err:
-            res = 'failed;%s'% str(err)
+            res = 'failedi;Error: %s' % err
         finally:
             io.write(';'.join((res, message, socket.gethostname())))
 
 
 if __name__=="__main__":
-    Main('links02g.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
+    Main('links04d.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
