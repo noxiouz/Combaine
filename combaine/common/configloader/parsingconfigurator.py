@@ -32,7 +32,7 @@ class ParsingConfigurator(object):
             #===============
             agg_bind = {
                 "summa" : "AverageAggregator",
-                #"quant" : "NotImplemented",
+                "quant" : "QuantAggregator",
                 "average" : "AverageAggregator",
             }
             self.aggregators = []
