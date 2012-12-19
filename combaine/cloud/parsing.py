@@ -50,22 +50,22 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     conf = ParsingConfigurator(config_name)
     db = DataGridFactory(**conf.db)#**dbconfig)  # Get DataGrid
     if db is None:
-        print "DB init Error"
+        #print "DB init Error"
         return 'failed'
     df = FetcherFactory(**conf.df)#**dfconfig)    # Get DataFetcher
     if df is None:
-        print "DF init Error"
+        #print "DF init Error"
         return 'failed'
     ds = DistributedStorageFactory(**conf.ds)#**dsconfig) # Get Distributed storage  
     if ds is None:
-        print "DS init Error"
+        #print "DS init Error"
         return
     if not ds.connect('combaine_mid/test_%s' % config_name): # CHANGE NAME OF COLLECTION!!!!
-        print 'FAIL'
+        #print 'FAIL'
         return 'failed'
     parser = PARSERS[conf.parser]
     if parser is None:
-        print "No PARSER"
+        #print "No PARSER"
         return "Failed"
     aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
     data = df.getData(host_name, (previous_time, current_time))
@@ -73,7 +73,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
         tablename = 'combaine_%s_%s_%s' % (config_name, group_name, host_name)
         if not db.putData(handle_data , tablename):
-            print 'No data to put in the localdb'
+            #print 'No data to put in the localdb'
             return 'failed'
     else:
         print 'NO DATA'
