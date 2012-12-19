@@ -14,6 +14,7 @@ import itertools
 import pprint
 import socket
 import logging
+import hashlib
 
 sys.path = sys.path+['/usr/lib/yandex/combaine/']
 from parsers import PARSERS
@@ -43,48 +44,57 @@ logger = logging.getLogger("combaine")
 
 def Main(host_name, config_name, group_name, previous_time, current_time):
     # DO INIT LOGGER
-    logger.error('HELLO Im a test message FROM NEW PARSING!!!!!')
+    uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()
+    logger.info("%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time))
+    print "%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time)
     cloud_config = config.loadCloudConfig()
-    #config.initLogger(**cloud_config)
-    #parsing_config = config.loadParsingConfig(config_name)
     conf = ParsingConfigurator(config_name)
-    db = DataGridFactory(**conf.db)#**dbconfig)  # Get DataGrid
-    if db is None:
-        #print "DB init Error"
-        return 'failed'
-    df = FetcherFactory(**conf.df)#**dfconfig)    # Get DataFetcher
-    if df is None:
-        #print "DF init Error"
-        return 'failed'
-    ds = DistributedStorageFactory(**conf.ds)#**dsconfig) # Get Distributed storage  
-    if ds is None:
-        #print "DS init Error"
-        return
-    if not ds.connect('combaine_mid/test_%s' % config_name): # CHANGE NAME OF COLLECTION!!!!
-        #print 'FAIL'
-        return 'failed'
     parser = PARSERS[conf.parser]
     if parser is None:
         #print "No PARSER"
+        logger.error('%s No properly parser available' % uuid)
         return "Failed"
+    db = DataGridFactory(**conf.db)  # Get DataGrid
+    if db is None:
+        #print "DB init Error"
+        logger.error('%s Failed to init local databse' % uuid)
+        return 'failed'
+    df = FetcherFactory(**conf.df)    # Get DataFetcher
+    if df is None:
+        print "DF init Error"
+        logger.error('%s Failed to init datafetcher' % uuid)
+        return 'failed'
+    ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
+    if ds is None:
+        print "DS init Error"
+        logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
+        return
+    if not ds.connect('combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
+        print 'FAIL'
+        logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
+        return 'failed'
     aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
     data = df.getData(host_name, (previous_time, current_time))
+    print data
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
         tablename = 'combaine_%s_%s_%s' % (config_name, group_name, host_name)
         if not db.putData(handle_data , tablename):
-            #print 'No data to put in the localdb'
+            print 'No data to put in the localdb'
+            logger.warning('%s Empty data for localdb' % uuid)
             return 'failed'
     else:
-        print 'NO DATA'
+        logger.warning('%s Empty data from datafetcher' % uuid)
         return 'failed'
 
     res = itertools.chain( *[_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
     RES = dict(((i, dict()) for i in xrange(previous_time, current_time)))
-    for i in res: 
+    for i in res:
         RES[i['time']][i['name']]=i['data'] 
     l = ( { 'host' : host_name, 'time': k, 'data' : v } for k,v in RES.iteritems())
     map(ds.insert, l)
+    logger.info('%s Success' % uuid)
+    print "Success"
     return 'success'
 
 def parsing(io):
@@ -104,8 +114,12 @@ def parsing(io):
         except Exception as err:
             res = 'failedi;Error: %s' % err
         finally:
+            #log.info(';'.join(res, message))
             io.write(';'.join((res, message, socket.gethostname())))
 
 
 if __name__=="__main__":
-    Main('links04d.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
+    try:
+        print Main('links01g.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
+    except Exception as err:
+        print str(err)

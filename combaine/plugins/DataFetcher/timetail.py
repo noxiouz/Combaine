@@ -15,7 +15,6 @@ class Timetail(AbstractFetcher):
             self.http_get_url = "%(url)s%(log)s&time=" % { 'url' : url, 'log' : log_name }
         except Exception, err:
             self.log.error("Error in init Timetail getter: %s" % str(err))
-            print "Error in init Timetail getter: %s" % str(err)
             raise Exception
 
     def getData(self, host_name, timeperiod):
@@ -32,11 +31,10 @@ class Timetail(AbstractFetcher):
                 conn.close()
                 return _ret
             else:
-                log.warn('HTTP responce code is not 200')
+                self.log.warning('HTTP responce code is not 200 %i' % resp.status)
                 return None
         except Exception, err:
             self.log.error('Error while getting data with request: %s' % err)
-            print err
             return None
 
 PLUGIN_CLASS = Timetail
