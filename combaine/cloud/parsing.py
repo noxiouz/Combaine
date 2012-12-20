@@ -78,7 +78,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     print data
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
-        tablename = 'combaine_%s_%s_%s' % (config_name, group_name, host_name)
+        tablename = hashlib.md5('combaine_%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
         if not db.putData(handle_data , tablename):
             print 'No data to put in the localdb'
             logger.warning('%s Empty data for localdb' % uuid)
