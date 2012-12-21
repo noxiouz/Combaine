@@ -78,7 +78,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     print data
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
-        tablename = hashlib.md5('combaine_%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
+        tablename = ''.join(group_name[:30]) + hashlib.md5('%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
         if not db.putData(handle_data , tablename):
             print 'No data to put in the localdb'
             logger.warning('%s Empty data for localdb' % uuid)
@@ -120,6 +120,6 @@ def parsing(io):
 
 if __name__=="__main__":
     try:
-        print Main('links01g.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
+        print Main('links02g.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
     except Exception as err:
         print str(err)
