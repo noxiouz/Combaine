@@ -93,6 +93,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         RES[i['time']][i['name']]=i['data'] 
     l = ( { 'host' : host_name.replace('.','_').replace('-','_'), 'time': k, 'data' : v } for k,v in RES.iteritems())
     print map(ds.insert, l)
+    ds.close()
     logger.info('%s Success' % uuid)
     print "Success"
     return 'success'
