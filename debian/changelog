@@ -2,7 +2,7 @@ combaine (0.5.0-39) lucid; urgency=low
 
   * fix mysql table name with group prefix 
 
- -- noxiouz@yandex-team.ru <noxiouz@cocaine-cloud01g.kit.yandex.net>  Fri, 21 Dec 2012 16:10:44 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 21 Dec 2012 16:13:38 +0400
 
 combaine (0.5.0-38) lucid; urgency=low
 

@@ -120,6 +120,6 @@ def parsing(io):
 
 if __name__=="__main__":
     try:
-        print Main('links02g.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
+        print Main('links01e.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
     except Exception as err:
         print str(err)
