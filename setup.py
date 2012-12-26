@@ -39,7 +39,7 @@ setup(
                                                                     'cocaine_deploy/recurring/manifest-recurring.json']),
             ('/usr/lib/yandex/combaine/cocaine_deploy/combainer',['cocaine_deploy/combainer/__init__.py',
                                                                     'cocaine_deploy/combainer/manifest-combainer.json']),
-            ('/usr/lib/yandex/combaine/cocaine_deploy/',['./scripts/start_me_to_deploy.sh']),
+            ('/usr/sbin/',['./scripts/combaine-deploy']),
             ('/etc/init.d/',['./scripts/combaine-machine']),
         ]
 )

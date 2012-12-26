@@ -9,4 +9,6 @@ fi
 
 chown cocaine $LOGDIR
 
+/usr/sbin/combaine-deploy
+
 #DEBHELPER#

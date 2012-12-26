@@ -21,7 +21,7 @@
         "clear_remote_db" : {
             "type" : "recurring-timer",
             "emit": "clear_remote_db",
-            "interval": 1800000
+            "interval": 900000
         },
         "cem_create_list" : {
             "type" : "recurring-timer",
