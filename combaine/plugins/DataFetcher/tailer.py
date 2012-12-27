@@ -38,7 +38,7 @@ class Tailer(AbstractFetcher):
                     pass
                 else:
                     d[key] = value if value !="" else 0
-            d['time'] = int(0.5*(timeperiod[0]+timeperiod[1])
+            d['time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
             return (str(d),)
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
