@@ -1,3 +1,9 @@
+combaine (0.5.0-42) lucid; urgency=low
+
+  * add test version of tailer 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 27 Dec 2012 15:31:17 +0400
+
 combaine (0.5.0-41) lucid; urgency=low
 
   * add combaine-deploy to postinst 
