@@ -38,7 +38,7 @@ class Tailer(AbstractFetcher):
                     pass
                 else:
                     d[key] = value if value !="" else 0
-            return d
+            return (str(d),)
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
             return None
