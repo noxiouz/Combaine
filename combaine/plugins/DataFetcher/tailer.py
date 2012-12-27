@@ -27,12 +27,18 @@ class Tailer(AbstractFetcher):
                 if data == "":
                     break
                 res = res + data
-            print res
             s.close()
             if res == "":
                 return None
-            else:
-                return res
+            d = {}
+            for i in res.splitlines():
+                try:
+                    key, value = i.split('=')
+                except:
+                    pass
+                else:
+                    d[key] = value if value !="" else 0
+            return d
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
             return None
