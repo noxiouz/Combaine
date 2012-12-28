@@ -22,26 +22,6 @@ from parsers import PARSERS
 
 logger = logging.getLogger("combaine")
 
-#dbconfig = {'type' : "mysqldg"}
-#dfconfig = { "timetail_port": 3132,
-#           "timetail_url": "/timetail?log=",
-#           "logname" : "nginx/access.log",
-#            "type" : 'timetail'
-#           }
-
-#aggconfig = {
-#        'type' : "AverageAggregator",
-#        'name' : '20x',
-#        'host' : "SELECT COUNT(*) FROM %TABLENAME% WHERE %TABLENAME%.http_status >= 200 AND %TABLENAME%.http_status < 400 AND TIME = %%",
-#        'group': "summa"
-#}
-
-#dsconfig = { "hosts" : ["cocaine-mongo01g.kit.yandex.net:27017", "cocaine-mongo02g.kit.yandex.net:27017", "cocaine-mongo03f.kit.yandex.net:27017"],
-#             "type"  : "MongoReplicaSet"
-#}
-
-
-
 def Main(host_name, config_name, group_name, previous_time, current_time):
     # DO INIT LOGGER
     uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()
@@ -118,9 +98,3 @@ def parsing(io):
             #log.info(';'.join(res, message))
             io.write(';'.join((res, message, socket.gethostname())))
 
-
-if __name__=="__main__":
-    try:
-        print Main('links01e.feeds.yandex.net', 'feeds_nginx', 'feeds-links', int(time.time())-30, int(time.time())-10)
-    except Exception as err:
-        print str(err)
