@@ -22,8 +22,8 @@ class JsonRaw(AbstractFetcher):
                                                                         'url'   : self.url,
                                                                         'port'  : self.port })
             jsondata = json.load(data)
-            if jsondata.get('time') is None:
-                jsondata['time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
+            if jsondata.get('Time') is None:
+                jsondata['Time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
             data.close()
             return (str(jsondata),)
         except Exception as err:
