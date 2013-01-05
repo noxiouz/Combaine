@@ -9,6 +9,7 @@ class JsonRaw(AbstractFetcher):
         
     def __init__(self, **config):
         self.log = logging.getLogger("combaine")
+        self.filter = lambda x: True
         try:
             self.port = config['port'] if config.has_key('port') else 8111
             self.url = config['url'] if config.has_key('port') else "/stats"

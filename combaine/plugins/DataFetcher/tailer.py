@@ -9,6 +9,7 @@ class Tailer(AbstractFetcher):
 
     def __init__(self, **config):
         self.log = logging.getLogger("combaine")
+        self.filter = lambda x: True
         try:
             self.port = config['port'] if config.has_key('port') else 89
         except Exception, err:
