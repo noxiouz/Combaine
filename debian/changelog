@@ -1,3 +1,9 @@
+combaine (0.5.0-45) lucid; urgency=low
+
+  * json dumps in tailer 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Sun, 06 Jan 2013 21:43:07 +0400
+
 combaine (0.5.0-44) lucid; urgency=low
 
   * fix filter in tailer  
