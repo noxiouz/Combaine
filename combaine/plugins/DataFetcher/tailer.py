@@ -4,6 +4,7 @@ from __abstractfetcher import AbstractFetcher
 import logging
 import time
 import socket
+import json
 
 class Tailer(AbstractFetcher):
 
@@ -40,7 +41,7 @@ class Tailer(AbstractFetcher):
                 else:
                     d[key] = value if value !="" else 0
             d['Time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
-            return (str(d),)
+            return (json.dumps(d),)
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
             return None
