@@ -36,11 +36,13 @@ class Tailer(AbstractFetcher):
             for i in res.splitlines():
                 try:
                     key, value = i.split('=')
+                    if value.isdigit():
+                        value = int(value)
                 except:
                     pass
                 else:
                     d[key] = value if value !="" else 0
-            d['Time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
+            d['time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
             return (json.dumps(d),)
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
