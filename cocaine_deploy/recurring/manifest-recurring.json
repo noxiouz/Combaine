@@ -13,11 +13,6 @@
             "emit": "agave_send",
             "interval": 60000
         },
-        "drop_local_databases" : {
-            "type" : "recurring-timer",
-            "emit": "drop_local_databases",
-            "interval": 60000
-        },
         "clear_remote_db" : {
             "type" : "recurring-timer",
             "emit": "clear_remote_db",

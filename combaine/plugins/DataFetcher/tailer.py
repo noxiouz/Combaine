@@ -36,8 +36,10 @@ class Tailer(AbstractFetcher):
             for i in res.splitlines():
                 try:
                     key, value = i.split('=')
-                    if value.isdigit():
-                        value = int(value)
+                    try:
+                        value = float(value) if '.' in value else int(value)
+                    except ValueError:
+                        pass
                 except:
                     pass
                 else:
