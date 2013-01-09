@@ -26,11 +26,14 @@ class AverageAggregator(AbstractAggregator):
         else:
             queries = (self.query, timeperiod[1])
         l = ((format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries)
-        return ({ 'name' : self.name, 'time': time, 'data' : res} for res, time in l if res is not None)
+        return self.name,  self._pack(l)
 
+    def _pack(self, data):
+        res = [{'time': time, 'res' : res} for res, time in data if res is not None]
+        print res
+        return res
 
-
+    def _unpack(self, data):
+        pass
 
 PLUGIN_CLASS = AverageAggregator
-
-
