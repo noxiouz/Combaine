@@ -20,3 +20,6 @@ class AbstractAggregator(object):
     def _unpack(self, data):
         pass
 
+    @abstractmethod
+    def aggregate_group(self, data):
+        raise Exception

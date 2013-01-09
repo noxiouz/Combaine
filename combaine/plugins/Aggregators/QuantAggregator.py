@@ -10,7 +10,7 @@ class QuantilAggregator(AbstractAggregator):
         super(QuantilAggregator, self).__init__()
         self.query = config['host']
         self.name = config['name']
-        print self.query
+        self.quants = config.get('values')
 
     def aggregate(self, db, timeperiod):
         self.query = self.table_regex.sub(db.tablename, self.query)
@@ -18,7 +18,6 @@ class QuantilAggregator(AbstractAggregator):
             queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
         else:
             queries = (self.query, timeperiod[1])
-#        data = ([int(l) for l in itertools.chain(*db.perfomCustomQuery(query))] for query, time in queries)
         data = ((db.perfomCustomQuery(query), time) for query, time in queries)
         return self.name, self._pack(data)
 
@@ -32,13 +31,15 @@ class QuantilAggregator(AbstractAggregator):
                 qpack[int(item)]+=1
                 count +=1
             return sorted(qpack.iteritems()), count
-
-        res = [{'time': time, 'res' :  quantile_packer(itertools.chain(*res))} for res, time in data if res is not None]
-        print res
-        return res
+        return [{'time': time, 'res' :  quantile_packer(itertools.chain(*res))} for res, time in data if res is not None]
+        #=== FOR TEST HOOK
+        #with open('for_test.txt','a') as f:
+        #    map(f.write,(str(i)+"\n" for i in res))
 
     def _unpack(self, data):
-        pass
+        return data
+
+    def aggregate_group(self, data):
+        ud = self._unpack(data)
 
 PLUGIN_CLASS = QuantilAggregator
-
