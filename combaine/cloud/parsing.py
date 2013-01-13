@@ -69,7 +69,8 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
 
     res = itertools.chain( *[_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
     for i in res:
-        pprint.pprint(i)
+#        pprint.pprint(i)
+        print i
 #    RES = dict(((i, dict()) for i in xrange(previous_time, current_time)))
 #    for i in res:
 #        RES[i['time']][i['name']]=i['data'] 
