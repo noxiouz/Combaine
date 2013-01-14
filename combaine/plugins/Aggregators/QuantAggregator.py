@@ -103,29 +103,23 @@ class QuantilAggregator(AbstractAggregator):
         return res
 
     def aggregate_group(self, data):
-        ret = self._unpack(data)
-#================================
-        print "=================="
-#  === if len() == len()
-        Z = itertools.izip(*ret)
-        for sec in Z:
-            print sec
+        for sec in itertools.izip(*self._unpack(data)):
+            time = sec[0][2]
             count = 0
-            q2 = []
-            q1 = []
+            quant_generators = []
+            quant_objects = []
             Meta = QuantCalc(True)
             for agg in sec:
                 M = QuantCalc()
-                print agg[0]
+                #print agg[0]
                 f = (res for res in M.quant([q*agg[1]/100 for q in self.quants], agg[0]))
-                q2.append(f)
-                q1.append(M)
+                quant_generators.append(f)
+                quant_objects.append(M)
                 count += agg[1]
-            t2 = list(z for z in itertools.chain(*(itertools.izip_longest(*q2))) if z is not None)
+            t2 = (z for z in itertools.chain(*(itertools.izip_longest(*quant_generators))) if z is not None)
             f2 = Meta.quant([q*count/100 for q in self.quants], sorted(t2))
             print [x for x in f2]
-            print [x.res for x in q1]
             print Meta.res
-        return "OK"#M.res, M1.res, M2.res
+            yield {time : ([x.res for x in quant_objects], Meta.res) } # yield????
 
 PLUGIN_CLASS = QuantilAggregator

@@ -49,7 +49,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         print "DS init Error"
         logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
         return
-    if not ds.connect('combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
+    if not ds.connect('test_combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
         print 'FAIL'
         logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
         return 'failed'
@@ -68,14 +68,11 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         return 'failed'
 
     res = itertools.chain( *[_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
-    for i in res:
-#        pprint.pprint(i)
-        print i
-#    RES = dict(((i, dict()) for i in xrange(previous_time, current_time)))
-#    for i in res:
-#        RES[i['time']][i['name']]=i['data'] 
-#    l = ( { 'host' : host_name.replace('.','_').replace('-','_'), 'time': k, 'data' : v } for k,v in RES.iteritems())
-#    print map(ds.insert, l)
+    returning_data = ({ 'host'  : host_name.replace('.','_').replace('-','_'),\
+                        'time'  : previous_time,\
+                        'etime' : current_time,\
+                        'data' : l}  for l in res ) 
+    print map(ds.insert, returning_data)
     ds.close()
     logger.info('%s Success' % uuid)
     print "Success"
