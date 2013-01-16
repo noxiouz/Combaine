@@ -11,7 +11,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
 
     def connect(self, namespace):
         try:
-            self.rs = pymongo.Connection(self.hosts)
+            self.rs = pymongo.Connection(self.hosts, fsync=True)
             db, collection = namespace.split('/')
             self.db_cursor = self.rs[db][collection]
         except Exception, err:

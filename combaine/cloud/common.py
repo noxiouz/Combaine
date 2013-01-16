@@ -76,7 +76,7 @@ def generate_parsing_config(config_name):
 def mongo_connect_replicaset(mongo_hosts):
 	try:
 		log = logging.getLogger(config['logger_name'])
-		connection = Connection(mongo_hosts)
+		connection = Connection(mongo_hosts, fsync=True)
 		return connection
 	except:
 		#print("Problem with connection to replica set")
@@ -86,7 +86,7 @@ def mongo_connect_local():
 	try:
 		log = logging.getLogger(config['logger_name'])
 		port = str(config['local_mongodb_port'])
-		connection = Connection('127.0.0.1:' + port)
+		connection = Connection('127.0.0.1:' + port, fsync=True)
 		return connection
 	except:
 		#print("Problem with connection to local mongodb")
