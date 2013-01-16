@@ -29,7 +29,6 @@ class MongoReplicaSet(AbstractDistributedStorage):
         else:
             return True
 
-
     def insert(self, data):
         try:
             print data

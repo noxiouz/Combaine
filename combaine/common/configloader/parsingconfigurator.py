@@ -19,6 +19,7 @@ class ParsingConfigurator(object):
             _ds = _parsing.get("DistributedStorage")
             _df = _parsing.get("DataFetcher")
             _db = _parsing.get("LocalDatabase")
+            self.hosts_fetcher_http_hand = _combaine['Combainer'].get('HTTP_HAND')
             self.parser = _parsing.get("parser")
             if not _ds is None:
                 print "Update ds from parsing"

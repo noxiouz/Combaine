@@ -27,7 +27,6 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()
     logger.info("%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time))
     print "%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time)
-    cloud_config = config.loadCloudConfig()
     conf = ParsingConfigurator(config_name)
     parser = PARSERS[conf.parser]
     if parser is None:
