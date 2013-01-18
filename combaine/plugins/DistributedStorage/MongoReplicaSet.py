@@ -1,6 +1,7 @@
 from __AbstractStorage import AbstractDistributedStorage
 
 import pymongo
+import hashlib
 
 class MongoReplicaSet(AbstractDistributedStorage):
 
@@ -29,13 +30,26 @@ class MongoReplicaSet(AbstractDistributedStorage):
         else:
             return True
 
-    def insert(self, data):
+    def insert(self, key, data):
         try:
-            print data
-            self.db_cursor.insert(data, continue_on_error=True)
+            _id = hashlib.md5(key).hexdigest()
+            value = {"_id" : _id, "key" : key, "value" : data }
+            print self.db_cursor.insert(value, continue_on_error=True)
         except Exception, err:
             return False
         else:
             return True
+
+    def read(self, key):
+        try:
+            _id = hashlib.md5(key).hexdigest()
+            ret = self.db_cursor.find_one({"_id" : _id }, fields={"key" : False, "_id" : False})
+            if ret is not None:
+                return ret["value"]
+            else:
+                return []
+        except Exception as err:
+            print str(err)
+            return []
 
 PLUGIN_CLASS = MongoReplicaSet

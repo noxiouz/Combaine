@@ -4,14 +4,17 @@ from pprint import pprint
 
 class ParsingConfigurator(object):
 
-    def __init__(self, parsingconf):
+    def __init__(self, parsingconf, aggregation_config=None):
         # read combaine.json
         try:
             _combaine = json.load(open('/etc/combaine/combaine.json'))
             pprint(_combaine)
             _parsing = json.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
             pprint(_parsing)
-            _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)) for agg_name in _parsing["agg_configs"]]
+            if aggregation_config is None:
+                _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)) for agg_name in _parsing["agg_configs"]]
+            else:
+                _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), ]
             pprint(_aggregations)
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
@@ -43,13 +46,15 @@ class ParsingConfigurator(object):
                     tmp["name"] = name
                     tmp["host"] = dic["host"]
                     tmp["group"] = dic["group"]
+                    if dic["group"] == "quant":
+                        tmp["values"] = dic["values"]
                     tmp["type"] = agg_bind.get(dic["group"])  #DIRTY  HOOK!!!!!!!
                     pprint(tmp)
                     if not tmp["type"] is None:
                         print "AAAAA"
                         self.aggregators.append(tmp)
         except Exception as err:
-            print str(err)
+            print "ERRROOOORRRISHE!!!" + str(err)
         
 
 if __name__ == "__main__":

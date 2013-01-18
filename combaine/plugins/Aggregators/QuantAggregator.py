@@ -1,5 +1,6 @@
 import re
 import itertools
+import collections
 
 from __abstractaggregator import AbstractAggregator
 
@@ -36,6 +37,7 @@ class QuantCalc(object):
     @coroutine
     def quant(self, qts, it):
         qts.sort(reverse=True)
+        print "QUANTS:", qts
         if len(qts) == 0:
             yield None
             return
@@ -45,6 +47,7 @@ class QuantCalc(object):
         yield
         for i in it:
             summ += i[1]
+            print "SUMM:", summ, i[1], i[0] 
             if summ > lim:
                 if len(qts) > 0:
                     lim = qts.pop()
@@ -61,7 +64,8 @@ class QuantilAggregator(AbstractAggregator):
         super(QuantilAggregator, self).__init__()
         self.query = config['host']
         self.name = config['name']
-        self.quants = config.get('values')
+        print config
+        self.quants = config['values']
 
     def aggregate(self, db, timeperiod):
         self.query = self.table_regex.sub(db.tablename, self.query)
@@ -70,11 +74,11 @@ class QuantilAggregator(AbstractAggregator):
         else:
             queries = (self.query, timeperiod[1])
         data = ((db.perfomCustomQuery(query), time) for query, time in queries)
+        print "AAAAA"
         return self.name, self._pack(data)
 
     def _pack(self, data):
         def quantile_packer(iterator):
-            import collections
             qpack = collections.defaultdict(int)
             count = 0
             for item in iterator:
@@ -92,34 +96,45 @@ class QuantilAggregator(AbstractAggregator):
         """
             HEAL!!!
         """
-        res = []
-        for group in data:
-            ret = []
-            for i in group:
-                l =  sorted(itertools.chain(*(y["res"]["data"] for y in i)))
-                count = sum(y["res"]["count"] for y in i)
-                ret.append((l,count, i[0]["time"]))
-            res.append(ret)
-        return res
+        subgroups_count = len(data)
+        data_dict = dict()
+        count_dict = dict()
+        for group_num, group in enumerate(data): #iter over subgroups
+            # turple of first src in every host 
+            for k in (i for i in itertools.izip_longest(*group, fillvalue=None)):
+                t = (j for j in k if j is not None)
+                for item in t:
+                    #z = itertools.chain(item['res']['data'])
+                    count_dict.setdefault(item['time'], [0]*subgroups_count)[group_num]+= item['res']['count']
+                    [data_dict.setdefault(item['time'], [[]]*subgroups_count)[group_num].append(k) for k in item['res']['data']]
+        data_sec = data_dict.iteritems()
+        count_sec = count_dict.iteritems()
+        ret = itertools.izip(data_sec, count_sec)
+        return ret
 
     def aggregate_group(self, data):
-        for sec in itertools.izip(*self._unpack(data)):
-            time = sec[0][2]
+        for sec in self._unpack(data):
+            time = sec[0][0]
+            print "time: ",time
             count = 0
             quant_generators = []
             quant_objects = []
             Meta = QuantCalc(True)
-            for agg in sec:
+            for num_agg, agg in enumerate(sec[0][1]):
+                agg.sort()
                 M = QuantCalc()
-                #print agg[0]
-                f = (res for res in M.quant([q*agg[1]/100 for q in self.quants], agg[0]))
+                incr_count =  sec[1][1][num_agg]
+                print "incr:",incr_count
+                f = (res for res in M.quant([q*sec[1][1][num_agg]/100 for q in self.quants], agg))
                 quant_generators.append(f)
                 quant_objects.append(M)
-                count += agg[1]
+                count += incr_count
+                print agg
+                print "count: ",count
             t2 = (z for z in itertools.chain(*(itertools.izip_longest(*quant_generators))) if z is not None)
             f2 = Meta.quant([q*count/100 for q in self.quants], sorted(t2))
-            print [x for x in f2]
-            print Meta.res
+            [x for x in f2]
+            Meta.res
             yield {time : ([x.res for x in quant_objects], Meta.res) } # yield????
 
 PLUGIN_CLASS = QuantilAggregator
