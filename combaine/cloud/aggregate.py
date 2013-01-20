@@ -37,6 +37,7 @@ def split_hosts_by_dc(subgroups):
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     #print "===== INITIALIZTION ====" 
     conf = ParsingConfigurator(config_name, agg_config_name)
+
     #print "===== DS init =========="
     ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
     if ds is None:
@@ -45,6 +46,16 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     if not ds.connect('test_combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
         logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
         return 'failed'
+
+    # =========== RESULT DB INIT ============= 
+    ds_res = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
+    if ds_res is None:
+        logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
+        return 'failed'
+    if not ds_res.connect('test_combaine_res/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
+        logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
+        return 'failed'
+
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
     #print "====== GET HOSTS LIST ===="
     hosts = split_hosts_by_dc(groupname)
@@ -54,7 +65,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         data_by_subgrp = collections.defaultdict(list)
         for hst in sbgrp:
             [data_by_subgrp[_agg].append(\
-                                            ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
+                ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
                                         ) for _agg in aggs]
         all_data.append(dict(data_by_subgrp))
 
