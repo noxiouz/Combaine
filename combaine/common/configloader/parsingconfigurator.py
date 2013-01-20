@@ -8,14 +8,14 @@ class ParsingConfigurator(object):
         # read combaine.json
         try:
             _combaine = json.load(open('/etc/combaine/combaine.json'))
-            pprint(_combaine)
+            #pprint(_combaine)
             _parsing = json.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
-            pprint(_parsing)
+            #pprint(_parsing)
             if aggregation_config is None:
                 _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)) for agg_name in _parsing["agg_configs"]]
             else:
                 _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), ]
-            pprint(_aggregations)
+            #pprint(_aggregations)
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
             self.db = _combaine["cloud_config"]["LocalDatabase"]
@@ -49,13 +49,8 @@ class ParsingConfigurator(object):
                     if dic["group"] == "quant":
                         tmp["values"] = dic["values"]
                     tmp["type"] = agg_bind.get(dic["group"])  #DIRTY  HOOK!!!!!!!
-                    pprint(tmp)
+                    #pprint(tmp)
                     if not tmp["type"] is None:
-                        print "AAAAA"
                         self.aggregators.append(tmp)
         except Exception as err:
             print "ERRROOOORRRISHE!!!" + str(err)
-        
-
-if __name__ == "__main__":
-    ParsingConfigurator("feeds_nginx")

@@ -35,7 +35,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
         try:
             _id = hashlib.md5(key).hexdigest()
             value = {"_id" : _id, "key" : key, "value" : data }
-            print self.db_cursor.insert(value, continue_on_error=True)
+            self.db_cursor.insert(value, continue_on_error=True)
         except Exception, err:
             return False
         else:
@@ -58,7 +58,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
     def remove(self, key):
         try:
             _id = hashlib.md5(key).hexdigest()
-            print self.db_cursor.remove(_id, w=0)
+            self.db_cursor.remove(_id, w=0)
         except Exception as err:
             print str(err)
             return False

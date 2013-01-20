@@ -24,7 +24,6 @@ def split_hosts_by_subgroups(hosts):
 
 def split_hosts_by_dc(subgroups):
     hosts = urllib.urlopen("%s%s?fields=root_datacenter_name,fqdn" % (http_hand_url, subgroups)).read()
-    print hosts
     if hosts == 'No groups found':
         print "Ilegal group"
         return []
@@ -32,7 +31,7 @@ def split_hosts_by_dc(subgroups):
     for item in hosts.splitlines():
         dc, host = item.split('\t')
         host_dict[dc].append(host)
-    return host_dict.values()
+    return host_dict
 
 
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
@@ -51,7 +50,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     hosts = split_hosts_by_dc(groupname)
 
     all_data = list()
-    for sbgrp in hosts:
+    for sbgrp in hosts.values():
         data_by_subgrp = collections.defaultdict(list)
         for hst in sbgrp:
             [data_by_subgrp[_agg].append(\
@@ -62,8 +61,8 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     for key in aggs.iterkeys():
         print key
         l = [ _item[key] for _item in all_data]
-        print [i for i in aggs[key].aggregate_group(l)]
-
-    print map(ds.remove, ds.cache_key_list)
+        print list(aggs[key].aggregate_group(l))
+        # ========= CLEAR Storage
+    map(ds.remove, ds.cache_key_list)
     ds.close()
 
