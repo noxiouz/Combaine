@@ -9,6 +9,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
         self.hosts = config['hosts']
         self.rs = None
         self.db = None
+        self.cache_key_list = list()
 
     def connect(self, namespace):
         try:
@@ -40,16 +41,28 @@ class MongoReplicaSet(AbstractDistributedStorage):
         else:
             return True
 
-    def read(self, key):
+    def read(self, key, cache=False):
         try:
             _id = hashlib.md5(key).hexdigest()
             ret = self.db_cursor.find_one({"_id" : _id }, fields={"key" : False, "_id" : False})
             if ret is not None:
+                if cache:
+                    self.cache_key_list.append(key)
                 return ret["value"]
             else:
                 return []
         except Exception as err:
             print str(err)
             return []
+
+    def remove(self, key):
+        try:
+            _id = hashlib.md5(key).hexdigest()
+            print self.db_cursor.remove(_id, w=0)
+        except Exception as err:
+            print str(err)
+            return False
+        else:
+            return True
 
 PLUGIN_CLASS = MongoReplicaSet

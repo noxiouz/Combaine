@@ -55,7 +55,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         data_by_subgrp = collections.defaultdict(list)
         for hst in sbgrp:
             [data_by_subgrp[_agg].append(\
-                                            ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg))\
+                                            ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
                                         ) for _agg in aggs]
         all_data.append(dict(data_by_subgrp))
 
@@ -63,4 +63,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         print key
         l = [ _item[key] for _item in all_data]
         print [i for i in aggs[key].aggregate_group(l)]
+
+    print map(ds.remove, ds.cache_key_list)
+    ds.close()
 
