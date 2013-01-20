@@ -61,7 +61,6 @@ class QuantCalc(object):
     @coroutine
     def quant(self, qts, it):
         qts.sort(reverse=True)
-        print "QUANTS:", qts
         if len(qts) == 0:
             yield None
             return
@@ -76,9 +75,7 @@ class QuantCalc(object):
                     lim = qts.pop()
                 if len(self.res) < size:
                     self.res.append(i[0])
-                    print "SUMM:", summ, i
                     if (len(self.res) == size) and (self.is_stopped):
-                        print "STOP"
                         yield None
                         return
             yield i
@@ -156,7 +153,6 @@ class QuantilAggregator(AbstractAggregator):
                 quant_objects.append(M)
                 count += incr_count
             t2 = (z for z in itertools.chain(*(itertools.izip_longest(*quant_generators))) if z is not None)
-            print "=================================="
             f2 = Meta.quant([q*count/100 for q in self.quants], sorted(t2))
             [yy for yy in f2]
             quant_objects.append(Meta)
