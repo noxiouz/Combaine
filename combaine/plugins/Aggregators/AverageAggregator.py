@@ -17,9 +17,12 @@ def dec_maker(param):
                 l = (i.values()[0] for i in ret)
                 t = (i.keys()[0] for i in ret)
                 count = len(ret)
-                res = [ _res/count for _res in reduce(lambda x,y: map(lambda X,Y: X+Y, x,y), l)]
-                ave_time = reduce(lambda x,y: x+y, t)/count
-                yield { ave_time : res }
+                if count > 0:
+                    res = [ _res/count for _res in reduce(lambda x,y: map(lambda X,Y: X+Y, x,y), l)]
+                    ave_time = reduce(lambda x,y: x+y, t)/count
+                    yield { ave_time : res }
+                else:
+                    yield None
             return wrapper
 
     return one_point_decorator

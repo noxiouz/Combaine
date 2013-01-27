@@ -25,10 +25,13 @@ def dec_maker(param):
                 l = (i.values()[0] for i in res)
                 t = (i.keys()[0] for i in res)
                 count = len(res)
-                Y = ( _res for _res in reduce(lambda x,y: map(lambda X,Y: map(lambda g,j: g+j, X,Y), x,y), l))
-                ave_time = reduce(lambda x,y: x+y, t)/count
-                ret =  [[j/count for j in k] for k in Y]
-                yield { ave_time : ret }
+                if count != 0:
+                    Y = ( _res for _res in reduce(lambda x,y: map(lambda X,Y: map(lambda g,j: g+j, X,Y), x,y), l))
+                    ave_time = reduce(lambda x,y: x+y, t)/count
+                    ret =  [[j/count for j in k] for k in Y]
+                    yield { ave_time : ret }
+                else:
+                    yield None
             return wrapper
         return one_point
     if param == 0:

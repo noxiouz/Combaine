@@ -40,6 +40,7 @@ class ParsingConfigurator(object):
                 "average" : "AverageAggregator",
             }
             self.aggregators = []
+            self.resulthadlers = list()
             for aggregator in _aggregations:
                 for name, dic in aggregator["data"].iteritems():
                     tmp = dict()
@@ -52,5 +53,10 @@ class ParsingConfigurator(object):
                     #pprint(tmp)
                     if not tmp["type"] is None:
                         self.aggregators.append(tmp)
+                if aggregator.has_key("ResultHandlers"):
+                    for name, dic in aggregator["ResultHandlers"].iteritems():
+                        dic['type'] = name
+                        self.resulthadlers.append(dic)
+
         except Exception as err:
             print "ERRROOOORRRISHE!!!" + str(err)

@@ -1,10 +1,8 @@
 #! /usr/bin/env python
-import sys
-sys.path.append("/home/noxiouz/git_repo/github/Combaine")
-print sys.path
 
 from combaine.plugins.Aggregators import AggregatorFactory
 from combaine.plugins.DistributedStorage import DistributedStorageFactory
+from combaine.plugins.ResultHandler import ResultHandlerFactory
 from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
 import config
 
@@ -13,14 +11,15 @@ import logging
 import urllib
 import pprint
 import collections
+import itertools
 import json
 
 logger = logging.getLogger("combaine")
-#DIRTY HACK
-http_hand_url = json.load(open('/etc/combaine/combaine.json'))['Combainer']['Main']['HTTP_HAND']
 
-def split_hosts_by_subgroups(hosts):
-    return [set(hosts[:5]),]
+try:
+    http_hand_url = json.load(open('/etc/combaine/combaine.json'))['Combainer']['Main']['HTTP_HAND']
+except Exception as err:
+    logger.error(str(err))
 
 def split_hosts_by_dc(subgroups):
     hosts = urllib.urlopen("%s%s?fields=root_datacenter_name,fqdn" % (http_hand_url, subgroups)).read()
@@ -33,6 +32,17 @@ def split_hosts_by_dc(subgroups):
         host_dict[dc].append(host)
     return host_dict
 
+def formatter(aggname, subgroupsnames, groupname, aggconfig):
+    def wrap(resitem):
+        res = dict()
+        res['time'], values = resitem.items()[0]
+        l = itertools.izip_longest(subgroupsnames, values, fillvalue=groupname)
+        res['values'] = dict((x for x in l))
+        res['aggname'] = aggname
+        res['aggconfigname'] = aggconfig
+        res['groupname'] = groupname
+        return res
+    return wrap
 
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     #print "===== INITIALIZTION ====" 
@@ -46,15 +56,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     if not ds.connect('test_combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
         logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
         return 'failed'
-
-    # =========== RESULT DB INIT ============= 
-    ds_res = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
-    if ds_res is None:
-        logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
-        return 'failed'
-    if not ds_res.connect('test_combaine_res/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
-        logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
-        return 'failed'
+    res_handlers = [ ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
 
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
     #print "====== GET HOSTS LIST ===="
@@ -68,12 +70,33 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
                 ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
                                         ) for _agg in aggs]
         all_data.append(dict(data_by_subgrp))
-
+    
+    res = []
     for key in aggs.iterkeys():
-        print key
         l = [ _item[key] for _item in all_data]
-        print list(aggs[key].aggregate_group(l))
-        # ========= CLEAR Storage
+        f = formatter(aggs[key].name, hosts.keys(), groupname, agg_config_name)
+        res.append(map(f,(i for i in aggs[key].aggregate_group(l))))
+    #==== Clean RS from sourse data for aggregation ====
+    [_res_handler.send(res) for _res_handler in res_handlers]
     map(ds.remove, ds.cache_key_list)
     ds.close()
+    return "Success"
 
+def aggregate(io):
+    """Cloud wrapper """
+    message = ""
+    try:
+        message = io.read()
+        group_name, config_name, agg_config_name, prev_time, cur_time = message.split(';')
+        prev_time = int(prev_time)
+        cur_time = int(cur_time)
+    except Exception as err:
+        io.write("failed;Wrong message format:%s;%s;%s" % (message, socket.gethostname(), str(err)))
+        return
+    else:
+        try:
+            res = Main(group_name, config_name, agg_config_name, prev_time, cur_time)
+        except Exception as err:
+            res = 'failed;Error: %s' % err
+        finally:
+            io.write(';'.join((res, message, socket.gethostname())))
