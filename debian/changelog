@@ -1,3 +1,9 @@
+combaine (0.5.1-0) lucid; urgency=low
+
+  * test build of new aggregation 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 28 Jan 2013 02:56:31 +0400
+
 combaine (0.5.0-47) lucid; urgency=low
 
   * test build 

@@ -41,7 +41,6 @@ class Agave(AbstractResultHandler):
     def __makeUrls(self, frmt_dict):
         self.template_dict.update(frmt_dict)
         template = "/api/update/%(group)s/%(graphname)s?values=%(values)s&ts=%(time)i&template=%(template)s&title=%(title)s" % self.template_dict
-        print template
         self.__send_point(template)
 
     def __send_point(self, url):
