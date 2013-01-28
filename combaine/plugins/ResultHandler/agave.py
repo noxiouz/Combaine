@@ -14,6 +14,7 @@ import collections
 import httplib
 import types
 import itertools
+import logging
 
 agave_headers = {
         "User-Agent": "Yandex/Agave",
@@ -25,6 +26,7 @@ agave_headers = {
 
 agave_hosts = json.load(open('/etc/combaine/combaine.json'))["cloud_config"]['agave_hosts']
 
+logger = logging.getLogger("combaine")
 
 class Agave(AbstractResultHandler):
 
@@ -50,6 +52,7 @@ class Agave(AbstractResultHandler):
             headers['Host'] = agv_host+':80'
             conn.request("GET", url, None, headers)
             print url, agv_host, conn.getresponse().read().splitlines()[0]
+            logger.debug("%s %s" % (url, agv_host))
 
 
     def send(self, data):

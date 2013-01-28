@@ -9,5 +9,6 @@ do
     rm -rf /var/cache/cocaine/apps/$app
     /etc/init.d/cocaine-server reload
 done
+ps aux | grep startCombainer | grep -v grep | awk '{print $2}' | xargs -n1 kill -9
 
 #DEBHELPER#

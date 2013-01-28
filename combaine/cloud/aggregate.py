@@ -13,6 +13,7 @@ import pprint
 import collections
 import itertools
 import json
+import socket
 
 logger = logging.getLogger("combaine")
 
@@ -45,7 +46,7 @@ def formatter(aggname, subgroupsnames, groupname, aggconfig):
     return wrap
 
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
-    logger.info("AAAAAAAAAAAAAAa")
+    logger.info("Start aggregation")
     #print "===== INITIALIZTION ====" 
     conf = ParsingConfigurator(config_name, agg_config_name)
 
@@ -81,6 +82,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     [_res_handler.send(res) for _res_handler in res_handlers]
     map(ds.remove, ds.cache_key_list)
     ds.close()
+    logger.info("Success")
     return "Success"
 
 def aggregate_group(io):
@@ -93,6 +95,7 @@ def aggregate_group(io):
         cur_time = int(cur_time)
     except Exception as err:
         io.write("failed;Wrong message format:%s;%s;%s" % (message, socket.gethostname(), str(err)))
+        logger.error("Wrong message %s" % message)
         return
     else:
         try:
@@ -100,4 +103,5 @@ def aggregate_group(io):
         except Exception as err:
             res = 'failed;Error: %s' % err
         finally:
+            logger.info("For %s: %s" % (message, str(res)))
             io.write(';'.join((res, message, socket.gethostname())))
