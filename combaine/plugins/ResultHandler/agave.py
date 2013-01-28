@@ -18,7 +18,6 @@ import logging
 
 agave_headers = {
         "User-Agent": "Yandex/Agave",
-        #"Host": "agave01g.media.yandex.net:80",
         "Keep-Alive": 300,
         "Connection": "Keep-Alive, TE",
         "TE": "deflate,gzip;q=0.3"
