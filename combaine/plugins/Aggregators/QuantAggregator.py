@@ -2,6 +2,9 @@ import re
 import itertools
 import collections
 import pprint
+import logging
+
+logger = logging.getLogger("combaine")
 
 from __abstractaggregator import AbstractAggregator
 
@@ -26,6 +29,8 @@ def dec_maker(param):
                 t = (i.keys()[0] for i in res)
                 count = len(res)
                 if count != 0:
+                    print res
+                    logger.info(str(res))
                     Y = ( _res for _res in reduce(lambda x,y: map(lambda X,Y: map(lambda g,j: g+j, X,Y), x,y), l))
                     ave_time = reduce(lambda x,y: x+y, t)/count
                     ret =  [[j/count for j in k] for k in Y]
@@ -140,6 +145,17 @@ class QuantilAggregator(AbstractAggregator):
         ret = itertools.izip(data_sec, count_sec)
         return ret
 
+    def _normalize_broken_quant(self, broken_list):
+        #
+        # DIRTY HACK
+        if len(broken_list) == len(self.quants):
+            return broken_list
+        if len(broken_list) == 0:
+            broken_list = [0] * len(self.quants)
+        else:
+            broken_list = broken_list + [broken_list[-1]] * (len(self.quants) - len(broken_list))
+        return broken_list
+
     def aggregate_group(self, data):
         for sec in self._unpack(data):
             time = sec[0][0]
@@ -151,7 +167,7 @@ class QuantilAggregator(AbstractAggregator):
                 agg.sort()
                 M = QuantCalc()
                 incr_count = sec[1][1][num_agg]
-                f = (res for res in M.quant([q*sec[1][1][num_agg]/100 for q in self.quants], agg))
+                f = (res for res in M.quant([q*sec[1][1][num_agg]/100 for q in self.quants], agg) )
                 quant_generators.append(f)
                 quant_objects.append(M)
                 count += incr_count
@@ -159,6 +175,6 @@ class QuantilAggregator(AbstractAggregator):
             f2 = Meta.quant([q*count/100 for q in self.quants], sorted(t2))
             [yy for yy in f2]
             quant_objects.append(Meta)
-            yield {time : [x.res for x in quant_objects] } # yield????
+            yield {time : [self._normalize_broken_quant(x.res) for x in quant_objects] } # yield????
 
 PLUGIN_CLASS = QuantilAggregator
