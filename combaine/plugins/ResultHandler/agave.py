@@ -37,7 +37,6 @@ class Agave(AbstractResultHandler):
                           "title"    : self.graph_name,
                           "graphname": self.graph_name
                         }
-        print self.fields
 
     def __makeUrls(self, frmt_dict):
         self.template_dict.update(frmt_dict)
@@ -66,7 +65,7 @@ class Agave(AbstractResultHandler):
                         l = itertools.izip(self.fields[item['aggname']],val)
                         _value = "+".join(("%s:%i" % x for x in l))
                     else:
-                        _value = "%s:%i" % (item['aggname'], val )
+                        _value = "%s:%s" % (item['aggname'], str(val) )
                     for_send[_sbg].append(_value)
                     time = item['time']
         for name, val in for_send.iteritems():

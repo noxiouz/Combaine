@@ -78,7 +78,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     
     res = []
     for key in aggs.iterkeys():
-        l = [ _item[key] for _item in all_data]
+        l = [ _item[key] for _item in all_data if _item.has_key(key)]
         f = formatter(aggs[key].name, hosts.keys(), groupname, agg_config_name)
         res.append(map(f,(i for i in aggs[key].aggregate_group(l))))
     #==== Clean RS from sourse data for aggregation ====
