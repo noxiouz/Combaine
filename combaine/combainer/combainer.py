@@ -450,6 +450,7 @@ class Combainer():
                 log.error("Cann't delete %s from storage" % message)
 
         def __setDeadlineStartPoint(_time):
+            log.debug("Set deadline point: %i" % _time)
             self._scheduler.setDeadline(_time)
         #----------------------------------------------------------------------------------
         progress = self.restoreProgress()
@@ -460,7 +461,7 @@ class Combainer():
         else:
             self.__buildContinue(progress)
         #---------------------------------------------------------------------------------
-        __setDeadlineStartPoint(int(time_period[1])) # <--------- FIX TIME POINT OF SESSION BEGINING
+        __setDeadlineStartPoint(int(time_period[1]) + self.MAX_RESP_WAIT_TIME*0.8) # <--------- FIX TIME POINT OF SESSION BEGINING
         #---------------------------------------------------------------------------------
         # START PARSING POINT
         #--------------------------------------------------------------------------------
@@ -476,7 +477,7 @@ class Combainer():
         #-------------------------------------------------------
         log.debug('DEBUG %i' % self.msg_count)
         self.msg_count = 0
-        __setDeadlineStartPoint(int(time.time()))
+        __setDeadlineStartPoint(int(time_period[1]) + self.MAX_RESP_WAIT_TIME) # <--------- FIX TIME POINT 
         for hash_key in self.MessageQueues.keys():
             msgs = [hash_key + ";" + item for item in iter(__getMsgStripefromQueue(self.__getMsgfromQueue, hash_key), '')]
             for _msg in msgs:

@@ -67,7 +67,8 @@ class Scheduler(object):
         self.deadline = deadline
 
     def isReachedDeadline(self):
-        return self.deadline > int(time.time())
+        log.debug("Check deadline: %d %d" % (self.deadline, time.time()))
+        return self.deadline < int(time.time())
 
     def _resendFilter(self, answer_text):
         try:
@@ -83,17 +84,17 @@ class Scheduler(object):
         while True:
             resp = (yield ans)
             try:
-                ans = resp.get(timeout=1)
+                ans = resp.get(timeout=2)
             except RuntimeError, err:
-                ans = 'failed;RuntimeCocaineMsg: %s' % err
+                ans = 'Failed;RuntimeCocaineMsg: %s' % err
 
     def schedule(self):
         self.answers = []
         while len(self.queue) > 0: 
             if self.isReachedDeadline():
-                log.debug('Deadline in sheduler. Clear queue')
+                log.info('Deadline in sheduler. Clear queue')
                 self.queue.clear()
-                return
+                break
             taskstruct = self.queue.pop()
             ans = self._doTask().send(taskstruct['responce'])
             print 'DDDDDDDDDDDD ' + ans

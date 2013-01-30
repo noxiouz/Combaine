@@ -11,3 +11,15 @@ class AbstractAggregator(object):
     @abstractmethod
     def aggregate(self, datagrid_object):
         raise Exception
+
+    @abstractmethod
+    def _pack(self, data):
+        pass
+
+    @abstractmethod
+    def _unpack(self, data):
+        pass
+
+    @abstractmethod
+    def aggregate_group(self, data):
+        raise Exception

@@ -3,11 +3,11 @@ try:
 except ImportError:
     from distutils.core import setup
 
-
+_version = "0.5.0"
 
 setup(
         name = "Combaine",
-        version = "0.5.0",
+        version = _version,
         author = "noxiouz",
         author_email = "noxiouz@yandex.ru",
         description = "Some escrip",
@@ -28,6 +28,7 @@ setup(
             'combaine.plugins.DataFetcher',
             'combaine.plugins.StorageAPI',
             'combaine.plugins.LockServerAPI',
+            'combaine.plugins.ResultHandler',
         ],
         data_files = [
             ('/usr/lib/yandex/combaine',['startCombainer.py']),

@@ -27,7 +27,6 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()
     logger.info("%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time))
     print "%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time)
-    cloud_config = config.loadCloudConfig()
     conf = ParsingConfigurator(config_name)
     parser = PARSERS[conf.parser]
     if parser is None:
@@ -55,7 +54,6 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         return 'failed'
     aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
     data = df.getData(host_name, (previous_time, current_time))
-    print data
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
         tablename = ''.join(group_name[:30]) + hashlib.md5('%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
@@ -67,12 +65,12 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         logger.warning('%s Empty data from datafetcher' % uuid)
         return 'failed'
 
-    res = itertools.chain( *[_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
-    RES = dict(((i, dict()) for i in xrange(previous_time, current_time)))
-    for i in res:
-        RES[i['time']][i['name']]=i['data'] 
-    l = ( { 'host' : host_name.replace('.','_').replace('-','_'), 'time': k, 'data' : v } for k,v in RES.iteritems())
-    print map(ds.insert, l)
+    res = itertools.chain( [_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
+    print  [ds.insert("%(host)s;%(time)s;%(etime)s;%(aggname)s" % { 'host'  : host_name.replace('.','_').replace('-','_'),\
+                                                                    'time'  : previous_time,\
+                                                                    'etime' : current_time,\
+                                                                  'aggname' : l[0]},
+                                                                                     l[1]) for l in res]
     ds.close()
     logger.info('%s Success' % uuid)
     print "Success"

@@ -7,6 +7,10 @@ import random
 import MySQLdb
 from MySQLdb.cursors import DictCursor
 from MySQLdb.cursors import Cursor
+from warnings import filterwarnings
+
+#Suppressing warnings
+filterwarnings('ignore', category = MySQLdb.Warning)
 
 class MySqlDG(AbstractDataGrid):
 
@@ -33,7 +37,6 @@ class MySqlDG(AbstractDataGrid):
         try:
             tablename = tablename.replace('.','_').replace('-','_').replace('+','_')
             line = None
-            print "TEST PUTDATA"
             with open('/dev/shm/%s-%i' % ('COMBAINE', random.randint(0,65535)) ,'w') as table_file:
                 for line in data:
                     #print line

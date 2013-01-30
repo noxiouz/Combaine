@@ -1,6 +1,8 @@
 from __AbstractStorage import AbstractDistributedStorage
 
 import pymongo
+import hashlib
+import time
 
 class MongoReplicaSet(AbstractDistributedStorage):
 
@@ -8,6 +10,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
         self.hosts = config['hosts']
         self.rs = None
         self.db = None
+        self.cache_key_list = list()
 
     def connect(self, namespace):
         try:
@@ -29,12 +32,36 @@ class MongoReplicaSet(AbstractDistributedStorage):
         else:
             return True
 
-
-    def insert(self, data):
+    def insert(self, key, data):
         try:
-            print data
-            self.db_cursor.insert(data, continue_on_error=True)
+            _id = hashlib.md5(key).hexdigest()
+            value = {"_id" : _id, "key" : key, "value" : data, "time" : int(time.time()) }
+            self.db_cursor.insert(value, continue_on_error=True)
         except Exception, err:
+            return False
+        else:
+            return True
+
+    def read(self, key, cache=False):
+        try:
+            _id = hashlib.md5(key).hexdigest()
+            ret = self.db_cursor.find_one({"_id" : _id }, fields={"key" : False, "_id" : False, "time" : False})
+            if ret is not None:
+                if cache:
+                    self.cache_key_list.append(key)
+                return ret["value"]
+            else:
+                return []
+        except Exception as err:
+            print str(err)
+            return []
+
+    def remove(self, key):
+        try:
+            _id = hashlib.md5(key).hexdigest()
+            self.db_cursor.remove(_id)
+        except Exception as err:
+            print str(err)
             return False
         else:
             return True
