@@ -55,7 +55,7 @@ class MySqlDG(AbstractDataGrid):
 
             cursor = self.db.cursor()
             cursor.execute('DROP TABLE IF EXISTS %s' % tablename)
-            query = "CREATE TABLE IF NOT EXISTS %(tablename)s %(struct)s ENGINE = MYISAM DATA DIRECTORY='/dev/shm/'" % { 'tablename' : tablename,\
+            query = "CREATE TEMPORARY TABLE IF NOT EXISTS %(tablename)s %(struct)s ENGINE = MYISAM DATA DIRECTORY='/dev/shm/'" % { 'tablename' : tablename,\
                                                                                                         'struct' : self.place }
             #print query
             cursor.execute(query)

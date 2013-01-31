@@ -10,26 +10,26 @@ global global_config
 global_config = common.generate_cloud_config()
 
 # Очистка локальной БД
-@timer
-def drop_local_databases():
-	try:
-		log = logging.getLogger(global_config['logger_name'])
-		deadline = int(time.time()) - global_config['local_db_save_time']
-		connection = common.mongo_connect_local()
-		for i in connection.database_names():
-			if i[:9] == global_config['db_prefix']:
-				db = connection[i]
-				for coll_name in db.collection_names():
-					if coll_name == 'system.indexes':
-						continue
-					coll = db[coll_name]
-					coll.remove({'time': {'$lt': deadline}})
-				log.info('Database ' + i + ' has been successfully cleared in local MongoDB.')
-		connection.disconnect()
-		return 'success'
-	except Exception as err:
-		log.error(str(err) + ' while trying to clear local database.', exc_info=1)
-		return 'failed'
+#@timer
+#def drop_local_databases():
+#	try:
+#		log = logging.getLogger(global_config['logger_name'])
+#		deadline = int(time.time()) - global_config['local_db_save_time']
+#		connection = common.mongo_connect_local()
+#		for i in connection.database_names():
+#			if i[:9] == global_config['db_prefix']:
+#				db = connection[i]
+#				for coll_name in db.collection_names():
+#					if coll_name == 'system.indexes':
+#						continue
+#					coll = db[coll_name]
+#					coll.remove({'time': {'$lt': deadline}})
+#				log.info('Database ' + i + ' has been successfully cleared in local MongoDB.')
+#		connection.disconnect()
+#		return 'success'
+#	except Exception as err:
+#		log.error(str(err) + ' while trying to clear local database.', exc_info=1)
+#		return 'failed'
 
 
 # Очищение БД replica set

@@ -31,7 +31,7 @@ class Timetail(AbstractFetcher):
                 conn.close()
                 return _ret
             else:
-                self.log.warning('HTTP responce code is not 200 %i' % resp.status)
+                self.log.warning('HTTP responce code for %s is not 200 %i' % (host_name, resp.status))
                 return None
         except Exception, err:
             self.log.error('Error while getting data with request: %s' % err)

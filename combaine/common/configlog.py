@@ -25,7 +25,7 @@ def init_logging(loggers):
     }
     try:
         POSSIBLE = ("FILE","STDOUT")
-        _format = logging.Formatter("%(asctime)s %(levelname)-4s %(message)s")
+        _format = logging.Formatter("%(asctime)s %(levelname)-4s %(message)s", "%Y-%m-%d %H:%M:%S")
         app_log = logging.getLogger('combaine')
         for logger in loggers:
             if logger.has_key("level"):

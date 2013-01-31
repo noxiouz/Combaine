@@ -93,7 +93,7 @@ def mongo_connect_local():
 		log.error("Problem with connection to local mongodb")
 
 config = generate_cloud_config()
-_format = logging.Formatter("%(levelname)-10s %(asctime)s %(message)s")
+_format = logging.Formatter("%(levelname)-7s;%(asctime)s;%(message)s", "%Y-%m-%d %H:%M:%S")
 app_log = logging.getLogger(config['logger_name'])
 
 log_level = eval('logging.' + config['log_level'])
@@ -105,7 +105,3 @@ crit_handler.setLevel(log_level)
 
 app_log.addHandler(crit_handler)
 app_log.setLevel(log_level)
-
-if __name__ == '__main__':
-	print generate_aggregation_config(['http_ok', 'http_ok_timings'])
-	print generate_parsing_config('feeds_nginx')

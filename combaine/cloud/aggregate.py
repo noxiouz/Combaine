@@ -14,6 +14,7 @@ import collections
 import itertools
 import json
 import socket
+import hashlib
 
 logger = logging.getLogger("combaine")
 
@@ -46,11 +47,12 @@ def formatter(aggname, subgroupsnames, groupname, aggconfig):
     return wrap
 
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
-    logger.info("Start aggregation")
-    #print "===== INITIALIZTION ====" 
+    uuid = hashlib.md5("%s%s%s%i%i" %(groupname, config_name, agg_config_name, previous_time, current_time)).hexdigest()
+    logger.info("Start aggregation: %s %s %s %s %i-%i" % (uuid, groupname, config_name, agg_config_name, previous_time, current_time))
+    print "===== INITIALIZTION ====" 
     conf = ParsingConfigurator(config_name, agg_config_name)
 
-    #print "===== DS init =========="
+    print "===== DS init =========="
     ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
     if ds is None:
         logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
@@ -61,7 +63,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     res_handlers = [ ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
 
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
-    #print "====== GET HOSTS LIST ===="
+    print "====== GET HOSTS LIST ===="
     hosts = split_hosts_by_dc(groupname)
 
     all_data = list()
@@ -72,20 +74,19 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
            #     ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
            #                             ) for _agg in aggs]
            _l = ((ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True), _agg) for _agg in aggs)
-           [data_by_subgrp[_name].append(val) for val, _name in _l if len(val) != 0]
+           [data_by_subgrp[_name].append(val) for val, _name in _l]
 
         all_data.append(dict(data_by_subgrp))
-    
     res = []
     for key in aggs.iterkeys():
         l = [ _item[key] for _item in all_data if _item.has_key(key)]
         f = formatter(aggs[key].name, hosts.keys(), groupname, agg_config_name)
-        res.append(map(f,(i for i in aggs[key].aggregate_group(l))))
+        res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
     #==== Clean RS from sourse data for aggregation ====
     [_res_handler.send(res) for _res_handler in res_handlers]
     map(ds.remove, ds.cache_key_list)
     ds.close()
-    logger.info("Success")
+    logger.info("%s Success" % uuid)
     return "Success"
 
 def aggregate_group(io):

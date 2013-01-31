@@ -54,6 +54,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         return 'failed'
     aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
     data = df.getData(host_name, (previous_time, current_time))
+    print data
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
         tablename = ''.join(group_name[:30]) + hashlib.md5('%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
