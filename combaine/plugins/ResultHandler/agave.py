@@ -62,10 +62,10 @@ class Agave(AbstractResultHandler):
                 for sbg_name, val in item["values"].iteritems():
                     _sbg = sbg_name if sbg_name == item["groupname"] else (item["groupname"] + "-" + sbg_name)
                     if isinstance(val, types.ListType):
-                        l = itertools.izip(self.fields[item['aggname']],val)
+                        l = itertools.izip(self.fields[item['aggname'].split("@")[-1]],val)
                         _value = "+".join(("%s:%i" % x for x in l))
                     else:
-                        _value = "%s:%s" % (item['aggname'], str(val) )
+                        _value = "%s:%s" % (item['aggname'].split("@")[-1], str(val) )
                     for_send[_sbg].append(_value)
                     time = item['time']
         for name, val in for_send.iteritems():
