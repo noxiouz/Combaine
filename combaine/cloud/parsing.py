@@ -67,7 +67,9 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         return 'failed'
 
     res = itertools.chain( [_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
-    print  [ds.insert("%(host)s;%(time)s;%(etime)s;%(aggname)s" % { 'host'  : host_name.replace('.','_').replace('-','_'),\
+    print  [ds.insert("%(host)s;%(conf)s;%(time)s;%(etime)s;%(aggname)s" % {\
+                                                                    'host'  : host_name.replace('.','_').replace('-','_'),\
+                                                                    'conf'  : config_name,\
                                                                     'time'  : previous_time,\
                                                                     'etime' : current_time,\
                                                                   'aggname' : l[0]},

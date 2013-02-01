@@ -1,8 +1,8 @@
-combaine (0.5.1-10) lucid; urgency=low
+combaine (0.5.1-11) lucid; urgency=low
 
-  * test fix 
+  * Try fix with moving data per cell with null input 
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 30 Jan 2013 15:29:38 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 31 Jan 2013 12:37:12 +0400
 
 combaine (0.5.1-9) lucid; urgency=low
 

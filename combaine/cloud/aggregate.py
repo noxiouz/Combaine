@@ -73,7 +73,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
            # [data_by_subgrp[_agg].append(\
            #     ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
            #                             ) for _agg in aggs]
-           _l = ((ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True), _agg) for _agg in aggs)
+           _l = ((ds.read("%s;%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), config_name, previous_time, current_time, _agg), cache=True), _agg) for _agg in aggs)
            [data_by_subgrp[_name].append(val) for val, _name in _l]
 
         all_data.append(dict(data_by_subgrp))
