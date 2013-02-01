@@ -40,7 +40,7 @@ class MySqlDG(AbstractDataGrid):
             with open('/dev/shm/%s-%i' % ('COMBAINE', random.randint(0,65535)) ,'w') as table_file:
                 for line in data:
                     #print line
-                    table_file.write(','.join([str(x) for x in line.values()])+'\n')
+                    table_file.write('GOPA'.join([str(x) for x in line.values()])+'\n')
                     #table_file.close()
 
                 if not line:
@@ -61,7 +61,7 @@ class MySqlDG(AbstractDataGrid):
             cursor.execute(query)
             self.db.commit()
 
-            query = "LOAD DATA INFILE '%(filename)s' INTO TABLE %(tablename)s FIELDS TERMINATED BY ','" % { 'filename' : table_file.name,\
+            query = "LOAD DATA INFILE '%(filename)s' INTO TABLE %(tablename)s FIELDS TERMINATED BY 'GOPA'" % { 'filename' : table_file.name,\
                                                                                                             'tablename': tablename  }
             #print query
             cursor.execute(query)
