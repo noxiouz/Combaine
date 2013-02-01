@@ -1,3 +1,9 @@
+combaine (0.5.1-14) lucid; urgency=low
+
+  * fix uniq name for aggregtors 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 01 Feb 2013 17:49:32 +0400
+
 combaine (0.5.1-13) lucid; urgency=low
 
   * new separator 
