@@ -1,3 +1,9 @@
+combaine (0.5.1-12) lucid; urgency=low
+
+  * Fix bug with one group in different confs 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 01 Feb 2013 12:31:08 +0400
+
 combaine (0.5.1-11) lucid; urgency=low
 
   * Try fix with moving data per cell with null input 
