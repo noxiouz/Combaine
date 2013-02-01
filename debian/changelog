@@ -1,3 +1,9 @@
+combaine (0.5.1-13) lucid; urgency=low
+
+  * new separator 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 01 Feb 2013 16:04:51 +0400
+
 combaine (0.5.1-12) lucid; urgency=low
 
   * Fix bug with one group in different confs 
