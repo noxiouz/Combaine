@@ -23,6 +23,7 @@ from __abstractlockserver import BaseLockServer
 
 from combaine.common.ZKeeperAPI import zkapi as ZK
 from socket import gethostname
+import uuid
 
 import logging
 
@@ -47,6 +48,7 @@ class ZKLockServer(BaseLockServer):
             self.lock = config['name']
             self.lockpath = '/'+self.id+'/'+self.lock
             self.locked = False
+            self.lock_content = gethostname() + str(uuid.uuid4())
         except Exception, err:
             self.log('CRIT', 'Failed to init ZKLockServer: '+str(err))
             raise
@@ -54,7 +56,7 @@ class ZKLockServer(BaseLockServer):
             self.log('INFO','ZK create')
 
     def getlock(self):
-        if self.zkclient.write(self.lockpath,gethostname(),1) == 0:
+        if self.zkclient.write(self.lockpath, self.lock_content, 1) == 0:
             self.log('INFO', 'lock good')
             self.locked = True
             return True
@@ -78,6 +80,10 @@ class ZKLockServer(BaseLockServer):
     def checkLock(self):
         try:
             isMyLock = self.zkclient.read(self.lockpath)
+            if isMyLock[0] != self.lock_content:
+                return False
+            else:
+                return True
         except Exception, err:
             self.log('ERROR', 'lock isnot mine')
             return False

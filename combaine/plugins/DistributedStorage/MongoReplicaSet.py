@@ -35,8 +35,11 @@ class MongoReplicaSet(AbstractDistributedStorage):
     def insert(self, key, data):
         try:
             _id = hashlib.md5(key).hexdigest()
+            print key
+            print _id
             value = {"_id" : _id, "key" : key, "value" : data, "time" : int(time.time()) }
-            self.db_cursor.insert(value, continue_on_error=True)
+            #print self.db_cursor.insert(value, continue_on_error=True, w=0, manipulate=False)
+            print self.db_cursor.save(value, continue_on_error=True, w=0, manipulate=False)
         except Exception, err:
             return False
         else:
