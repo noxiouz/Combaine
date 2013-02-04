@@ -1,3 +1,9 @@
+combaine (0.5.1-15) lucid; urgency=low
+
+  * switch off remote_db_cleaner 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 04 Feb 2013 13:30:57 +0400
+
 combaine (0.5.1-14) lucid; urgency=low
 
   * fix uniq name for aggregtors 

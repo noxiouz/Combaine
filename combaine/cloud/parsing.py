@@ -48,7 +48,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         print "DS init Error"
         logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
         return
-    if not ds.connect('combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
+    if not ds.connect('combaine_mid/%s' % config_name): # CHECK NAME OF COLLECTION!!!!
         print 'FAIL'
         logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
         return 'failed'

@@ -57,7 +57,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     if ds is None:
         logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
         return 'failed'
-    if not ds.connect('combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
+    if not ds.connect('combaine_mid/%s' % config_name): # CHECK NAME OF COLLECTION!!!!
         logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
         return 'failed'
     res_handlers = [ ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]

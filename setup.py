@@ -36,8 +36,6 @@ setup(
                                                                     'cocaine_deploy/aggregate/manifest-agg.json']),
             ('/usr/lib/yandex/combaine/cocaine_deploy/parsing',  ['cocaine_deploy/parsing/__init__.py',
                                                                     'cocaine_deploy/parsing/manifest-parsing.json']),
-            ('/usr/lib/yandex/combaine/cocaine_deploy/recurring',['cocaine_deploy/recurring/__init__.py',
-                                                                    'cocaine_deploy/recurring/manifest-recurring.json']),
             ('/usr/lib/yandex/combaine/cocaine_deploy/combainer',['cocaine_deploy/combainer/__init__.py',
                                                                     'cocaine_deploy/combainer/manifest-combainer.json']),
             ('/usr/sbin/',['./scripts/combaine-deploy']),
