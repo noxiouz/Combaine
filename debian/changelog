@@ -1,3 +1,9 @@
+combaine (0.5.1-18) lucid; urgency=low
+
+  * change mongo insert() to save(). Add w=0, manipulate=False 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 04 Feb 2013 14:54:48 +0400
+
 combaine (0.5.1-17) lucid; urgency=low
 
   * small fix  
