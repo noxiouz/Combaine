@@ -1,3 +1,39 @@
+combaine (0.5.1-24) lucid; urgency=low
+
+  * increase limit size to 48 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Feb 2013 17:34:24 +0400
+
+combaine (0.5.1-23) lucid; urgency=low
+
+  * test version - add pre sleep 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Feb 2013 16:28:53 +0400
+
+combaine (0.5.1-22) lucid; urgency=low
+
+  * change cocaine limits 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Feb 2013 15:23:52 +0400
+
+combaine (0.5.1-21) lucid; urgency=low
+
+  * fix bug with unproperly strip .json 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Feb 2013 14:59:22 +0400
+
+combaine (0.5.1-20) lucid; urgency=low
+
+  * try remove(w=1)
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Feb 2013 11:18:20 +0400
+
+combaine (0.5.1-19) lucid; urgency=low
+
+  * change clean for drop_collection 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 04 Feb 2013 16:32:42 +0400
+
 combaine (0.5.1-18) lucid; urgency=low
 
   * change mongo insert() to save(). Add w=0, manipulate=False 

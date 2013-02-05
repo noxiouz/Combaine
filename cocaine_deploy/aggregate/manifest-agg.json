@@ -1,10 +1,10 @@
 {
     "type" : "python",
     "engine" : {
-        "heartbeat-timeout" : 300,
-        "suicide-timeout": 300,
-        "pool-limit" : 16,
-        "queue-limit" : 10000,
+        "heartbeat-timeout" : 100,
+        "suicide-timeout": 150,
+        "pool-limit" : 32,
+        "queue-limit" : 32,
         "grow-threshold" : 1
     },
     "drivers" : {
