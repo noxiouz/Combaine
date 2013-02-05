@@ -15,6 +15,7 @@ import pprint
 import socket
 import logging
 import hashlib
+#import gc
 
 sys.path = sys.path+['/usr/lib/yandex/combaine/']
 from parsers import PARSERS
@@ -77,6 +78,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     ds.close()
     logger.info('%s Success' % uuid)
     print "Success"
+    #gc.collect()
     return 'success'
 
 def parsing(io):
