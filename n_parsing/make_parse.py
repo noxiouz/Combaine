@@ -6,6 +6,7 @@ import time
 import sys
 
 sys.path = sys.path+['/usr/lib/yandex/combaine/']
+from parsers import PARSERS
 
 def cor(f):
     print 'AAAAAAAAAAAAAAAAAAAAAAAaaa'
@@ -16,7 +17,7 @@ def cor(f):
 @cor
 def parse():
     voc={}
-    p = Tokenparser.TokenParser()
+    p = Tokenparser.Tokenparser()
 	#date
     p.skip('[')
     p.upTo('date',' ')
@@ -57,7 +58,7 @@ def parse():
     while True:
         string = (yield voc)
         voc ={}
-        success = p.Parse(string)
+        success = p.parse(string)
         voc['_id'] = hashlib.sha256(string).hexdigest()
         voc = p.matches()
         try:
@@ -85,13 +86,9 @@ def parse():
 	#return voc
 
 import parsers.parsers
-z = parsers.parsers.nginx_access_feeds_parser
 
-
+z = PARSERS['nginx_access_feeds_parser']
 f = open('test.log','r')
-g = open('test.log','r')
 p = parse
 #i = []
-for l in f:
-    a = p(l)
-    #print a
+print [p(l) for l in f][0]

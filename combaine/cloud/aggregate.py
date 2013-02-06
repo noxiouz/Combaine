@@ -84,7 +84,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
     #==== Clean RS from sourse data for aggregation ====
     [_res_handler.send(res) for _res_handler in res_handlers]
-    map(ds.remove, ds.cache_key_list)
+    logger.info("Remove from mongo: %s" % '\n'.join(map(ds.remove, ds.cache_key_list)))
     #print ds.clear_namespace()
     ds.close()
     logger.info("%s Success" % uuid)

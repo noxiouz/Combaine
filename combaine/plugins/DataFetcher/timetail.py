@@ -22,7 +22,7 @@ class Timetail(AbstractFetcher):
             self.filter = lambda item: item['Time'] < timeperiod[1]
             req = "%s%i" % (self.http_get_url, int(time.time()) - timeperiod[0])
             self.log.info('Get data by request: %s' % req)
-            conn = httplib.HTTPConnection(host_name, self.port, timeout=3)
+            conn = httplib.HTTPConnection(host_name, self.port, timeout=2)
             conn.request("GET", req, None)
             resp = conn.getresponse()
             if resp.status == 200:

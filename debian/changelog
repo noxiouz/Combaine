@@ -1,8 +1,26 @@
+combaine (0.5.1-30) lucid; urgency=low
+
+  * Yeaah!!! Stable! 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 06 Feb 2013 16:06:51 +0400
+
+combaine (0.5.1-29) lucid; urgency=low
+
+  * add index in Mysql and swith engine to MEMORY 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 06 Feb 2013 15:32:47 +0400
+
+combaine (0.5.1-28) lucid; urgency=low
+
+  * set 16/16 for parsing  
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 06 Feb 2013 14:00:19 +0400
+
 combaine (0.5.1-27) lucid; urgency=low
 
   * try one cursor for mysql
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Feb 2013 23:40:24 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 06 Feb 2013 12:13:09 +0400
 
 combaine (0.5.1-26) lucid; urgency=low
 

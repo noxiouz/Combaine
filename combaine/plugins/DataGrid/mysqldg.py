@@ -54,7 +54,7 @@ class MySqlDG(AbstractDataGrid):
                 return False
 
             self.cursor.execute('DROP TABLE IF EXISTS %s' % tablename)
-            query = "CREATE TEMPORARY TABLE IF NOT EXISTS %(tablename)s %(struct)s ENGINE = MYISAM DATA DIRECTORY='/dev/shm/'" % { 'tablename' : tablename,\
+            query = "CREATE TEMPORARY TABLE IF NOT EXISTS %(tablename)s %(struct)s ENGINE = MEMORY DATA DIRECTORY='/dev/shm/'" % { 'tablename' : tablename,\
                                                                                                         'struct' : self.place }
             #print query
             self.cursor.execute(query)
@@ -80,13 +80,13 @@ class MySqlDG(AbstractDataGrid):
 
     def _preparePlace(self, example):
         ftypes = { type(1) : "INT",
-                   type("string")  : "TEXT",
-                   type(u"string") : "TEXT",
+                   type("string")  : "VARCHAR(200)",
+                   type(u"string") : "VARCHAR(200)",
                    type(1.0)     : "FLOAT"
         }
         #print example.items()
         try:
-            self.place = '( %s )' % ','.join([" %s %s" % (field_name, ftypes[type(field_type)]) for field_name, field_type in example.items()])
+            self.place = '( %s, INDEX USING BTREE(TIME))' % ','.join([" %s %s" % (field_name, ftypes[type(field_type)]) for field_name, field_type in example.items()])
         except Exception, err:
             self.log.error('Error in preparePlace: %s' % str(err))
             print str(err)

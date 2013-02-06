@@ -65,7 +65,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
     def remove(self, key):
         try:
             _id = hashlib.md5(key).hexdigest()
-            print "dsddsd", self.db_cursor.remove(_id, w=1)
+            return str(self.db_cursor.remove(_id, w=1))
         except Exception as err:
             print str(err)
             return False
