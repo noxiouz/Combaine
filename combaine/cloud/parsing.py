@@ -15,6 +15,7 @@ import pprint
 import socket
 import logging
 import hashlib
+#import gc
 
 sys.path = sys.path+['/usr/lib/yandex/combaine/']
 from parsers import PARSERS
@@ -48,12 +49,13 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         print "DS init Error"
         logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
         return
-    if not ds.connect('combaine_mid/%s' % conf.parser.replace(".", "_").replace("-","_")): # CHECK NAME OF COLLECTION!!!!
+    if not ds.connect('combaine_mid/%s' % config_name): # CHECK NAME OF COLLECTION!!!!
         print 'FAIL'
         logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
         return 'failed'
     aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
     data = df.getData(host_name, (previous_time, current_time))
+    print data
     if data:
         handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
         tablename = ''.join(group_name[:30]) + hashlib.md5('%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
@@ -66,7 +68,9 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         return 'failed'
 
     res = itertools.chain( [_agg.aggregate(db, (previous_time, current_time)) for _agg in aggs])
-    print  [ds.insert("%(host)s;%(time)s;%(etime)s;%(aggname)s" % { 'host'  : host_name.replace('.','_').replace('-','_'),\
+    print  [ds.insert("%(host)s;%(conf)s;%(time)s;%(etime)s;%(aggname)s" % {\
+                                                                    'host'  : host_name.replace('.','_').replace('-','_'),\
+                                                                    'conf'  : config_name,\
                                                                     'time'  : previous_time,\
                                                                     'etime' : current_time,\
                                                                   'aggname' : l[0]},
@@ -74,6 +78,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     ds.close()
     logger.info('%s Success' % uuid)
     print "Success"
+    #gc.collect()
     return 'success'
 
 def parsing(io):

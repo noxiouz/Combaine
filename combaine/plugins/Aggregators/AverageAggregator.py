@@ -17,9 +17,11 @@ def dec_maker(param):
                 l = (i.values()[0] for i in ret)
                 t = (i.keys()[0] for i in ret)
                 count = len(ret)
+                print count
                 if count > 0:
                     res = [ _res/count for _res in reduce(lambda x,y: map(lambda X,Y: X+Y, x,y), l)]
                     ave_time = reduce(lambda x,y: x+y, t)/count
+                    print "AAAAAA", ave_time, res
                     yield { ave_time : res }
                 else:
                     yield None
@@ -79,6 +81,7 @@ class AverageAggregator(AbstractAggregator):
                 per_subgroup_count.append((sum(subgroup)))
             group_summ = sum(per_subgroup_count)
             per_subgroup_count.append(group_summ)
+            print per_subgroup_count
             yield { time : per_subgroup_count }
 
 

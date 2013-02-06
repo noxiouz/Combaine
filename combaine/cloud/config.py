@@ -36,7 +36,7 @@ try:
 except Exception as err:
     pass
 else:
-    _format = logging.Formatter("%(levelname)-10s %(asctime)s %(message)s")
+    _format = logging.Formatter("%(levelname)-7s %(asctime)s %(message)s", "%Y-%m-%d %H:%M:%S")
     app_log = logging.getLogger('combaine')
     log_level = eval('logging.' + config['log_level'])
     crit_handler = logging.FileHandler('/var/log/combaine/cloud.log')

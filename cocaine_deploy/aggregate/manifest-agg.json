@@ -1,11 +1,11 @@
 {
     "type" : "python",
     "engine" : {
-        "heartbeat-timeout" : 300,
-        "suicide-timeout": 300,
+        "heartbeat-timeout" : 100,
+        "suicide-timeout": 150,
         "pool-limit" : 16,
-        "queue-limit" : 10000,
-        "grow-threshold" : 1
+        "queue-limit" : 16,
+        "grow-threshold" : 2
     },
     "drivers" : {
         "aggregate_group" : {

@@ -39,7 +39,7 @@ import Scheduler.scheduler
 
 log = logging.getLogger('combaine')
 
-class Combainer():
+class Combainer(object):
 
     def __init__(self, **config):
         self.aggrhosts = {}
@@ -143,7 +143,7 @@ class Combainer():
                 for pars_config in self.groups_conf[group]:
                     self.messages[group][0].add('%(host)s;%(config)s;%(group)s;%(time)s;%(suff)s' % { 'host': host,
                                                                                             'group' : group,
-                                                                                           'config': pars_config.rstrip('.json'),
+                                                                                           'config': pars_config.rsplit('.', 1)[0],
                                                                                            'time':';'.join(time_period),
                                                                                            'suff' : '__H__'} )
 
@@ -151,7 +151,7 @@ class Combainer():
             for conf in confs:
                 for agg_conf in getSectionFromConf(PARSING_CONF_PATH + '/'+ conf, "agg_configs"):
                     self.messages[group][1].add( "%(group)s;%(confs)s;%(agg_conf)s;%(time)s;%(suff)s" % { 'group' : group,
-                                                                                     'confs' : conf.rstrip('.json'),
+                                                                                     'confs' : conf.rsplit('.', 1)[0],
                                                                                      'agg_conf' : agg_conf,
                                                                                      'time' : ';'.join(time_period),
                                                                                      'suff' : '__G__'} )
@@ -408,6 +408,7 @@ class Combainer():
         self.msg_count = 0
         #---------------------------------------------------------------------------------
         def defineTimeBorder(progress):
+            time.sleep(10)
             now_time = str(int(time.time()))
             if progress.has_key('FINISHMARK'):
                 log.debug('Start new session. There is a FINISHMARK')

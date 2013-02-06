@@ -1,9 +1,9 @@
 {
     "type" : "python",
     "engine" : {
-        "heartbeat-timeout" : 300,
-        "pool-limit" : 12,
-        "queue-limit" : 10000,
+        "heartbeat-timeout" : 150,
+        "pool-limit" : 16,
+        "queue-limit" : 16,
         "grow-threshold" : 1
     },
     "drivers" : {

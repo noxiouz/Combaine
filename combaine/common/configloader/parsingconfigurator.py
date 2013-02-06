@@ -12,10 +12,10 @@ class ParsingConfigurator(object):
             _parsing = json.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
             #pprint(_parsing)
             if aggregation_config is None:
-                _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)) for agg_name in _parsing["agg_configs"]]
+                _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
-                _aggregations = [json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), ]
-            #pprint(_aggregations)
+                _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), aggregation_config), ]
+            pprint(_aggregations)
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
             self.db = _combaine["cloud_config"]["LocalDatabase"]
@@ -41,10 +41,10 @@ class ParsingConfigurator(object):
             }
             self.aggregators = []
             self.resulthadlers = list()
-            for aggregator in _aggregations:
+            for aggregator, _agg_name in _aggregations:
                 for name, dic in aggregator["data"].iteritems():
                     tmp = dict()
-                    tmp["name"] = name
+                    tmp["name"] = _agg_name + "@" + name
                     tmp["host"] = dic["host"]
                     tmp["group"] = dic["group"]
                     if dic["group"] == "quant":

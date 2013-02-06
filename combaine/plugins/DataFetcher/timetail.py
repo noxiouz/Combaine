@@ -22,7 +22,7 @@ class Timetail(AbstractFetcher):
             self.filter = lambda item: item['Time'] < timeperiod[1]
             req = "%s%i" % (self.http_get_url, int(time.time()) - timeperiod[0])
             self.log.info('Get data by request: %s' % req)
-            conn = httplib.HTTPConnection(host_name, self.port, timeout=3)
+            conn = httplib.HTTPConnection(host_name, self.port, timeout=2)
             conn.request("GET", req, None)
             resp = conn.getresponse()
             if resp.status == 200:
@@ -31,7 +31,7 @@ class Timetail(AbstractFetcher):
                 conn.close()
                 return _ret
             else:
-                self.log.warning('HTTP responce code is not 200 %i' % resp.status)
+                self.log.warning('HTTP responce code for %s is not 200 %i' % (host_name, resp.status))
                 return None
         except Exception, err:
             self.log.error('Error while getting data with request: %s' % err)
