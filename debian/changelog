@@ -1,3 +1,9 @@
+combaine (0.5.1-40) lucid; urgency=low
+
+  * ensure_index _id 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 12 Feb 2013 16:25:40 +0400
+
 combaine (0.5.1-39) lucid; urgency=low
 
   * Stable with capped collection 
