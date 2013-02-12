@@ -1,3 +1,39 @@
+combaine (0.5.1-39) lucid; urgency=low
+
+  * Stable with capped collection 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 12 Feb 2013 15:20:21 +0400
+
+combaine (0.5.1-35) lucid; urgency=low
+
+  * fix 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 11 Feb 2013 20:15:40 +0400
+
+combaine (0.5.1-34) lucid; urgency=low
+
+  * capped fix 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 11 Feb 2013 19:41:31 +0400
+
+combaine (0.5.1-33) lucid; urgency=low
+
+  * capped coll 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 11 Feb 2013 19:16:38 +0400
+
+combaine (0.5.1-32) lucid; urgency=low
+
+  * VARCHAR(2000) 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 07 Feb 2013 13:55:26 +0400
+
+combaine (0.5.1-31) lucid; urgency=low
+
+  * set VARCAHR(1000) 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 07 Feb 2013 12:56:08 +0400
+
 combaine (0.5.1-30) lucid; urgency=low
 
   * Yeaah!!! Stable! 
