@@ -19,6 +19,12 @@ class MongoReplicaSet(AbstractDistributedStorage):
             db, collection = namespace.split('/')
             self.coll_name = collection
             self.db = self.rs[db]
+            if collection in self.db.collection_names():
+                if not self.db[collection].options().get("capped"):
+                    self.db.drop_collection(collection)
+                    self.db.create_collection(collection, capped=True, size=500000000, max=2000)
+            else:
+                self.db.create_collection(collection, capped=True, size=500000000, max=2000)
             self.db_cursor = self.db[collection]
         except Exception, err:
             print str(err)
@@ -64,6 +70,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
 
     def remove(self, key):
         try:
+            return "OK" #for capped
             _id = hashlib.md5(key).hexdigest()
             return str(self.db_cursor.remove(_id, w=1))
         except Exception as err:
