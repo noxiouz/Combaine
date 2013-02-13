@@ -45,7 +45,7 @@ class ParsingConfigurator(object):
                 for name, dic in aggregator["data"].iteritems():
                     tmp = dict()
                     tmp["name"] = _agg_name + "@" + name
-                    tmp["host"] = dic["host"]
+                    tmp["host"] = dic.get("host", "EMPTY")
                     tmp["group"] = dic["group"]
                     if dic["group"] == "quant":
                         tmp["values"] = dic["values"]
@@ -60,3 +60,4 @@ class ParsingConfigurator(object):
 
         except Exception as err:
             print "ERRROOOORRRISHE!!!" + str(err)
+            raise

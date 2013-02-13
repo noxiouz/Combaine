@@ -6,7 +6,7 @@ import logging
 
 logger = logging.getLogger("combaine")
 
-from __abstractaggregator import AbstractAggregator
+from __abstractaggregator import RawAbstractAggregator
 
 """
     DESCRIBE THIS!!!!
@@ -88,7 +88,7 @@ class QuantCalc(object):
                         return
             yield i
 
-class QuantilAggregator(AbstractAggregator):
+class QuantilAggregator(RawAbstractAggregator):
     
     def __init__(self, **config):
         super(QuantilAggregator, self).__init__()
@@ -98,7 +98,8 @@ class QuantilAggregator(AbstractAggregator):
         self.quants = config['values']
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
 
-    def aggregate(self, db, timeperiod):
+    def aggregate(self, timeperiod):
+        db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
         if self.time_regex.search(self.query):
             queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
