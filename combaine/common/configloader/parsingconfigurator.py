@@ -45,11 +45,11 @@ class ParsingConfigurator(object):
                 for name, dic in aggregator["data"].iteritems():
                     tmp = dict()
                     tmp["name"] = _agg_name + "@" + name
-                    tmp["host"] = dic.get("host", "EMPTY")
-                    tmp["group"] = dic["group"]
-                    if dic["group"] == "quant":
+                    tmp["query"] = dic.get("query", "EMPTY")
+                    tmp["type"] = dic["type"]
+                    if dic["type"] == "quant":
                         tmp["values"] = dic["values"]
-                    tmp["type"] = agg_bind.get(dic["group"])  #DIRTY  HOOK!!!!!!!
+                    tmp["type"] = agg_bind.get(dic["type"])  #DIRTY  HOOK!!!!!!!
                     #pprint(tmp)
                     if not tmp["type"] is None:
                         self.aggregators.append(tmp)

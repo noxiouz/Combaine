@@ -1,3 +1,9 @@
+combaine (0.5.1-43) lucid; urgency=low
+
+  * change config parametrs host -> query and group -> type 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 13 Feb 2013 23:19:25 +0400
+
 combaine (0.5.1-42) lucid; urgency=low
 
   * add support for more than elliptics proxy

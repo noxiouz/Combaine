@@ -26,6 +26,8 @@ class Elliptics(AbstractDistributedStorage):
                     return True
             except requests.exceptions.Timeout as err:
                 pass
+            except requests.exceptions.ConnectionError as err:
+                pass
         return False
 
     def read(self, key, cache=False):
@@ -33,8 +35,11 @@ class Elliptics(AbstractDistributedStorage):
             try:
                 r = requests.post(self.read_url.substitute(KEY=key, HOST=host, R_PORT=r_port), timeout=1)
                 if r.ok:
-                    return [msgpack.unpackb(r.content), ]
+                    ret = list(msgpack.unpackb(r.content))
+                    return ret
             except requests.exceptions.Timeout as err:
+                pass
+            except requests.exceptions.ConnectionError as err:
                 pass
         return []
 

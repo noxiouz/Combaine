@@ -92,7 +92,7 @@ class QuantilAggregator(RawAbstractAggregator):
     
     def __init__(self, **config):
         super(QuantilAggregator, self).__init__()
-        self.query = config['host']
+        self.query = config['query']
         self.name = config['name']
         print config
         self.quants = config['values']

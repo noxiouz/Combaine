@@ -33,7 +33,7 @@ class AverageAggregator(RawAbstractAggregator):
 
     def __init__(self, **config):
         super(AverageAggregator, self).__init__()
-        self.query = config['host']
+        self.query = config['query']
         self.name = config['name']
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
         print self.query

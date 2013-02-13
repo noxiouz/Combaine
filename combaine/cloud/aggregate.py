@@ -70,9 +70,6 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     for sbgrp in hosts.values():
         data_by_subgrp = collections.defaultdict(list)
         for hst in sbgrp:
-           # [data_by_subgrp[_agg].append(\
-           #     ds.read("%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), previous_time, current_time, _agg), cache=True)\
-           #                             ) for _agg in aggs]
            _l = ((ds.read("%s;%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), config_name, previous_time, current_time, _agg), cache=True), _agg) for _agg in aggs)
            [data_by_subgrp[_name].append(val) for val, _name in _l]
 
@@ -84,8 +81,6 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
     #==== Clean RS from sourse data for aggregation ====
     [_res_handler.send(res) for _res_handler in res_handlers]
-    #logger.info("Remove from mongo: %s" % '\n'.join(map(ds.remove, ds.cache_key_list)))
-    #print ds.clear_namespace()
     ds.close()
     logger.info("%s Success" % uuid)
     return "Success"
