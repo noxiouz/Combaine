@@ -19,16 +19,20 @@ class JsonRaw(AbstractFetcher):
 
     def getData(self, host_name, timeperiod):
         try:
-            data = urllib.urlopen("http://%(host)s:%(port)i%(url)" % {  'host'  : host_name,
+            data = urllib.urlopen("http://%(host)s:%(port)i%(url)s" % {  'host'  : host_name,
                                                                         'url'   : self.url,
                                                                         'port'  : self.port })
-            jsondata = json.load(data)
+            _data = data.read()
+            jsondata = json.loads(_data)
             if jsondata.get('Time') is None:
                 jsondata['Time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
             data.close()
             return (str(jsondata),)
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
+            print str(err)
             return None
 
 PLUGIN_CLASS = JsonRaw
+
+

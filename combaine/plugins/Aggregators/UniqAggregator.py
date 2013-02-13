@@ -13,3 +13,6 @@ class Uniq(ProcessedAbstractAggregator):
 
     def aggregate_group(self, data):
         pass
+
+
+PLUGIN_CLASS = Uniq

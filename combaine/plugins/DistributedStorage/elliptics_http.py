@@ -4,31 +4,39 @@ import requests
 import msgpack
 
 import string
+import random
 
 class Elliptics(AbstractDistributedStorage):
 
     def __init__(self, **config):
-        self.host = config["proxy_hosts"]
-        self.write_port = config.get('write_port', 8080)
-        self.read_port = config.get('read_port', 80)
-        self.packer = msgpack.Packer()
-        self.unpacker = msgpack.Unpacker()
-        self.read_url = string.Template("http://%s:%i/get/${KEY}?ioflags=3072" % (self.host, self.read_port))
-        self.write_url = string.Template("http://%s:%i/upload/${KEY}?ioflags=3072" % (self.host, self.write_port))
+        cfg = [_i.split(":") for _i in config["proxy_hosts"]]
+        random.shuffle(cfg)
+        self.hostsinfo = cfg
+        self.read_url = string.Template("http://${HOST}:${R_PORT}/get/${KEY}?ioflags=3072")
+        self.write_url = string.Template("http://${HOST}:${W_PORT}/upload/${KEY}?ioflags=3072")
 
     def connect(self, namespace):
         return True
 
     def insert(self, key, data):
-        r = requests.post(self.write_url.substitute(KEY=key), data=msgpack.packb(data))
-        return True
+        for host, r_port, w_port in self.hostsinfo:
+            try:
+                r = requests.post(self.write_url.substitute(KEY=key, HOST=host, W_PORT=w_port), data=msgpack.packb(data), timeout=1)
+                if r.status_code == 503: #because elliptics write cache bug
+                    return True
+            except requests.exceptions.Timeout as err:
+                pass
+        return False
 
     def read(self, key, cache=False):
-        r = requests.post(self.read_url.substitute(KEY=key))
-        if r.ok:
-            return list(msgpack.unpackb(r.content))
-        else:
-            return []
+        for host, r_port, w_port in self.hostsinfo:
+            try:
+                r = requests.post(self.read_url.substitute(KEY=key, HOST=host, R_PORT=r_port), timeout=1)
+                if r.ok:
+                    return [msgpack.unpackb(r.content), ]
+            except requests.exceptions.Timeout as err:
+                pass
+        return []
 
     def remove(self, key):
         return "OK"
