@@ -80,12 +80,4 @@ class MongoReplicaSet(AbstractDistributedStorage):
         else:
             return True
 
-    def clear_namespace(self):
-        try:
-            print self.db.drop_collection(self.coll_name)
-            return True
-        except Exception as err:
-            print str(err)
-            return False
-
 PLUGIN_CLASS = MongoReplicaSet

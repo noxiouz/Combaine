@@ -1,3 +1,9 @@
+combaine (0.5.1-41) lucid; urgency=low
+
+  * Add elliptics over http support for distributed storage. 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 13 Feb 2013 01:44:06 +0400
+
 combaine (0.5.1-40) lucid; urgency=low
 
   * ensure_index _id 
