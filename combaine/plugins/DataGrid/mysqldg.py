@@ -107,11 +107,9 @@ class MySqlDG(AbstractDataGrid):
 
     def __del__(self):
         if self.db:
-            self.log.info("Destruct me! YeeaaaHHH!!!")
-            print "Called a destructor"
+            self.log.debug("Destruct me! YeeaaaHHH!!!")
             self.cursor.close()
             self.db.commit()
             self.db.close()
-            print "Success"
 
 PLUGIN_CLASS = MySqlDG

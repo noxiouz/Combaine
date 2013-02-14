@@ -1,10 +1,15 @@
 from __AbstractStorage import AbstractDistributedStorage
 
 import requests
-import msgpack
+import hashlib
+#import msgpack
+from cPickle import dumps as PACK
+from cPickle import loads as UNPACK
 
 import string
 import random
+
+from time import sleep
 
 class Elliptics(AbstractDistributedStorage):
 
@@ -19,9 +24,11 @@ class Elliptics(AbstractDistributedStorage):
         return True
 
     def insert(self, key, data):
+        print "KEY: %s DATA: %s" % (key, data)
+        key =  hashlib.md5(key).hexdigest()
         for host, r_port, w_port in self.hostsinfo:
             try:
-                r = requests.post(self.write_url.substitute(KEY=key, HOST=host, W_PORT=w_port), data=msgpack.packb(data), timeout=1)
+                r = requests.post(self.write_url.substitute(KEY=key, HOST=host, W_PORT=w_port), data=PACK(data), timeout=3)
                 if r.status_code == 503: #because elliptics write cache bug
                     return True
             except requests.exceptions.Timeout as err:
@@ -31,16 +38,20 @@ class Elliptics(AbstractDistributedStorage):
         return False
 
     def read(self, key, cache=False):
+        key =  hashlib.md5(key).hexdigest()
         for host, r_port, w_port in self.hostsinfo:
             try:
-                r = requests.post(self.read_url.substitute(KEY=key, HOST=host, R_PORT=r_port), timeout=1)
+                r = requests.post(self.read_url.substitute(KEY=key, HOST=host, R_PORT=r_port), timeout=3)
                 if r.ok:
-                    ret = list(msgpack.unpackb(r.content))
+                    ret = UNPACK(r.content)
+                    r.close()
                     return ret
             except requests.exceptions.Timeout as err:
-                pass
+                print err
             except requests.exceptions.ConnectionError as err:
-                pass
+                print err
+            except Exception as err:
+                print str(err)
         return []
 
     def remove(self, key):

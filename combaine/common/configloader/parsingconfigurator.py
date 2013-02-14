@@ -15,7 +15,7 @@ class ParsingConfigurator(object):
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), aggregation_config), ]
-            pprint(_aggregations)
+            #pprint(_aggregations)
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
             self.db = _combaine["cloud_config"]["LocalDatabase"]

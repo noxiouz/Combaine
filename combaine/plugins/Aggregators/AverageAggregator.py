@@ -21,7 +21,7 @@ def dec_maker(param):
                 if count > 0:
                     res = [ _res/count for _res in reduce(lambda x,y: map(lambda X,Y: X+Y, x,y), l)]
                     ave_time = reduce(lambda x,y: x+y, t)/count
-                    print "AAAAAA", ave_time, res
+                    print "RESULT:", ave_time, res
                     yield { ave_time : res }
                 else:
                     yield None
@@ -51,8 +51,9 @@ class AverageAggregator(RawAbstractAggregator):
         if self.time_regex.search(self.query):
             queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
         else:
-            queries = (self.query, timeperiod[1])
-        l = ((format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries)
+            queries = [(self.query, timeperiod[1])]
+        l = [(format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries]
+        print l
         return self.name,  self._pack(l)
 
     def _pack(self, data):
