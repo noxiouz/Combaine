@@ -51,4 +51,5 @@ class Tailer(AbstractFetcher):
             return None
 
 
+
 PLUGIN_CLASS = Tailer
