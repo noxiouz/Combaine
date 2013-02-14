@@ -91,7 +91,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     # TBD end of wrap
 
     if any(_agg.agg_type == TYPES.index("PROCESSED") for _agg in aggs):
-        [_agg.set_data(hadle_data) for _agg in aggs if _agg.agg_type == TYPES.index("PROCESSED")]
+        [_agg.set_data(handle_data) for _agg in aggs if _agg.agg_type == TYPES.index("PROCESSED")]
 
     res = itertools.chain( [_agg.aggregate((previous_time, current_time)) for _agg in aggs])
     print  [ds.insert("%(host)s;%(conf)s;%(time)s;%(etime)s;%(aggname)s" % {\

@@ -38,6 +38,7 @@ class ParsingConfigurator(object):
                 "summa" : "AverageAggregator",
                 "quant" : "QuantAggregator",
                 "average" : "AverageAggregator",
+                "uniq" : "UniqAggregator",
             }
             self.aggregators = []
             self.resulthadlers = list()
@@ -47,6 +48,7 @@ class ParsingConfigurator(object):
                     tmp["name"] = _agg_name + "@" + name
                     tmp["query"] = dic.get("query", "EMPTY")
                     tmp["type"] = dic["type"]
+                    tmp.update(dic)
                     if dic["type"] == "quant":
                         tmp["values"] = dic["values"]
                     tmp["type"] = agg_bind.get(dic["type"])  #DIRTY  HOOK!!!!!!!

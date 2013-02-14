@@ -81,7 +81,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         f = formatter(aggs[key].name, hosts.keys(), groupname, agg_config_name)
         res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
     #==== Clean RS from sourse data for aggregation ====
-    [_res_handler.send(res) for _res_handler in res_handlers]
+    #[_res_handler.send(res) for _res_handler in res_handlers]
     ds.close()
     logger.info("%s Success" % uuid)
     return "Success"
