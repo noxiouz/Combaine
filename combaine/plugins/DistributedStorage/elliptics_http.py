@@ -24,7 +24,6 @@ class Elliptics(AbstractDistributedStorage):
         return True
 
     def insert(self, key, data):
-        print "KEY: %s DATA: %s" % (key, data)
         key =  hashlib.md5(key).hexdigest()
         for host, r_port, w_port in self.hostsinfo:
             try:
