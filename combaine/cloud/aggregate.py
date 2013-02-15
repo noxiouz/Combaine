@@ -43,7 +43,6 @@ def formatter(aggname, subgroupsnames, groupname, aggconfig):
         res['aggname'] = aggname
         res['aggconfigname'] = aggconfig
         res['groupname'] = groupname
-        pprint.pprint(res)
         return res
     return wrap
 

@@ -47,9 +47,9 @@ class Elliptics(AbstractDistributedStorage):
                     r.close()
                     return ret
             except requests.exceptions.Timeout as err:
-                print err
+                print str(err)
             except requests.exceptions.ConnectionError as err:
-                print err
+                print str(err)
             except Exception as err:
                 print str(err)
         return []
