@@ -1,3 +1,9 @@
+combaine (0.5.1-44) lucid; urgency=low
+
+  * for d0uble - testing uniq aggregator 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 15 Feb 2013 11:51:03 +0400
+
 combaine (0.5.1-43) lucid; urgency=low
 
   * change config parametrs host -> query and group -> type 
