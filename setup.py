@@ -39,6 +39,7 @@ setup(
             ('/usr/lib/yandex/combaine/cocaine_deploy/combainer',['cocaine_deploy/combainer/__init__.py',
                                                                     'cocaine_deploy/combainer/manifest-combainer.json']),
             ('/usr/sbin/',['./scripts/combaine-deploy']),
+            ('/usr/sbin/',['./utils/combaine-check-conf']),
             ('/etc/init.d/',['./scripts/combaine-machine']),
         ]
 )
