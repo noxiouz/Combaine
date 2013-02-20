@@ -5,7 +5,7 @@ from combaine.plugins.DistributedStorage import DistributedStorageFactory
 ##
 #
 #
-#   SHEET CODE: REWRITE!!!!
+#   SHIT CODE: REWRITE!!!!
 #
 #3
 

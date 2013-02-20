@@ -16,6 +16,7 @@ import socket
 import logging
 import hashlib
 import weakref
+import traceback
 #import gc
 
 TYPES = ( "RAW", "PROCESSED" )
@@ -68,9 +69,8 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     if not data:
         logger.warning('%s Empty data from datafetcher' % uuid)
         return 'failed; Empty data from DF'
-    handle_data = itertools.takewhile(df.filter, (parser(i) for i in data))
+    handle_data = itertools.takewhile(df.filter, parser(data))
     handle_data = [l for l in handle_data if l is not None]
-    
 
     # TBD wrap in separate fucntion ->
     if any(_agg.agg_type == TYPES.index("RAW") for _agg in aggs):
@@ -124,8 +124,8 @@ def parsing(io):
         try:
             res = Main(host, config, group, prev_time, cur_time)
         except Exception as err:
-            res = 'failed;Error: %s' % err
+            res = 'failed;Error: %s' % traceback.format_exc()
         finally:
-            log.info(';'.join(res, message))
+            #log.info(';'.join(res, message))
             io.write(';'.join((res, message, socket.gethostname())))
 

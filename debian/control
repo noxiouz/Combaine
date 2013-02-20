@@ -29,7 +29,7 @@ Depends:
  libcocaine-plugin-chrono (= 0.9.0),
  libcocaine-plugin-dealer (= 0.9.0),
  libcocaine-plugin-python (= 0.9.0),
- combaine-parsers (>= 0.4.2),
+ combaine-parsers (>= 0.5.1-3),
  combaine-global-configs
 Description: Combaine cloud machine
  Fast cloud

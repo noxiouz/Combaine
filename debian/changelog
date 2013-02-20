@@ -1,3 +1,27 @@
+combaine (0.5.1-50) lucid; urgency=low
+
+  * new parser
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 20 Feb 2013 12:03:46 +0400
+
+combaine (0.5.1-45beta1ubuntu4) lucid; urgency=low
+
+  * 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Feb 2013 18:29:52 +0400
+
+combaine (0.5.1-45beta1ubuntu2) lucid; urgency=low
+
+  * dvfdgfd
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Feb 2013 18:18:45 +0400
+
+combaine (0.5.1-45beta1) lucid; urgency=low
+
+  * Test build with new multiline parser 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Feb 2013 14:32:09 +0400
+
 combaine (0.5.1-44) lucid; urgency=low
 
   * for d0uble - testing uniq aggregator 

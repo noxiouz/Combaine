@@ -55,7 +55,6 @@ class Combainer(object):
             self.MAX_PERIOD = config['MAXIMUM_PERIOD']
             self.MAX_ATTEMPS = config['MAX_ATTEMPS']
             self.MAX_RESP_WAIT_TIME = config['MAX_RESP_WAIT_TIME']
-            self.MAX_PROC_COUNT = config['MAX_PROC_COUNT']
         except Exception, err:
             log.error('__init__() failed: '+str(err))
             raise

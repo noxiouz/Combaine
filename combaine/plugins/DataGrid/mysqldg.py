@@ -101,6 +101,7 @@ class MySqlDG(AbstractDataGrid):
         #cursor = Cursor(self.db)
         self.cursor.execute(query_string)
         _ret = self.cursor.fetchall()
+        print query_string
         self.db.commit()
         #cursor.close()
         return _ret
