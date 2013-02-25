@@ -148,11 +148,12 @@ def const_parser(data):
 import parsers.parsers
 
 z = PARSERS['nginx_access_feeds_parser']
-f = open('test.log','r')
+f = open('test.log','r').readlines()
 p = parse
 #i = []
-#[p(l) for l in f]
-from pprint import pprint
+#from pprint import pprint
 xx = [l for l in f]
-const_parser(xx)
+for _ in xrange(0,10):
+    const_parser(xx)
+
 
