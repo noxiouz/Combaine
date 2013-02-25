@@ -1,3 +1,9 @@
+combaine (0.5.1-51) lucid; urgency=low
+
+  * Remove elliptics host, if timeout erroe or max_retries error is accepted.
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 25 Feb 2013 14:38:42 +0400
+
 combaine (0.5.1-50) lucid; urgency=low
 
   * new parser
