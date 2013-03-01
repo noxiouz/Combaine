@@ -1,3 +1,9 @@
+combaine (0.5.1-52) lucid; urgency=low
+
+  * varchar200 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 01 Mar 2013 16:54:26 +0400
+
 combaine (0.5.1-51) lucid; urgency=low
 
   * Remove elliptics host, if timeout erroe or max_retries error is accepted.

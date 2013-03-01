@@ -80,8 +80,8 @@ class MySqlDG(AbstractDataGrid):
 
     def _preparePlace(self, example):
         ftypes = { type(1) : "INT",
-                   type("string")  : "VARCHAR(2000)",
-                   type(u"string") : "VARCHAR(2000)",
+                   type("string")  : "VARCHAR(200)",
+                   type(u"string") : "VARCHAR(200)",
                    type(1.0)     : "FLOAT"
         }
         #print example.items()

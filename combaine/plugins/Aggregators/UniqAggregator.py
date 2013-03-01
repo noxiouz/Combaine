@@ -17,7 +17,7 @@ class Uniq(ProcessedAbstractAggregator):
         res = set()
         for line in self.data:
             [res.add(i) for i in str(line.get(self.query,"")).split(self.terminator)]
-        res.difference(set(self.skipvalues))
+        res = res.difference(set(self.skipvalues))
         return self.name, self._pack(res, timeperiod[0])
 
     def aggregate_group(self, data):
