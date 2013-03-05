@@ -1,3 +1,9 @@
+combaine (0.5.1-53) lucid; urgency=low
+
+  * Add default values for MIN_PERIOD, MAX_PERIOD, MAX_ATTEMPS, WAIT
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Mar 2013 14:00:49 +0400
+
 combaine (0.5.1-52) lucid; urgency=low
 
   * varchar200 
