@@ -45,7 +45,7 @@ class ZKLockServer(BaseLockServer):
             if (res != ZK.ZK_NODE_EXISTS ) and (res < 0):
                 self.log( 'WARN!!!','Cannot init ZK lock server')
                 raise Exception
-            self.lock = config['name']
+            self.lock = config.get('name',"dummy_lock")
             self.lockpath = '/'+self.id+'/'+self.lock
             self.locked = False
             self.lock_content = gethostname() + str(uuid.uuid4())

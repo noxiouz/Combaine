@@ -11,8 +11,8 @@ class JsonRaw(AbstractFetcher):
         self.log = logging.getLogger("combaine")
         self.filter = lambda x: True
         try:
-            self.port = config['port'] if config.has_key('port') else 8111
-            self.url = config['url'] if config.has_key('port') else "/stats"
+            self.port = config.get('port', 8111)
+            self.url = config.get('url', "/stats")
         except Exception, err:
             self.log.error("Error in init JsonRaw getter: %s" % str(err))
             raise Exception
