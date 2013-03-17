@@ -40,6 +40,7 @@ setup(
                                                                     'cocaine_deploy/combainer/manifest-combainer.json']),
             ('/usr/sbin/',['./scripts/combaine-deploy']),
             ('/usr/sbin/',['./utils/combaine-check-conf']),
+            ('/usr/sbin/',['./utils/combaine-find-parser']),
             ('/etc/init.d/',['./scripts/combaine-machine']),
         ]
 )

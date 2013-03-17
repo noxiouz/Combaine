@@ -45,12 +45,15 @@ class Agave(AbstractResultHandler):
 
     def __send_point(self, url):
         for agv_host in agave_hosts:
-            conn = httplib.HTTPConnection(agv_host)
+            conn = httplib.HTTPConnection(agv_host, timeout=0.5)
             headers = agave_headers
             headers['Host'] = agv_host+':80'
-            conn.request("GET", url, None, headers)
-            print url, agv_host, conn.getresponse().read().splitlines()[0]
-            logger.debug("%s %s" % (url, agv_host))
+            try:
+                conn.request("GET", url, None, headers)
+                print url, agv_host, conn.getresponse().read().splitlines()[0]
+                logger.debug("%s %s" % (url, agv_host))
+            except Exception as err:
+                logger.debug("Unable to connect to one agave")
 
 
     def send(self, data):
