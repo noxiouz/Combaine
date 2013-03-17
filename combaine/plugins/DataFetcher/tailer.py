@@ -22,6 +22,7 @@ class Tailer(AbstractFetcher):
         """Ignore timeperiod"""
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1.0)
             s.connect((host_name, self.port))
             res=""
             while True:
