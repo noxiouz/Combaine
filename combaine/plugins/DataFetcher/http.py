@@ -25,7 +25,7 @@ class _HTTP(AbstractFetcher):
             conn.request("GET", req, None)
             resp = conn.getresponse()
             if resp.status == 200:
-                self.log.info("Receive %s bytes", resp.getheader("Content-Length"))
+                self.log.info("Receive %s bytes" % resp.getheader("Content-Length"))
                 _ret = (line for line in resp.read().splitlines())
                 conn.close()
                 return _ret

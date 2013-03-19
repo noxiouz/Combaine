@@ -26,7 +26,7 @@ class Timetail(AbstractFetcher):
             conn.request("GET", req, None)
             resp = conn.getresponse()
             if resp.status == 200:
-                #_ret = resp.read()
+                #self.log.info("Receive %s bytes from %s" % (resp.getheader("Content-Length"), host_name))
                 _ret = (line for line in resp.read().splitlines())
                 conn.close()
                 return _ret
