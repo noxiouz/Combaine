@@ -1,8 +1,13 @@
+combaine (0.5.1-57) lucid; urgency=low
+
+  * parsers reload
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Mar 2013 15:09:23 +0400
+
 combaine (0.5.1-56) lucid; urgency=low
 
   * add timeout for socket operations in tailer 
   * test metahost 
-  * parsers reload
 
  -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Mar 2013 15:08:50 +0400
 
