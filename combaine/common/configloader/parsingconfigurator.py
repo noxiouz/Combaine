@@ -58,6 +58,8 @@ class ParsingConfigurator(object):
                 if aggregator.has_key("ResultHandlers"):
                     for name, dic in aggregator["ResultHandlers"].iteritems():
                         dic['type'] = name
+                        dic['parsing_conf'] = _parsing
+                        print dic
                         self.resulthadlers.append(dic)
 
         except Exception as err:

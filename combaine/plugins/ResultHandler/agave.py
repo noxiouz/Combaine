@@ -31,12 +31,14 @@ class Agave(AbstractResultHandler):
 
     def __init__(self, **config):
         self.graph_name = config.get("graph_name")
+        self.metahost = config['parsing_conf'].get("metahost")
         self.graph_template = config.get("graph_template")
         self.fields = config.get("Fields")
-        self.template_dict = { "template" : self.graph_template,
-                          "title"    : self.graph_name,
-                          "graphname": self.graph_name
+        self.template_dict = {  "template" : self.graph_template,
+                                "title"    : self.graph_name,
+                                "graphname": self.graph_name
                         }
+        print self.template_dict
 
     def __makeUrls(self, frmt_dict):
         self.template_dict.update(frmt_dict)
@@ -72,7 +74,7 @@ class Agave(AbstractResultHandler):
                     for_send[_sbg].append(_value)
                     time = item['time']
         for name, val in for_send.iteritems():
-            frmt_dict = { "group"   : name,
+            frmt_dict = { "group"   : self.metahost or name,
                           "values"  : "+".join(val),
                           "time"    : time
             }

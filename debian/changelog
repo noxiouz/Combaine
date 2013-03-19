@@ -1,6 +1,7 @@
 combaine (0.5.1-56) lucid; urgency=low
 
   * add timeout for socket operations in tailer 
+  * test metahost 
 
  -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 18 Mar 2013 00:21:54 +0400
 
