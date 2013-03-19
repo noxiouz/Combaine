@@ -5,7 +5,7 @@ class AbstractFetcher(object):
     
     __metaclass__ = ABCMeta
 
-    filter = None
+    filter = lambda x: True
 
     @abstractmethod
     def getData(self):
