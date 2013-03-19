@@ -21,13 +21,14 @@ import traceback
 
 TYPES = ( "RAW", "PROCESSED" )
 
-sys.path = sys.path+['/usr/lib/yandex/combaine/']
-from parsers import PARSERS
+sys.path.insert(0, '/usr/lib/yandex/combaine/')
+from parsers import * # PARSERS
 
 
 logger = logging.getLogger("combaine")
 
 def Main(host_name, config_name, group_name, previous_time, current_time):
+    reload(parsers) # for d0uble - he wants to reload parsing functions
     # DO INIT LOGGER
     uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()
     logger.info("%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time))
