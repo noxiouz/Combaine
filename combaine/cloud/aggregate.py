@@ -77,8 +77,9 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     res = []
     for key in aggs.iterkeys():
         l = [ _item[key] for _item in all_data if _item.has_key(key)]
-        f = formatter(aggs[key].name, hosts.keys(), groupname, agg_config_name)
+        f = formatter(aggs[key].name, hosts.keys(), conf.metahost or groupname, agg_config_name)
         res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
+    TEMP = conf.metahost or groupname
     #==== Clean RS from sourse data for aggregation ====
     [_res_handler.send(res) for _res_handler in res_handlers]
     ds.close()

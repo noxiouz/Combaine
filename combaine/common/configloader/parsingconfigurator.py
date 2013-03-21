@@ -24,6 +24,7 @@ class ParsingConfigurator(object):
             _db = _parsing.get("LocalDatabase")
             self.hosts_fetcher_http_hand = _combaine['Combainer'].get('HTTP_HAND')
             self.parser = _parsing.get("parser")
+            self.metahost = _parsing.get("metahost")
             if not _ds is None:
                 print "Update ds from parsing"
                 self.ds.update(_ds)
