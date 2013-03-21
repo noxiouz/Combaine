@@ -1,11 +1,14 @@
 
 from abc import ABCMeta, abstractmethod
 
+def def_filter(*args):
+    return True
+
 class AbstractFetcher(object):
     
     __metaclass__ = ABCMeta
 
-    filter = lambda x: True
+    filter = def_filter
 
     @abstractmethod
     def getData(self):
