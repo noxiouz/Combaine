@@ -2,7 +2,7 @@ import re
 import itertools
 import pprint
 
-from __abstractaggregator import AbstractAggregator
+from __abstractaggregator import RawAbstractAggregator
 
 def dec_maker(param):
     if param == 0:
@@ -21,7 +21,7 @@ def dec_maker(param):
                 if count > 0:
                     res = [ _res/count for _res in reduce(lambda x,y: map(lambda X,Y: X+Y, x,y), l)]
                     ave_time = reduce(lambda x,y: x+y, t)/count
-                    print "AAAAAA", ave_time, res
+                    print "RESULT:", ave_time, res
                     yield { ave_time : res }
                 else:
                     yield None
@@ -29,16 +29,16 @@ def dec_maker(param):
 
     return one_point_decorator
 
-class AverageAggregator(AbstractAggregator):
+class AverageAggregator(RawAbstractAggregator):
 
     def __init__(self, **config):
         super(AverageAggregator, self).__init__()
-        self.query = config['host']
+        self.query = config['query']
         self.name = config['name']
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
         print self.query
 
-    def aggregate(self, db, timeperiod):
+    def aggregate(self, timeperiod):
         def format_me(i):
             try:
                 ret = i[0][0]
@@ -46,13 +46,14 @@ class AverageAggregator(AbstractAggregator):
                 pass
             else:
                 return ret
-
+        db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
         if self.time_regex.search(self.query):
             queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
         else:
-            queries = (self.query, timeperiod[1])
-        l = ((format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries)
+            queries = [(self.query, timeperiod[1])]
+        l = [(format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries]
+        print l
         return self.name,  self._pack(l)
 
     def _pack(self, data):

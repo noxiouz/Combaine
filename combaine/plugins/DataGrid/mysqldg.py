@@ -80,8 +80,8 @@ class MySqlDG(AbstractDataGrid):
 
     def _preparePlace(self, example):
         ftypes = { type(1) : "INT",
-                   type("string")  : "VARCHAR(2000)",
-                   type(u"string") : "VARCHAR(2000)",
+                   type("string")  : "VARCHAR(200)",
+                   type(u"string") : "VARCHAR(200)",
                    type(1.0)     : "FLOAT"
         }
         #print example.items()
@@ -101,17 +101,16 @@ class MySqlDG(AbstractDataGrid):
         #cursor = Cursor(self.db)
         self.cursor.execute(query_string)
         _ret = self.cursor.fetchall()
+        print query_string
         self.db.commit()
         #cursor.close()
         return _ret
 
     def __del__(self):
         if self.db:
-            self.log.info("Destruct me! YeeaaaHHH!!!")
-            print "Called a destructor"
+            self.log.debug("Destruct me! YeeaaaHHH!!!")
             self.cursor.close()
             self.db.commit()
             self.db.close()
-            print "Success"
 
 PLUGIN_CLASS = MySqlDG

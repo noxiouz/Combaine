@@ -1,3 +1,106 @@
+combaine (0.5.1-58) lucid; urgency=low
+
+  * fix common http
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 21 Mar 2013 14:24:21 +0400
+
+combaine (0.5.1-57) lucid; urgency=low
+
+  * parsers reload
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Mar 2013 17:59:29 +0400
+
+combaine (0.5.1-56) lucid; urgency=low
+
+  * add timeout for socket operations in tailer 
+  * test metahost 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Mar 2013 15:08:50 +0400
+
+combaine (0.5.1-55) lucid; urgency=low
+
+  * add combaine-find-parser - TEST 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 18 Mar 2013 00:02:16 +0400
+
+combaine (0.5.1-54) lucid; urgency=low
+
+  * fix agave sender 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 13 Mar 2013 19:32:51 +0400
+
+combaine (0.5.1-53) lucid; urgency=low
+
+  * Add default values for MIN_PERIOD, MAX_PERIOD, MAX_ATTEMPS, WAIT
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 05 Mar 2013 15:50:39 +0400
+
+combaine (0.5.1-52) lucid; urgency=low
+
+  * varchar200 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 01 Mar 2013 16:54:26 +0400
+
+combaine (0.5.1-51) lucid; urgency=low
+
+  * Remove elliptics host, if timeout erroe or max_retries error is accepted.
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 25 Feb 2013 14:38:42 +0400
+
+combaine (0.5.1-50) lucid; urgency=low
+
+  * new parser
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 20 Feb 2013 12:03:46 +0400
+
+combaine (0.5.1-45beta1ubuntu4) lucid; urgency=low
+
+  * 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Feb 2013 18:29:52 +0400
+
+combaine (0.5.1-45beta1ubuntu2) lucid; urgency=low
+
+  * dvfdgfd
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Feb 2013 18:18:45 +0400
+
+combaine (0.5.1-45beta1) lucid; urgency=low
+
+  * Test build with new multiline parser 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 19 Feb 2013 14:32:09 +0400
+
+combaine (0.5.1-44) lucid; urgency=low
+
+  * for d0uble - testing uniq aggregator 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 15 Feb 2013 11:51:03 +0400
+
+combaine (0.5.1-43) lucid; urgency=low
+
+  * change config parametrs host -> query and group -> type 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 13 Feb 2013 23:19:25 +0400
+
+combaine (0.5.1-42) lucid; urgency=low
+
+  * add support for more than elliptics proxy
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 13 Feb 2013 17:01:53 +0400
+
+combaine (0.5.1-41) lucid; urgency=low
+
+  * Add elliptics over http support for distributed storage. 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 13 Feb 2013 01:44:06 +0400
+
+combaine (0.5.1-40) lucid; urgency=low
+
+  * ensure_index _id 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 12 Feb 2013 16:25:40 +0400
+
 combaine (0.5.1-39) lucid; urgency=low
 
   * Stable with capped collection 

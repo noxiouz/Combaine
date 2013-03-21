@@ -4,29 +4,28 @@ import logging
 import time
 import httplib
 
-class Timetail(AbstractFetcher):
 
+class _HTTP(AbstractFetcher):
+    
     def __init__(self, **config):
-        self.log = logging.getLogger('combaine')
+        self.log = logging.getLogger("combaine")
         try:
-            url = config['timetail_url']
-            self.port = config['timetail_port'] if config.has_key('timetail_port') else 3132
-            log_name = config['logname']
-            self.http_get_url = "%(url)s%(log)s&time=" % { 'url' : url, 'log' : log_name }
+            url = config.get('url','')
+            self.port = config.get('port', 3132)
+            self.http_get_url = "%(url)s" % { 'url' : url}
         except Exception, err:
-            self.log.error("Error in init Timetail getter: %s" % str(err))
+            self.log.error("Error in init HTTP Fetcher: %s" % str(err))
             raise Exception
 
     def getData(self, host_name, timeperiod):
         try:
-            self.filter = lambda item: item['Time'] < timeperiod[1]
-            req = "%s%i" % (self.http_get_url, int(time.time()) - timeperiod[0])
+            req = "%s" % self.http_get_url
             self.log.info('Get data by request: %s' % req)
             conn = httplib.HTTPConnection(host_name, self.port, timeout=2)
             conn.request("GET", req, None)
             resp = conn.getresponse()
             if resp.status == 200:
-                #self.log.info("Receive %s bytes from %s" % (resp.getheader("Content-Length"), host_name))
+                self.log.info("Receive %s bytes" % resp.getheader("Content-Length"))
                 _ret = (line for line in resp.read().splitlines())
                 conn.close()
                 return _ret
@@ -37,4 +36,4 @@ class Timetail(AbstractFetcher):
             self.log.error('Error while getting data with request: %s' % err)
             return None
 
-PLUGIN_CLASS = Timetail
+PLUGIN_CLASS = _HTTP

@@ -5,7 +5,7 @@ from combaine.plugins.DistributedStorage import DistributedStorageFactory
 ##
 #
 #
-#   SHEET CODE: REWRITE!!!!
+#   SHIT CODE: REWRITE!!!!
 #
 #3
 
@@ -31,12 +31,14 @@ class Agave(AbstractResultHandler):
 
     def __init__(self, **config):
         self.graph_name = config.get("graph_name")
+        self.metahost = config['parsing_conf'].get("metahost")
         self.graph_template = config.get("graph_template")
         self.fields = config.get("Fields")
-        self.template_dict = { "template" : self.graph_template,
-                          "title"    : self.graph_name,
-                          "graphname": self.graph_name
+        self.template_dict = {  "template" : self.graph_template,
+                                "title"    : self.graph_name,
+                                "graphname": self.graph_name
                         }
+        print self.template_dict
 
     def __makeUrls(self, frmt_dict):
         self.template_dict.update(frmt_dict)
@@ -45,12 +47,15 @@ class Agave(AbstractResultHandler):
 
     def __send_point(self, url):
         for agv_host in agave_hosts:
-            conn = httplib.HTTPConnection(agv_host)
+            conn = httplib.HTTPConnection(agv_host, timeout=0.5)
             headers = agave_headers
             headers['Host'] = agv_host+':80'
-            conn.request("GET", url, None, headers)
-            print url, agv_host, conn.getresponse().read().splitlines()[0]
-            logger.debug("%s %s" % (url, agv_host))
+            try:
+                conn.request("GET", url, None, headers)
+                print url, agv_host, conn.getresponse().read().splitlines()[0]
+                logger.debug("%s %s" % (url, agv_host))
+            except Exception as err:
+                logger.debug("Unable to connect to one agave")
 
 
     def send(self, data):
@@ -69,7 +74,7 @@ class Agave(AbstractResultHandler):
                     for_send[_sbg].append(_value)
                     time = item['time']
         for name, val in for_send.iteritems():
-            frmt_dict = { "group"   : name,
+            frmt_dict = { "group"   : self.metahost or name,
                           "values"  : "+".join(val),
                           "time"    : time
             }

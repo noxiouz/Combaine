@@ -15,7 +15,7 @@ class ParsingConfigurator(object):
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), aggregation_config), ]
-            pprint(_aggregations)
+            #pprint(_aggregations)
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
             self.db = _combaine["cloud_config"]["LocalDatabase"]
@@ -38,6 +38,7 @@ class ParsingConfigurator(object):
                 "summa" : "AverageAggregator",
                 "quant" : "QuantAggregator",
                 "average" : "AverageAggregator",
+                "uniq" : "UniqAggregator",
             }
             self.aggregators = []
             self.resulthadlers = list()
@@ -45,18 +46,22 @@ class ParsingConfigurator(object):
                 for name, dic in aggregator["data"].iteritems():
                     tmp = dict()
                     tmp["name"] = _agg_name + "@" + name
-                    tmp["host"] = dic["host"]
-                    tmp["group"] = dic["group"]
-                    if dic["group"] == "quant":
+                    tmp["query"] = dic.get("query", "EMPTY")
+                    tmp["type"] = dic["type"]
+                    tmp.update(dic)
+                    if dic["type"] == "quant":
                         tmp["values"] = dic["values"]
-                    tmp["type"] = agg_bind.get(dic["group"])  #DIRTY  HOOK!!!!!!!
+                    tmp["type"] = agg_bind.get(dic["type"])  #DIRTY  HOOK!!!!!!!
                     #pprint(tmp)
                     if not tmp["type"] is None:
                         self.aggregators.append(tmp)
                 if aggregator.has_key("ResultHandlers"):
                     for name, dic in aggregator["ResultHandlers"].iteritems():
                         dic['type'] = name
+                        dic['parsing_conf'] = _parsing
+                        print dic
                         self.resulthadlers.append(dic)
 
         except Exception as err:
             print "ERRROOOORRRISHE!!!" + str(err)
+            raise

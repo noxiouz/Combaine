@@ -26,6 +26,7 @@ class MongoReplicaSet(AbstractDistributedStorage):
             else:
                 self.db.create_collection(collection, capped=True, size=500000000, max=2000)
             self.db_cursor = self.db[collection]
+            self.db_cursor.ensure_index("_id")
         except Exception, err:
             print str(err)
             return False
@@ -43,13 +44,14 @@ class MongoReplicaSet(AbstractDistributedStorage):
 
     def insert(self, key, data):
         try:
-            _id = hashlib.md5(key).hexdigest()
             print key
-            print _id
+            _id = hashlib.md5(key).hexdigest()
+            print data
             value = {"_id" : _id, "key" : key, "value" : data, "time" : int(time.time()) }
             #print self.db_cursor.insert(value, continue_on_error=True, w=0, manipulate=False)
             print self.db_cursor.save(value, continue_on_error=True, w=1, manipulate=False)
         except Exception, err:
+            print str(err)
             return False
         else:
             return True
@@ -78,13 +80,5 @@ class MongoReplicaSet(AbstractDistributedStorage):
             return False
         else:
             return True
-
-    def clear_namespace(self):
-        try:
-            print self.db.drop_collection(self.coll_name)
-            return True
-        except Exception as err:
-            print str(err)
-            return False
 
 PLUGIN_CLASS = MongoReplicaSet

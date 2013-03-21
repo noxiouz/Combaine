@@ -1,0 +1,156 @@
+#! /usr/bin/env python
+
+import os
+import json
+import sys
+import itertools
+
+sys.path.insert(0, '/usr/lib/yandex/combaine')
+
+def OK(text="OK", linebreak=True):
+    print '\033[1;32m%10s\033[00m' % text,
+    if linebreak: print
+
+def FAIL(text="FAIL", linebreak=True):
+    print '\033[1;91m%s\033[00m' % text,
+    if linebreak: print
+
+def GINFO(text, linebreak=False):
+    print '\033[1;30m%-40s\033[00m' % text,
+    if linebreak: print
+
+def INFO(text, linebreak=True):
+    print '\033[1;m%-30s\033[00m' % text,
+    if linebreak: print
+
+def HEADER(text, linebreak=True):
+    print
+    print '\033[1;20m%-30s\033[00m' % text,
+    if linebreak: print
+
+
+
+HEADER('Checking plugin factories:')
+try:
+    INFO('Load DataGridFactory', 0)
+    from combaine.plugins.DataGrid import DataGridFactory
+    OK("%51s" % "OK")
+    INFO('Load DataFetcherFactory', 0)
+    from combaine.plugins.DataFetcher import FetcherFactory
+    OK("%51s" % "OK")
+    INFO('Load AggregatorsFactory', 0)
+    from combaine.plugins.Aggregators import AggregatorFactory
+    OK("%51s" % "OK")
+    INFO('Load DistributedStorageFactory', 0)
+    from combaine.plugins.DistributedStorage import DistributedStorageFactory
+    OK("%51s" % "OK")
+    INFO('Load Parsers', 0)
+    from parsers import PARSERS
+    OK("%51s" % "OK")
+except Exception as err:
+    FAIL("%s" % str(err))
+    sys.exit(1)
+
+factory_map = { "LocalDatabase" : DataGridFactory,
+                "DataFetcher" : FetcherFactory,
+                "DistributedStorage" : DistributedStorageFactory,
+                }
+
+def check_plugin(title):
+    INFO('Check %s' % title, 0)
+    cfg = cloud_cfg.get(title, None)
+    if cfg is None:
+        FAIL("No section")
+        return
+    GINFO(cfg.get('type'))
+    if factory_map[title](**cfg) is None:
+        FAIL('Unable to construct plugin instance')
+        return
+    OK()
+
+#
+#   Check combaine.json
+#
+HEADER('Checking combaine.json')
+try:
+    INFO('Read combaine.json', 0)
+    combaine_json = json.load(open('/etc/combaine/combaine.json'))
+    cloud_cfg = combaine_json['cloud_config']
+    combainer_cfg = combaine_json['Combainer']
+    OK("%51s" % "OK")
+except Exception as err:
+    FAIL("%s" % str(err))
+    sys.exit(1)
+
+#
+#   Check plugins
+#
+HEADER('Checking cloud_config section')
+[check_plugin(plg) for plg in factory_map.iterkeys()]
+
+#
+# CHECK LOCKSERVER!!!
+#
+
+HEADER('Checking Combainer section')
+try:
+    KEYS = ("MAX_ATTEMPS", "HTTP_HAND","MAX_RESP_WAIT_TIME","MINIMUM_PERIOD","MAXIMUM_PERIOD")
+    GINFO("MAIN",1)
+    for key in KEYS:
+        INFO(key, 0)
+        if combainer_cfg["Main"].has_key(key):
+            OK("%51s" % "OK")
+        else:
+            FAIL("No option")
+except Exception as err:
+    FAIL("%s" % str(err))
+
+#
+# Parsing confs
+#
+
+def check_par_cfg(name):
+    INFO(name, 1)
+    try:
+        cfg = json.load(open('/etc/combaine/parsing/%s.json' % name))
+        INFO("groups",0)
+        GINFO(''.join(cfg["groups"]))
+        OK()
+        INFO("parser",0)
+        GINFO(''.join(cfg["parser"]))
+        if PARSERS.has_key(cfg['parser']):
+            OK()
+        else:
+            FAIL()
+        INFO("agg_configs",0)
+        cfg["agg_configs"]
+        OK("%51s" % "OK")
+    except Exception as err:
+        FAIL("%s" % str(err))
+        print
+        return []
+    print 
+    return cfg["agg_configs"]
+
+HEADER('Checking parsing configs', 0)
+par_cfgs = [ ''.join(cfg[:-5]) for cfg in os.listdir('/etc/combaine/parsing') if cfg.endswith('.json')]
+INFO("%s" % ', '.join(par_cfgs))
+l = (check_par_cfg(cfg) for cfg in par_cfgs)
+used_agg_cfgs = set(itertools.chain(*l))
+
+#==============================
+#
+#=============================
+def check_agg_cfg(name):
+    INFO(name, 0)
+    try:
+        cfg = json.load(open('/etc/combaine/aggregate/%s.json' % name))
+    except Exception as err:
+        FAIL("%s" % str(err))
+        print 
+        return
+    OK()
+
+HEADER('Checking aggregation configs', 1)
+[check_agg_cfg(_) for _ in used_agg_cfgs]
+

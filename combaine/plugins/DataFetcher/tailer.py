@@ -22,6 +22,7 @@ class Tailer(AbstractFetcher):
         """Ignore timeperiod"""
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1.0)
             s.connect((host_name, self.port))
             res=""
             while True:
@@ -49,6 +50,7 @@ class Tailer(AbstractFetcher):
         except Exception as err:
             self.log.error('Error while getting data with request: %s' % err)
             return None
+
 
 
 PLUGIN_CLASS = Tailer

@@ -28,12 +28,11 @@ import hashlib
 import signal
 import sys
 import re
-#import pprint
+import pprint
 import random
 
 from combaine.plugins import LockServerAPI
 from combaine.plugins import StorageAPI
-#import Receiver
 import Observer.client
 import Scheduler.scheduler
 
@@ -47,19 +46,19 @@ class Combainer(object):
         self.parsing_confs = []
         #-----------------------------------------
         #-----------------------------------------
-        observer_conf = config["Observer"] if config.has_key("Observer") else {}
+        observer_conf = config.get("Observer", {})
         self.observer = Observer.client.ObserverClient(**observer_conf)
+
+        self.MIN_PERIOD = config.get('MINIMUM_PERIOD', 30)
+        self.MAX_PERIOD = config.get('MAXIMUM_PERIOD', self.MIN_PERIOD * 1.5)
+        self.MAX_ATTEMPS = config.get('MAX_ATTEMPS', 2)
+        self.MAX_RESP_WAIT_TIME = config.get('MAX_RESP_WAIT_TIME', self.MAX_PERIOD * 1.1)
         try:
             self.HTTP_HAND = config['HTTP_HAND']
-            self.MIN_PERIOD = config['MINIMUM_PERIOD']
-            self.MAX_PERIOD = config['MAXIMUM_PERIOD']
-            self.MAX_ATTEMPS = config['MAX_ATTEMPS']
-            self.MAX_RESP_WAIT_TIME = config['MAX_RESP_WAIT_TIME']
-            self.MAX_PROC_COUNT = config['MAX_PROC_COUNT']
         except Exception, err:
-            log.error('__init__() failed: '+str(err))
+            log.error('Initialization of Combainer was failed: There is no configuration for HTTP_HAND in Combaine.json')
             raise
-    
+
     def destroy(self):
         """ Destroy combainer safely. I hope) """
         if hasattr(self, "lockserver"):
@@ -74,25 +73,19 @@ class Combainer(object):
             except Exception, err:
                 log.debug('Destroy ST %s' % err)
 
-        #try:
-        #    self.killallinPool()
-        #except Exception, err:
-        #    log.debug('Destroy Pool %s' % err)
-        #    pass
-
     def getConfigsList(self):
         pattern = '[^.]*\.json$'
         regex = re.compile(pattern)
         log.debug('Read configs')
-        PARSING_CONF_PATH='/etc/combaine/parsing'
-        AGGREGATE_CONF_PATH='/etc/combaine/aggregate'
+        PARSING_CONF_PATH = '/etc/combaine/parsing'
+        AGGREGATE_CONF_PATH = '/etc/combaine/aggregate'
         try:
             self.parsing_confs = [filename for filename in os.listdir(PARSING_CONF_PATH) if regex.match(filename)]
             print self.parsing_confs
         except Exception, err:
             log.error('No configs: '+ str(err) )
             print 'ERRORR'+str(err)
-            return False 
+            return False
         else:
             return True
 
@@ -117,8 +110,8 @@ class Combainer(object):
                 return values
 
         self.messages = {}
-        AGGREGATE_CONF_PATH='/etc/combaine/aggregate'
-        PARSING_CONF_PATH='/etc/combaine/parsing'
+        AGGREGATE_CONF_PATH = '/etc/combaine/aggregate'
+        PARSING_CONF_PATH = '/etc/combaine/parsing'
         #---------------------------------------------
         try:
             ParConfs = self.parsing_confs
@@ -158,7 +151,6 @@ class Combainer(object):
         #------------------------------------------------------------------------------------
         self.observer.getCombainerInfo(self.parsing_confs, self.groups_conf.keys())
         #------------------------------------------------------------------------------------
-        import pprint
         pprint.pprint(self.messages)
         return True
 
