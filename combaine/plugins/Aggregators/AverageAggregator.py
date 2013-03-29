@@ -35,14 +35,17 @@ class AverageAggregator(RawAbstractAggregator):
         super(AverageAggregator, self).__init__()
         self.query = config['query']
         self.name = config['name']
+        self._is_rps = config.has_key("rps")
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
         print self.query
 
     def aggregate(self, timeperiod):
+        normalize = (timeperiod[1] - timeperiod[0]) if self._is_rps else 1
         def format_me(i):
             try:
-                ret = i[0][0]
+                ret = i[0][0]/normalize
             except Exception:
+                print "Wrong type for normalization"
                 pass
             else:
                 return ret

@@ -41,7 +41,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     if parser is None:
         print "No PARSER"
         logger.error('%s No properly parser available' % uuid)
-        return "Failed"
+        return "failed; No parser"
 
     # Construct Distributed Storage
     ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
@@ -87,7 +87,6 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
 
         tablename = ''.join(group_name[:30]) + hashlib.md5('%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
         if not db.putData(handle_data , tablename):
-            print 'No data to put in the localdb'
             logger.warning('%s Empty data for localdb' % uuid)
             return 'failed; No data for local db'
     # TBD end of wrap

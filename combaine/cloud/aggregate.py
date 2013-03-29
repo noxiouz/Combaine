@@ -49,10 +49,9 @@ def formatter(aggname, subgroupsnames, groupname, aggconfig):
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     uuid = hashlib.md5("%s%s%s%i%i" %(groupname, config_name, agg_config_name, previous_time, current_time)).hexdigest()
     logger.info("Start aggregation: %s %s %s %s %i-%i" % (uuid, groupname, config_name, agg_config_name, previous_time, current_time))
-    print "===== INITIALIZTION ====" 
+
     conf = ParsingConfigurator(config_name, agg_config_name)
 
-    print "===== DS init =========="
     ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
     if ds is None:
         logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
@@ -63,7 +62,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     res_handlers = [ ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
 
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
-    print "====== GET HOSTS LIST ===="
+
     hosts = split_hosts_by_dc(groupname)
 
     all_data = list()
