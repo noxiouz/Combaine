@@ -1,3 +1,9 @@
+combaine (0.5.1-62) lucid; urgency=low
+
+  * now support redefining some timeouts in parsing conf  
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Sun, 31 Mar 2013 20:54:09 +0400
+
 combaine (0.5.1-61) lucid; urgency=low
 
   * add support for rps in average aggregator ("rsp" :  1)
