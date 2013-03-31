@@ -1,6 +1,6 @@
 from __abstractstorage import BaseStorage
 
-class NullStorage(BasicStorage):
+class NullStorage(BaseStorage):
 
     def __init__(self, **config):
         self.finish = None
