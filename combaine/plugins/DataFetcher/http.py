@@ -1,14 +1,13 @@
-from __abstractfetcher import AbstractFetcher
-
-import logging
 import time
 import httplib
 
+from __abstractfetcher import AbstractFetcher
+from combaine.common.loggers import CommonLogger
 
 class _HTTP(AbstractFetcher):
     
     def __init__(self, **config):
-        self.log = logging.getLogger("combaine")
+        self.log = CommonLogger()
         try:
             url = config.get('url','')
             self.port = config.get('port', 3132)

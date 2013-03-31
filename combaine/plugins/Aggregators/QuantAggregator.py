@@ -1,12 +1,11 @@
 import re
 import itertools
 import collections
-import pprint
 import logging
 
-logger = logging.getLogger("combaine")
 
 from __abstractaggregator import RawAbstractAggregator
+from combaine.common.loggers import CommonLogger
 
 """
     DESCRIBE THIS!!!!
@@ -29,8 +28,6 @@ def dec_maker(param):
                 t = (i.keys()[0] for i in res)
                 count = len(res)
                 if count != 0:
-                    print res
-                    logger.info(str(res))
                     Y = ( _res for _res in reduce(lambda x,y: map(lambda X,Y: map(lambda g,j: g+j, X,Y), x,y), l))
                     ave_time = reduce(lambda x,y: x+y, t)/count
                     ret =  [[j/count for j in k] for k in Y]
@@ -92,9 +89,9 @@ class QuantilAggregator(RawAbstractAggregator):
     
     def __init__(self, **config):
         super(QuantilAggregator, self).__init__()
+        self.logger = CommonLogger()
         self.query = config['query']
         self.name = config['name']
-        print config
         self.quants = config['values']
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
 

@@ -1,7 +1,6 @@
 from __abstractfetcher import AbstractFetcher
+from combaine.common.loggers import CommonLogger
 
-
-import logging
 import time
 import socket
 import json
@@ -9,11 +8,12 @@ import json
 class Tailer(AbstractFetcher):
 
     def __init__(self, **config):
-        self.log = logging.getLogger("combaine")
+        self.log = CommonLogger()
         self.filter = lambda x: True
         try:
             self.port = config['port'] if config.has_key('port') else 89
         except Exception, err:
+            print err
             self.log.error("Error in init Tailer getter: %s" % str(err))
             raise Exception
 
@@ -48,6 +48,7 @@ class Tailer(AbstractFetcher):
             d['time'] = int(0.5*(timeperiod[0]+timeperiod[1]))
             return (json.dumps(d),)
         except Exception as err:
+            print err
             self.log.error('Error while getting data with request: %s' % err)
             return None
 

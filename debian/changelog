@@ -1,8 +1,9 @@
 combaine (0.5.1-62) lucid; urgency=low
 
   * now support redefining some timeouts in parsing conf  
+  * refactor logging system for cloud services
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Sun, 31 Mar 2013 20:54:09 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 01 Apr 2013 01:36:34 +0400
 
 combaine (0.5.1-61) lucid; urgency=low
 

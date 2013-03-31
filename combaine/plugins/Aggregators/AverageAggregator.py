@@ -1,8 +1,8 @@
 import re
 import itertools
-import pprint
 
 from __abstractaggregator import RawAbstractAggregator
+from combaine.common.loggers import CommonLogger
 
 def dec_maker(param):
     if param == 0:
@@ -17,7 +17,6 @@ def dec_maker(param):
                 l = (i.values()[0] for i in ret)
                 t = (i.keys()[0] for i in ret)
                 count = len(ret)
-                print count
                 if count > 0:
                     res = [ _res/count for _res in reduce(lambda x,y: map(lambda X,Y: X+Y, x,y), l)]
                     ave_time = reduce(lambda x,y: x+y, t)/count
@@ -32,12 +31,12 @@ def dec_maker(param):
 class AverageAggregator(RawAbstractAggregator):
 
     def __init__(self, **config):
+        self.logger = CommonLogger()
         super(AverageAggregator, self).__init__()
         self.query = config['query']
         self.name = config['name']
         self._is_rps = config.has_key("rps")
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
-        print self.query
 
     def aggregate(self, timeperiod):
         normalize = (timeperiod[1] - timeperiod[0]) if self._is_rps else 1
@@ -45,7 +44,7 @@ class AverageAggregator(RawAbstractAggregator):
             try:
                 ret = i[0][0]/normalize
             except Exception:
-                print "Wrong type for normalization"
+                self.logger.exception("Wrong type for normalization")
                 pass
             else:
                 return ret
@@ -56,7 +55,7 @@ class AverageAggregator(RawAbstractAggregator):
         else:
             queries = [(self.query, timeperiod[1])]
         l = [(format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries]
-        print l
+        self.logger.debug("Result of %s aggreagtion: %s" % (self.name, l))
         return self.name,  self._pack(l)
 
     def _pack(self, data):
@@ -85,7 +84,7 @@ class AverageAggregator(RawAbstractAggregator):
                 per_subgroup_count.append((sum(subgroup)))
             group_summ = sum(per_subgroup_count)
             per_subgroup_count.append(group_summ)
-            print per_subgroup_count
+            self.logger.debug("By subgroups %s" % per_subgroup_count)
             yield { time : per_subgroup_count }
 
 

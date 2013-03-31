@@ -1,6 +1,8 @@
 
 from abc import ABCMeta, abstractmethod
 
+from combaine.common.loggers import DataGridLogger
+
 class AbstractDataGrid(object):
     
     __metaclass__ = ABCMeta

@@ -1,19 +1,19 @@
-from __AbstractStorage import AbstractDistributedStorage
-
 import requests
 import hashlib
-#import msgpack
-from cPickle import dumps as PACK
-from cPickle import loads as UNPACK
-
 import string
 import random
 
-from time import sleep
+from cPickle import dumps as PACK
+from cPickle import loads as UNPACK
+
+from __AbstractStorage import AbstractDistributedStorage
+from combaine.common.loggers import CommonLogger
+
 
 class Elliptics(AbstractDistributedStorage):
 
     def __init__(self, **config):
+        self.logger = CommonLogger()
         cfg = [tuple(_i.split(":")) for _i in config["proxy_hosts"]]
         random.shuffle(cfg)
         self.hostsinfo = cfg
@@ -29,11 +29,12 @@ class Elliptics(AbstractDistributedStorage):
             try:
                 r = requests.post(self.write_url.substitute(KEY=key, HOST=host, W_PORT=w_port), data=PACK(data), timeout=1)
                 if r.status_code == 503: #because elliptics write cache bug
+                    self.logger.debug("Elliptics: insert key %s succesfully" % key)
                     return True
             except requests.exceptions.Timeout as err:
                 self.hostsinfo.remove((host, r_port, w_port))
             except requests.exceptions.ConnectionError as err:
-                print self.hostsinfo
+                self.logger.debug("Elliptics hosts: %s" % self.hostsinfo)
                 self.hostsinfo.remove((host, r_port, w_port))
         return False
 
@@ -51,7 +52,7 @@ class Elliptics(AbstractDistributedStorage):
             except requests.exceptions.ConnectionError as err:
                 self.hostsinfo.remove((host, r_port, w_port))
             except Exception as err:
-                print str(err)
+                self.logger.exception("Read error in elliptics proxy")
         return []
 
     def remove(self, key):

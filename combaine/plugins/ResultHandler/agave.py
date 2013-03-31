@@ -1,6 +1,7 @@
 from _abstractresulthandler import AbstractResultHandler
 
 from combaine.plugins.DistributedStorage import DistributedStorageFactory
+from combaine.common.loggers import CommonLogger
 
 ##
 #
@@ -25,11 +26,10 @@ agave_headers = {
 
 agave_hosts = json.load(open('/etc/combaine/combaine.json'))["cloud_config"]['agave_hosts']
 
-logger = logging.getLogger("combaine")
-
 class Agave(AbstractResultHandler):
 
     def __init__(self, **config):
+        self.logger = CommonLogger()
         self.graph_name = config.get("graph_name")
         self.graph_template = config.get("graph_template")
         self.fields = config.get("Fields")
@@ -37,7 +37,7 @@ class Agave(AbstractResultHandler):
                                 "title"    : self.graph_name,
                                 "graphname": self.graph_name
                         }
-        print self.template_dict
+        self.logger.debug(self.template_dict)
 
     def __makeUrls(self, frmt_dict):
         self.template_dict.update(frmt_dict)
@@ -51,16 +51,16 @@ class Agave(AbstractResultHandler):
             headers['Host'] = agv_host+':80'
             try:
                 conn.request("GET", url, None, headers)
-                print url, agv_host, conn.getresponse().read().splitlines()[0]
-                logger.debug("%s %s" % (url, agv_host))
+                #print url, agv_host, conn.getresponse().read().splitlines()[0]
+                self.logger.debug("%s %s" % (url, agv_host))
             except Exception as err:
-                logger.debug("Unable to connect to one agave")
+                self.logger.exception("Unable to connect to one agave")
 
 
     def send(self, data):
         for_send = collections.defaultdict(list)
         time = None
-        print data
+        #print data
         for items in data:
             for item in items:
                 for sbg_name, val in item["values"].iteritems():

@@ -1,12 +1,5 @@
 #! /usr/bin/env python
 
-from combaine.plugins.DataGrid import DataGridFactory
-from combaine.plugins.DataFetcher import FetcherFactory
-from combaine.plugins.Aggregators import AggregatorFactory
-from combaine.plugins.DistributedStorage import DistributedStorageFactory
-from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
-import config
-
 import sys
 import time
 import re
@@ -15,49 +8,48 @@ import pprint
 import socket
 import logging
 import hashlib
-import weakref
 import traceback
-#import gc
 
-TYPES = ( "RAW", "PROCESSED" )
+from combaine.plugins.DataGrid import DataGridFactory
+from combaine.plugins.DataFetcher import FetcherFactory
+from combaine.plugins.Aggregators import AggregatorFactory
+from combaine.plugins.DistributedStorage import DistributedStorageFactory
+from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
+from combaine.common.loggers import ParsingLogger
 
 sys.path.insert(0, '/usr/lib/yandex/combaine/')
 from parsers import * # PARSERS
 
+TYPES = ( "RAW", "PROCESSED" )
 
-logger = logging.getLogger("combaine")
+
 
 def Main(host_name, config_name, group_name, previous_time, current_time):
     reload(parsers) # for d0uble - he wants to reload parsing functions
-    # DO INIT LOGGER
-    uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()
-    logger.info("%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time))
-    print "%s Start: %s %s %s %i %i" %(uuid, host_name, config_name, group_name, previous_time, current_time)
+    uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()[:10]
+    logger = ParsingLogger(uuid)
+    logger.info("Start parsing: %s %s %s %i %i" %(host_name, config_name, group_name, previous_time, current_time))
     conf = ParsingConfigurator(config_name)
 
     # Construct parser function
     parser = PARSERS.get(conf.parser, None)
 
     if parser is None:
-        print "No PARSER"
-        logger.error('%s No properly parser available' % uuid)
+        logger.error('No properly parser available')
         return "failed; No parser"
 
     # Construct Distributed Storage
     ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
     if ds is None:
-        print "DS init Error"
-        logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
+        logger.error('Failed to init distributed storage like MongoRS')
         return 'failed; DS init Error'
     if not ds.connect('combaine_mid/%s' % config_name): # CHECK NAME OF COLLECTION!!!!
-        print 'FAIL'
-        logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
+        logger.error('Cannot connect to distributed storage like MongoRS')
         return 'failed; Connect to DS'
     
     # Construct Data Fetcher
     df = FetcherFactory(**conf.df)    # Get DataFetcher
     if df is None:
-        print "DF init Error"
         logger.error('%s Failed to init datafetcher' % uuid)
         return 'failed; Failed to init DF'
 
@@ -70,7 +62,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     if not data:
         logger.warning('%s Empty data from datafetcher' % uuid)
         return 'failed; Empty data from DF'
-    #handle_data = itertools.takewhile(df.filter, parser(data))
+
     handle_data = (l for l in parser(data) if df.filter(l))
     handle_data = [l for l in handle_data if l is not None]
 
@@ -78,8 +70,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     if any(_agg.agg_type == TYPES.index("RAW") for _agg in aggs):
         db = DataGridFactory(**conf.db)  # Get DataGrid
         if db is None:
-            #print "DB init Error"
-            logger.error('%s Failed to init local databse' % uuid)
+            logger.error('Failed to init local databse')
             return 'failed; Failed to init DG'
 
         [_agg.set_datagrid_backend(db) for _agg in aggs if _agg.agg_type == TYPES.index("RAW")]
@@ -87,7 +78,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
 
         tablename = ''.join(group_name[:30]) + hashlib.md5('%s_%s_%s' % (config_name, group_name, host_name)).hexdigest()
         if not db.putData(handle_data , tablename):
-            logger.warning('%s Empty data for localdb' % uuid)
+            logger.warning('Empty data for localdb')
             return 'failed; No data for local db'
     # TBD end of wrap
 
@@ -95,17 +86,15 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         [_agg.set_data(handle_data) for _agg in aggs if _agg.agg_type == TYPES.index("PROCESSED")]
 
     res = itertools.chain( [_agg.aggregate((previous_time, current_time)) for _agg in aggs])
-    print  [ds.insert("%(host)s;%(conf)s;%(time)s;%(etime)s;%(aggname)s" % {\
+    logger.debug("Send data to storage: %s" % [ds.insert("%(host)s;%(conf)s;%(time)s;%(etime)s;%(aggname)s" % {\
                                                                     'host'  : host_name.replace('.','_').replace('-','_'),\
                                                                     'conf'  : config_name,\
                                                                     'time'  : previous_time,\
                                                                     'etime' : current_time,\
                                                                   'aggname' : l[0]},
-                                                                                     l[1]) for l in res]
+                                                                                     l[1]) for l in res])
     ds.close()
-    logger.info('%s Success' % uuid)
-    print "Success"
-    #gc.collect()
+    logger.info('Parsing has finished successfully')
     return 'success'
 
 
@@ -127,6 +116,5 @@ def parsing(io):
         except Exception as err:
             res = 'failed;Error: %s' % traceback.format_exc()
         finally:
-            #log.info(';'.join(res, message))
             io.write(';'.join((res, message, socket.gethostname())))
 

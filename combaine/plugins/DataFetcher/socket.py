@@ -1,4 +1,5 @@
 from __abstractfetcher import AbstractFetcher
+from combaine.common.loggers import CommonLogger
 
 
 import logging
@@ -8,7 +9,7 @@ import socket
 class _Socket(AbstractFetcher):
 
     def __init__(self, **config):
-        self.log = logging.getLogger("combaine")
+        self.log = CommonLogger()
         try:
             self.port = config.get('port', 89)
         except Exception, err:

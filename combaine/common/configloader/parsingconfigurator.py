@@ -1,21 +1,20 @@
 import json
-from pprint import pprint
+
+from combaine.common.loggers import CommonLogger
 
 
 class ParsingConfigurator(object):
 
     def __init__(self, parsingconf, aggregation_config=None):
-        # read combaine.json
+        self.logger = CommonLogger()
+        self.logger.debug("read combaine.json")
         try:
             _combaine = json.load(open('/etc/combaine/combaine.json'))
-            #pprint(_combaine)
             _parsing = json.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
-            #pprint(_parsing)
             if aggregation_config is None:
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), aggregation_config), ]
-            #pprint(_aggregations)
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
             self.db = _combaine["cloud_config"]["LocalDatabase"]
@@ -26,13 +25,13 @@ class ParsingConfigurator(object):
             self.parser = _parsing.get("parser")
             self.metahost = _parsing.get("metahost")
             if not _ds is None:
-                print "Update ds from parsing"
+                self.logger.debug("Update ds from parsing")
                 self.ds.update(_ds)
             if not _df is None:
-                print "Update ds from parsing"
+                self.logger.debug("Update ds from parsing")
                 self.df.update(_df)
             if not _db is None:
-                print "Update ds from parsing"
+                self.logger.debug("Update ds from parsing")
                 self.db.update(_db)
             #===============
             agg_bind = {
@@ -53,16 +52,14 @@ class ParsingConfigurator(object):
                     if dic["type"] == "quant":
                         tmp["values"] = dic["values"]
                     tmp["type"] = agg_bind.get(dic["type"])  #DIRTY  HOOK!!!!!!!
-                    #pprint(tmp)
                     if not tmp["type"] is None:
                         self.aggregators.append(tmp)
                 if aggregator.has_key("ResultHandlers"):
                     for name, dic in aggregator["ResultHandlers"].iteritems():
                         dic['type'] = name
                         dic['parsing_conf'] = _parsing
-                        print dic
                         self.resulthadlers.append(dic)
-
+                        self.logger.debug(dic)
         except Exception as err:
-            print "ERRROOOORRRISHE!!!" + str(err)
+            self.logger.exception("Error in read confing")
             raise

@@ -1,11 +1,4 @@
 #! /usr/bin/env python
-
-from combaine.plugins.Aggregators import AggregatorFactory
-from combaine.plugins.DistributedStorage import DistributedStorageFactory
-from combaine.plugins.ResultHandler import ResultHandlerFactory
-from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
-import config
-
 import time
 import logging
 import urllib
@@ -16,7 +9,14 @@ import json
 import socket
 import hashlib
 
-logger = logging.getLogger("combaine")
+from combaine.plugins.Aggregators import AggregatorFactory
+from combaine.plugins.DistributedStorage import DistributedStorageFactory
+from combaine.plugins.ResultHandler import ResultHandlerFactory
+from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
+from combaine.common.loggers import AggregateLogger
+from combaine.common.loggers import CommonLogger
+
+
 
 try:
     http_hand_url = json.load(open('/etc/combaine/combaine.json'))['Combainer']['Main']['HTTP_HAND']
@@ -47,19 +47,20 @@ def formatter(aggname, subgroupsnames, groupname, aggconfig):
     return wrap
 
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
-    uuid = hashlib.md5("%s%s%s%i%i" %(groupname, config_name, agg_config_name, previous_time, current_time)).hexdigest()
-    logger.info("Start aggregation: %s %s %s %s %i-%i" % (uuid, groupname, config_name, agg_config_name, previous_time, current_time))
+    uuid = hashlib.md5("%s%s%s%i%i" %(groupname, config_name, agg_config_name, previous_time, current_time)).hexdigest()[:10]
+    logger = AggregateLogger(uuid)
+    logger.info("Start aggregation: %s %s %s %i-%i" % (groupname, config_name, agg_config_name, previous_time, current_time))
 
     conf = ParsingConfigurator(config_name, agg_config_name)
 
     ds = DistributedStorageFactory(**conf.ds) # Get Distributed storage  
     if ds is None:
-        logger.error('%s Failed to init distributed storage like MongoRS' % uuid)
+        logger.error('Failed to init distributed storage like MongoRS')
         return 'failed'
     if not ds.connect('combaine_mid/%s' % config_name): # CHECK NAME OF COLLECTION!!!!
-        logger.error('%s Cannot connect to distributed storage like MongoRS' % uuid)
+        logger.error('Cannot connect to distributed storage like MongoRS')
         return 'failed'
-    res_handlers = [ ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
+    res_handlers = [ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
 
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
 
@@ -69,7 +70,9 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     for sbgrp in hosts.values():
         data_by_subgrp = collections.defaultdict(list)
         for hst in sbgrp:
-           _l = ((ds.read("%s;%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'), config_name, previous_time, current_time, _agg), cache=True), _agg) for _agg in aggs)
+           _l = ((ds.read("%s;%s;%i;%i;%s" % (hst.replace('-','_').replace('.','_'),\
+                                                config_name, previous_time, current_time, _agg),\
+                                                cache=True), _agg) for _agg in aggs)
            [data_by_subgrp[_name].append(val) for val, _name in _l]
 
         all_data.append(dict(data_by_subgrp))
@@ -79,10 +82,12 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         f = formatter(aggs[key].name, hosts.keys(), conf.metahost or groupname, agg_config_name)
         res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
     TEMP = conf.metahost or groupname
+
     #==== Clean RS from sourse data for aggregation ====
+    logger.info("Hadling data by result handlers")
     [_res_handler.send(res) for _res_handler in res_handlers]
     ds.close()
-    logger.info("%s Success" % uuid)
+    logger.info("Aggregation has finished successfully")
     return "Success"
 
 def aggregate_group(io):
@@ -95,6 +100,7 @@ def aggregate_group(io):
         cur_time = int(cur_time)
     except Exception as err:
         io.write("failed;Wrong message format:%s;%s;%s" % (message, socket.gethostname(), str(err)))
+        logger = CommonLogger()
         logger.error("Wrong message %s" % message)
         return
     else:
@@ -102,7 +108,5 @@ def aggregate_group(io):
             res = Main(group_name, config_name, agg_config_name, prev_time, cur_time)
         except Exception as err:
             res = 'failed;Error: %s' % err
-            logger.error(str(err), exc_info=1)
         finally:
-            logger.info("For %s: %s" % (message, str(res)))
             io.write(';'.join((res, message, socket.gethostname())))
