@@ -319,6 +319,17 @@ class Combainer(object):
             self.lockserver.setLockName(config_name.split('.')[0]) #strip ext .json
             if self.lockserver.getlock():
                 self.parsing_confs = [config_name]
+                try:
+                    _conf = json.load(open('/etc/combaine/parsing/%s' % config_name))
+                    if _conf.has_key("Combainer"):
+                        self.MIN_PERIOD = _conf["Combainer"].get('MINIMUM_PERIOD', self.MIN_PERIOD)
+                        self.MAX_PERIOD = _conf["Combainer"].get('MAXIMUM_PERIOD', self.MAX_PERIOD)
+                        self.MAX_ATTEMPS = _conf["Combainer"].get('MAX_ATTEMPS', self.MAX_ATTEMPS)
+                        self.MAX_RESP_WAIT_TIME = _conf["Combainer"].get('MAX_RESP_WAIT_TIME', self.MAX_RESP_WAIT_TIME)
+                        print "Redefine:", self.MIN_PERIOD, self.MAX_PERIOD, self.MAX_ATTEMPS, self.MAX_RESP_WAIT_TIME
+                except Exception as err:
+                    print err
+                    return False
                 return True
         return False
 
