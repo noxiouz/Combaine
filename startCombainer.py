@@ -29,11 +29,16 @@ from combaine.common import configlog
 
 log = logging.getLogger('combaine')
 
+DEFAULT_STORAGE = {
+        "type" : "null",
+        "app_id" : "Combaine"
+}
+
 def parseConfig():
     combaine_json = json.load(open('/etc/combaine/combaine.json','r'))["Combainer"]
     combainer_dict = combaine_json["Main"]
     lockserver_dict = combaine_json["Lockserver"]
-    storage_dict = combaine_json["Storage"]
+    storage_dict = combaine_json.get("Storage", DEFAULT_STORAGE)
     return combainer_dict, lockserver_dict, storage_dict
 
 def Main():
