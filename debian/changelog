@@ -1,3 +1,9 @@
+combaine (0.5.1-64) lucid; urgency=low
+
+  * increase agave http timeout to 1 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 12 Apr 2013 21:10:50 +0400
+
 combaine (0.5.1-63) lucid; urgency=low
 
   * repair null storage

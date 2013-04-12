@@ -46,7 +46,7 @@ class Agave(AbstractResultHandler):
 
     def __send_point(self, url):
         for agv_host in agave_hosts:
-            conn = httplib.HTTPConnection(agv_host, timeout=0.5)
+            conn = httplib.HTTPConnection(agv_host, timeout=1)
             headers = agave_headers
             headers['Host'] = agv_host+':80'
             try:
