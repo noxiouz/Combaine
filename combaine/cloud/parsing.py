@@ -20,7 +20,7 @@ from combaine.common.loggers import ParsingLogger
 sys.path.insert(0, '/usr/lib/yandex/combaine/')
 from parsers import * # PARSERS
 
-TYPES = ( "RAW", "PROCESSED" )
+TYPES = ("RAW", "PROCESSED")
 
 
 

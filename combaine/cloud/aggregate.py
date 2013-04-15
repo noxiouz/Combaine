@@ -32,18 +32,6 @@ def split_hosts_by_dc(subgroups):
         host_dict[dc].append(host)
     return host_dict
 
-def formatter(aggname, subgroupsnames, groupname, aggconfig):
-    def wrap(resitem):
-        res = dict()
-        res['time'], values = resitem.items()[0]
-        l = itertools.izip_longest(subgroupsnames, values, fillvalue=groupname)
-        res['values'] = dict((x for x in l))
-        res['aggname'] = aggname
-        res['aggconfigname'] = aggconfig
-        res['groupname'] = groupname
-        return res
-    return wrap
-
 def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     uuid = hashlib.md5("%s%s%s%i%i" %(groupname, config_name, agg_config_name, previous_time, current_time)).hexdigest()[:10]
     logger = AggregateLogger(uuid)
@@ -87,7 +75,12 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
 
     #==== Clean RS from sourse data for aggregation ====
     logger.info("Hadling data by result handlers")
-    [_res_handler.send(res) for _res_handler in res_handlers]
+    try:
+        for _res_handler in res_handlers:
+            _res_handler.send(res) 
+    except Exception as err:
+        logger.exception(err)
+        
     ds.close()
     logger.info("Aggregation has finished successfully")
     return "Success"
