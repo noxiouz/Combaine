@@ -10,7 +10,7 @@ class AbstractAggregator(object):
 
     def __init__(self):
         self.table_regex = re.compile('%TABLENAME%')
-        self.time_regex = re.compile('%%')
+        self.time_regex = re.compile("TIME\s*=\s*%%")
 
     @abstractmethod
     def aggregate(self, datagrid_object):

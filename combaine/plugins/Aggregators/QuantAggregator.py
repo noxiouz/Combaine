@@ -68,6 +68,7 @@ class QuantilAggregator(RawAbstractAggregator):
     def aggregate(self, timeperiod):
         db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
+        self.query = self.time_regex.sub("1=1", self.query) # DEPRECATED: Only for backward compability
         data = (db.perfomCustomQuery(self.query), timeperiod[1])
         return self.name, self._pack(data)
 

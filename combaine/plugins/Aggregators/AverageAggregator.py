@@ -26,6 +26,7 @@ class AverageAggregator(RawAbstractAggregator):
                 return ret
         db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
+        self.query = self.time_regex.sub("1=1", self.query) # Only for backward compability
         l = (format_me(db.perfomCustomQuery(self.query)), timeperiod[1])
         self.logger.debug("Result of %s aggreagtion: %s" % (self.name, l))
         return self.name,  self._pack(l)
