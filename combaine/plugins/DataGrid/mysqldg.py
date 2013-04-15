@@ -89,7 +89,7 @@ class MySqlDG(AbstractDataGrid):
             return True
 
     def perfomCustomQuery(self, query_string):
-        self.logger.debug("Execute query: %s" % query_string)
+        #self.logger.debug("Execute query: %s" % query_string)
         self.cursor.execute(query_string)
         _ret = self.cursor.fetchall()
         self.db.commit()

@@ -18,6 +18,7 @@ setup(
             'combaine.common',
             'combaine.common.configloader',
             'combaine.common.ZKeeperAPI',
+            'combaine.common.interfaces',
             'combaine.cloud',
             'combaine.combainer',
             'combaine.combainer.Scheduler',

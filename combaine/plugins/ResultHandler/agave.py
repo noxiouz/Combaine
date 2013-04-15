@@ -59,26 +59,23 @@ class Agave(AbstractResultHandler):
 
     def send(self, data):
         for_send = collections.defaultdict(list)
-        time = None
-        #print data
-        for items in data:
-            for item in items:
-                for sbg_name, val in item["values"].iteritems():
-                    _sbg = sbg_name if sbg_name == item["groupname"] else (item["groupname"] + "-" + sbg_name)
-                    if isinstance(val, types.ListType):
-                        l = itertools.izip(self.fields[item['aggname'].split("@")[-1]],val)
-                        _value = "+".join(("%s:%i" % x for x in l))
-                    else:
-                        _value = "%s:%s" % (item['aggname'].split("@")[-1], str(val) )
-                    for_send[_sbg].append(_value)
-                    time = item['time']
+        for aggres in data:
+            for sbg_name, val in aggres.values:
+                _sbg = sbg_name if sbg_name == aggres.groupname else "-".join((aggres.groupname, sbg_name))
+                if isinstance(val, types.ListType): # Quantile
+                    l = itertools.izip(self.fields[aggres.aggname], val)
+                    _value = "+".join(("%s:%s" % x for x in l))
+                else: # Simle single value
+                    _value = "%s:%s" % (aggres.aggname, val)
+                for_send[_sbg].append(_value)
+                time = aggres.time
+
         for name, val in for_send.iteritems():
             frmt_dict = { "group"   : name,
                           "values"  : "+".join(val),
                           "time"    : time
             }
             self.__makeUrls(frmt_dict)
-
 
 
 PLUGIN_CLASS = Agave

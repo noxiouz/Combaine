@@ -44,7 +44,8 @@ class AverageAggregator(RawAbstractAggregator):
             try:
                 ret = i[0][0]/normalize
             except Exception:
-                self.logger.exception("Wrong type for normalization")
+                #self.logger.exception("Wrong type for normalization")
+                # May be invalid format - so drop it
                 pass
             else:
                 return ret

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 import time
 import logging
 import urllib
@@ -15,8 +15,7 @@ from combaine.plugins.ResultHandler import ResultHandlerFactory
 from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
 from combaine.common.loggers import AggregateLogger
 from combaine.common.loggers import CommonLogger
-
-
+from combaine.common.interfaces.aggresult import AggRes
 
 try:
     http_hand_url = json.load(open('/etc/combaine/combaine.json'))['Combainer']['Main']['HTTP_HAND']
@@ -26,7 +25,6 @@ except Exception as err:
 def split_hosts_by_dc(subgroups):
     hosts = urllib.urlopen("%s%s?fields=root_datacenter_name,fqdn" % (http_hand_url, subgroups)).read()
     if hosts == 'No groups found':
-        print "Ilegal group"
         return []
     host_dict = collections.defaultdict(list)
     for item in hosts.splitlines():
@@ -57,9 +55,11 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     if ds is None:
         logger.error('Failed to init distributed storage like MongoRS')
         return 'failed'
-    if not ds.connect('combaine_mid/%s' % config_name): # CHECK NAME OF COLLECTION!!!!
+
+    if not ds.connect('combaine_mid/%s' % config_name):
         logger.error('Cannot connect to distributed storage like MongoRS')
         return 'failed'
+
     res_handlers = [ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
 
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
@@ -76,12 +76,14 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
            [data_by_subgrp[_name].append(val) for val, _name in _l]
 
         all_data.append(dict(data_by_subgrp))
+
+
     res = []
     for key in aggs.iterkeys():
         l = [ _item[key] for _item in all_data if _item.has_key(key)]
-        f = formatter(aggs[key].name, hosts.keys(), conf.metahost or groupname, agg_config_name)
-        res.append(map(f,(i for i in aggs[key].aggregate_group(l) if i is not None)))
-    TEMP = conf.metahost or groupname
+        one_agg_result = AggRes(aggs[key].name, hosts.keys(), conf.metahost or groupname, agg_config_name)
+        one_agg_result.store_result(next(aggs[key].aggregate_group(l)))
+        res.append(one_agg_result)
 
     #==== Clean RS from sourse data for aggregation ====
     logger.info("Hadling data by result handlers")
