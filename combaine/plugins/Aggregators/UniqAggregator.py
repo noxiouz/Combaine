@@ -22,19 +22,17 @@ class Uniq(ProcessedAbstractAggregator):
 
     def aggregate_group(self, data):
         for sec in self._unpack(data):
-            #pprint(sec)
             time = sec[0]
             per_sbgp = list()
             for sbgp in sec[1]:
                 per_sbgp.append(set(itertools.chain(*sbgp)))
             meta_group_set = set()
             [meta_group_set.update(x) for x in per_sbgp]
-            #print meta_group_set
             per_sbgp.append(meta_group_set)
             yield { time : [len(x) for x in per_sbgp]}
 
     def _pack(self, data, time):
-        return [{'time': time, 'res': list(data)}, ]
+        return [{'time': time, 'res': list(data)},]
 
 
     def _unpack(self, data):

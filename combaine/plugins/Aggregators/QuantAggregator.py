@@ -7,42 +7,12 @@ import logging
 from __abstractaggregator import RawAbstractAggregator
 from combaine.common.loggers import CommonLogger
 
-"""
-    DESCRIBE THIS!!!!
-"""
-
 def coroutine(func):
     def wrapper(*args):
         f = func(*args)
         f.next()
         return f
     return wrapper
-
-def dec_maker(param):
-
-    if param == 1:
-        def one_point(func):
-            def wrapper(*args, **kwargs):
-                res = [_res for _res in func(*args, **kwargs)]
-                l = (i.values()[0] for i in res)
-                t = (i.keys()[0] for i in res)
-                count = len(res)
-                if count != 0:
-                    Y = ( _res for _res in reduce(lambda x,y: map(lambda X,Y: map(lambda g,j: g+j, X,Y), x,y), l))
-                    ave_time = reduce(lambda x,y: x+y, t)/count
-                    ret =  [[j/count for j in k] for k in Y]
-                    yield { ave_time : ret }
-                else:
-                    yield None
-            return wrapper
-        return one_point
-    if param == 0:
-        def one_point(func):
-            def wrapper(*args, **kwargs):
-                return func(*args, **kwargs)
-            return wrapper
-        return one_point
-
 
 class QuantCalc(object):
     """
@@ -93,7 +63,7 @@ class QuantilAggregator(RawAbstractAggregator):
         self.query = config['query']
         self.name = config['name']
         self.quants = config['values']
-        self.aggregate_group = dec_maker(1)(self.aggregate_group)
+        #self.aggregate_group = dec_maker(1)(self.aggregate_group)
 
     def aggregate(self, timeperiod):
         db = self.dg
@@ -110,27 +80,21 @@ class QuantilAggregator(RawAbstractAggregator):
                 count +=1
             return {"data" : sorted(qpack.iteritems()),"count" : count}
 
-        res =  [{'time': data[1], 'res' :  quantile_packer(itertools.chain(*data[0]))}]
+        res =  {'time': data[1], 'res' :  quantile_packer(itertools.chain(*data[0]))}
         return res
 
     def _unpack(self, data):
-        """
-            HEAL!!!
-        """
         subgroups_count = len(data)
         data_dict = dict()
         count_dict = dict()
         for group_num, group in enumerate(data): #iter over subgroups
-            # turple of first src in every host 
-            for kk in (i for i in itertools.izip_longest(*group, fillvalue=None)):
-                t = (j for j in kk if j is not None)
-                for item in t:
-                    count_dict.setdefault(item['time'], [0]*subgroups_count)[group_num] += item['res']['count']
-                    for k in item['res']['data']:
-                        if data_dict.get(item['time']) is None:
-                            data_dict[item['time']] = list()
-                            [data_dict[item['time']].append(list()) for i in xrange(0,subgroups_count)]
-                        data_dict[item['time']][group_num].append(k)
+            for item in group:
+                count_dict.setdefault(item['time'], [0]*subgroups_count)[group_num] += item['res']['count']
+                for k in item['res']['data']:
+                    if data_dict.get(item['time']) is None:
+                        data_dict[item['time']] = list()
+                        [data_dict[item['time']].append(list()) for i in xrange(0, subgroups_count)]
+                    data_dict[item['time']][group_num].append(k)
         data_sec = data_dict.iteritems()
         count_sec = count_dict.iteritems()
         ret = itertools.izip(data_sec, count_sec)
