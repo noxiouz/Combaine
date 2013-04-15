@@ -98,11 +98,7 @@ class QuantilAggregator(RawAbstractAggregator):
     def aggregate(self, timeperiod):
         db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
-        if self.time_regex.search(self.query):
-            queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
-        else:
-            queries = (self.query, timeperiod[1])
-        data = ((db.perfomCustomQuery(query), time) for query, time in queries)
+        data = (db.perfomCustomQuery(self.query), timeperiod[1])
         return self.name, self._pack(data)
 
     def _pack(self, data):
@@ -110,14 +106,11 @@ class QuantilAggregator(RawAbstractAggregator):
             qpack = collections.defaultdict(int)
             count = 0
             for item in iterator:
-                qpack[int(item)]+=1
+                qpack[int(item)] += 1
                 count +=1
             return {"data" : sorted(qpack.iteritems()),"count" : count}
 
-        res =  [{'time': time, 'res' :  quantile_packer(itertools.chain(*res))} for res, time in data if res is not None]
-        #===================
-        #with open('s.txt','a') as f:
-        #    map(f.write, (str(i)+"\n" for i in res))
+        res =  [{'time': data[1], 'res' :  quantile_packer(itertools.chain(*data[0]))}]
         return res
 
     def _unpack(self, data):

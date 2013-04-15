@@ -35,11 +35,11 @@ class AverageAggregator(RawAbstractAggregator):
         super(AverageAggregator, self).__init__()
         self.query = config['query']
         self.name = config['name']
-        self._is_rps = config.has_key("rps")
+        self._is_rps = config.get("rps", "YES")
         self.aggregate_group = dec_maker(1)(self.aggregate_group)
 
     def aggregate(self, timeperiod):
-        normalize = (timeperiod[1] - timeperiod[0]) if self._is_rps else 1
+        normalize = (timeperiod[1] - timeperiod[0]) if self._is_rps == "YES" else 1
         def format_me(i):
             try:
                 ret = i[0][0]/normalize
@@ -51,16 +51,17 @@ class AverageAggregator(RawAbstractAggregator):
                 return ret
         db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
-        if self.time_regex.search(self.query):
-            queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
-        else:
-            queries = [(self.query, timeperiod[1])]
-        l = [(format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries]
+        #if self.time_regex.search(self.query):
+        #    queries = ((self.time_regex.sub(str(time), self.query), time) for time in xrange(*timeperiod))
+        #else:
+        #queries = [(self.query, timeperiod[1])]
+        #l = [(format_me(db.perfomCustomQuery(query)), _time) for query, _time in queries]
+        l = (format_me(db.perfomCustomQuery(self.query)), timeperiod[1])
         self.logger.debug("Result of %s aggreagtion: %s" % (self.name, l))
         return self.name,  self._pack(l)
 
     def _pack(self, data):
-        res = [{'time': time, 'res' : res} for res, time in data if res is not None]
+        res = [{'time': data[1], 'res' : data[0]}]
         return res
 
     def _unpack(self, data):

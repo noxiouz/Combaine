@@ -75,14 +75,14 @@ class MySqlDG(AbstractDataGrid):
 
     def _preparePlace(self, example):
         ftypes = { type(1) : "INT",
-                   type("string")  : "VARCHAR(200)",
-                   type(u"string") : "VARCHAR(200)",
-                   type(1.0)     : "FLOAT"
+                   type("string")   : "VARCHAR(200)",
+                   type(u"string")  : "VARCHAR(200)",
+                   type(1.0)        : "FLOAT"
         }
         try:
-            self.place = '( %s, INDEX USING BTREE(TIME))' % ','.join([" %s %s" % (field_name, ftypes[type(field_type)]) for field_name, field_type in example.items()])
-        except Exception, err:
-            self.logger.exception('Error in preparePlace. ')
+            self.place = '( %s )' % ','.join([" %s %s" % (field_name, ftypes[type(field_type)]) for field_name, field_type in example.items()])
+        except Exception as err:
+            self.logger.exception('Error in preparePlace()')
             self.place = None
             return False
         else:
