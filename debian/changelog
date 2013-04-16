@@ -1,3 +1,9 @@
+combaine (0.5.1-67) lucid; urgency=low
+
+  * fix combaine-machine with error message 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 17 Apr 2013 01:48:55 +0400
+
 combaine (0.5.1-66) lucid; urgency=low
 
   * ATTENTION: Time = %% unsupported
