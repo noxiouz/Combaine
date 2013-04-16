@@ -63,7 +63,6 @@ class QuantilAggregator(RawAbstractAggregator):
         self.query = config['query']
         self.name = config['name']
         self.quants = config['values']
-        #self.aggregate_group = dec_maker(1)(self.aggregate_group)
 
     def aggregate(self, timeperiod):
         db = self.dg
@@ -78,8 +77,10 @@ class QuantilAggregator(RawAbstractAggregator):
             count = 0
             for item in iterator:
                 qpack[int(item)] += 1
-                count +=1
-            return {"data" : sorted(qpack.iteritems()),"count" : count}
+                count += 1
+            if len(qpack.keys()) == 0:
+                qpack[0] = 0 #Special for vyacheslav
+            return {"data" : sorted(qpack.iteritems()), "count" : count}
 
         res =  {'time': data[1], 'res' :  quantile_packer(itertools.chain(*data[0]))}
         return res
@@ -89,7 +90,7 @@ class QuantilAggregator(RawAbstractAggregator):
         data_dict = dict()
         count_dict = dict()
         for group_num, group in enumerate(data): #iter over subgroups
-            for item in group:
+            for item in (k for k in group if k is not None):
                 count_dict.setdefault(item['time'], [0]*subgroups_count)[group_num] += item['res']['count']
                 for k in item['res']['data']:
                     if data_dict.get(item['time']) is None:

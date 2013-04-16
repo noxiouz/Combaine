@@ -28,7 +28,7 @@ class Elliptics(AbstractDistributedStorage):
         for host, r_port, w_port in self.hostsinfo[:]:
             try:
                 r = requests.post(self.write_url.substitute(KEY=key, HOST=host, W_PORT=w_port), data=PACK(data), timeout=1)
-                if r.status_code == 503: #because elliptics write cache bug
+                if r.status_code == 200: #because elliptics write cache bug
                     self.logger.debug("Elliptics: insert key %s succesfully" % key)
                     return True
             except requests.exceptions.Timeout as err:
@@ -53,7 +53,7 @@ class Elliptics(AbstractDistributedStorage):
                 self.hostsinfo.remove((host, r_port, w_port))
             except Exception as err:
                 self.logger.exception("Read error in elliptics proxy")
-        return []
+        return None
 
     def remove(self, key):
         return "OK"

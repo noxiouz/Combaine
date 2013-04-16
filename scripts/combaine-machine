@@ -19,7 +19,7 @@ class Dispatcher(object):
     commands = dict()
 
     @staticmethod
-    def dicpatch(command):
+    def dispatch(command):
         cmd = Dispatcher.commands.get(command, None)
         if cmd is not None:
             cmd()
@@ -74,5 +74,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         print "Wrong command. Use one of %s" % '|'.join(AVAILABLE_CMDS)
         sys.exit(1)
-    Dispatcher.dicpatch(sys.argv[1])
+    Dispatcher.dispatch(sys.argv[1])
 

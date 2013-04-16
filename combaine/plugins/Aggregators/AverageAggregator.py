@@ -18,10 +18,10 @@ class AverageAggregator(RawAbstractAggregator):
         def format_me(i):
             try:
                 ret = i[0][0]/normalize
-            except Exception:
+            except Exception as err:
                 #self.logger.exception("Wrong type for normalization")
                 # May be invalid format - so drop it
-                pass
+                return 0 #Special for vyacheslav
             else:
                 return ret
         db = self.dg
@@ -39,7 +39,7 @@ class AverageAggregator(RawAbstractAggregator):
         subgroups_count = len(data)
         data_dict = dict()
         for group_num, group in enumerate(data): #iter over subgroups
-            for item in group:
+            for item in (k for k in group if k is not None):
                 if data_dict.get(item['time']) is None:
                     data_dict[item['time']] = list()
                     [data_dict[item['time']].append(list()) for i in xrange(0,subgroups_count)]

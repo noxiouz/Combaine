@@ -5,8 +5,9 @@ combaine (0.5.1-66) lucid; urgency=low
   * Only one point per session is available now
   * Make aggregation simplier
   * Rewrite combaine-machine
+  * Now aggregators return zero value instead of None (vyacheslav)
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 16 Apr 2013 12:54:54 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 17 Apr 2013 01:01:06 +0400
 
 combaine (0.5.1-65) lucid; urgency=low
 
