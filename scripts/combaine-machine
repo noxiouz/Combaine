@@ -50,8 +50,6 @@ def stop():
     if len(combaine_pids) == 0:
         print "There are no startCombainer processes in this host"
         return
-    else:
-        print "There are %d processes with PIDS: %s. Stop it" % ','.join(combaine_pids)
     
     for pid in combaine_pids:
         print "Kill %s with PID %d" % (COMBAINER_PROC_NAME, pid)
