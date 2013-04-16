@@ -4,8 +4,9 @@ combaine (0.5.1-66) lucid; urgency=low
   * Add interface object between aggregate and reshandler
   * Only one point per session is available now
   * Make aggregation simplier
+  * Rewrite combaine-machine
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 16 Apr 2013 02:22:09 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 16 Apr 2013 12:54:54 +0400
 
 combaine (0.5.1-65) lucid; urgency=low
 
