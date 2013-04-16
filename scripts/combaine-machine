@@ -39,8 +39,11 @@ def start():
 
 @Dispatcher.command
 def stop():
+    for app in APPS:
+        print "Stop %s" % app
+        os.system("cocaine-engine-delete %s" % app)
     print "STOP"
-    print "Finding %s" % COMBAINER_PROC_NAME
+    print "Finding %s. " % COMBAINER_PROC_NAME,
     find = subprocess.Popen(['ps', '-o', 'pid,command', 'ax'], stdout=subprocess.PIPE)
     ps_aux = find.stdout.read().splitlines()[1:]
     combaine_pids = [int(ps.split(' ')[0]) for ps in ps_aux if COMBAINER_PROC_NAME in ps]
@@ -53,9 +56,12 @@ def stop():
     for pid in combaine_pids:
         print "Kill %s with PID %d" % (COMBAINER_PROC_NAME, pid)
         try:
-            print os.kill(pid, 15)
+            os.kill(pid, 15)
         except OSError as err:
+            print '\033[1;91m%s\033[00m' % "FAIL"
             print err
+        else:
+            print '\033[1;32m%10s\033[00m' % "OK"
 
 @Dispatcher.command
 def restart():
@@ -68,6 +74,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         print "Wrong command. Use one of %s" % '|'.join(AVAILABLE_CMDS)
         sys.exit(1)
-
     Dispatcher.dicpatch(sys.argv[1])
 
