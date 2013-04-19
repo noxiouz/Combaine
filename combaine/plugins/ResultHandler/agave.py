@@ -19,8 +19,7 @@ import logging
 
 agave_headers = {
         "User-Agent": "Yandex/Agave",
-        "Keep-Alive": 300,
-        "Connection": "Keep-Alive, TE",
+        "Connection": "TE",
         "TE": "deflate,gzip;q=0.3"
 }
 
@@ -52,10 +51,12 @@ class Agave(AbstractResultHandler):
             try:
                 conn.request("GET", url, None, headers)
                 #print url, agv_host, conn.getresponse().read().splitlines()[0]
-                self.logger.debug("%s %s" % (url, agv_host))
+                _r = conn.getresponse()
+                self.logger.info("%s %s %s %s %s" % (agv_host, _r.status, _r.reason, _r.read().strip('\r\n'), url))
             except Exception as err:
                 self.logger.exception("Unable to connect to one agave")
-
+            else:
+                _r.close()
 
     def send(self, data):
         for_send = collections.defaultdict(list)

@@ -10,7 +10,7 @@ setup(
         version = _version,
         author = "noxiouz",
         author_email = "noxiouz@yandex.ru",
-        description = "Some escrip",
+        description = "Distributed fault-tolerant system of data processing based on Cocaine (https://github.com/cocaine)",
         url = "https://github.com/noxiouz/Combaine",
         license = "GPL3",
         packages = [
@@ -43,6 +43,7 @@ setup(
             ('/usr/sbin/',['./utils/combaine-check-conf']),
             ('/usr/sbin/',['./utils/combaine-find-parser']),
             ('/etc/init.d/',['./scripts/combaine-machine']),
-        ]
+        ],
+        requires = ['yaml', 'zookeeper', 'pymongo']
 )
 

@@ -59,7 +59,6 @@ class ParsingConfigurator(object):
                         dic['type'] = name
                         dic['parsing_conf'] = _parsing
                         self.resulthadlers.append(dic)
-                        self.logger.debug(dic)
         except Exception as err:
             self.logger.exception("Error in read confing")
             raise

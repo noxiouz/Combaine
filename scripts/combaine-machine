@@ -52,9 +52,9 @@ def stop():
         return
     
     for pid in combaine_pids:
-        print "Kill %s with PID %d" % (COMBAINER_PROC_NAME, pid)
+        print "Kill %s with PID %d" % (COMBAINER_PROC_NAME, pid),
         try:
-            os.kill(pid, 15)
+            os.kill(pid, 9)
         except OSError as err:
             print '\033[1;91m%s\033[00m' % "FAIL"
             print err
