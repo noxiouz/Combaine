@@ -1,3 +1,11 @@
+combaine (0.5.1-68) lucid; urgency=low
+
+  * Add logging for ellitics_http
+  * Now read response from ResulHandler
+  * Get instead post in elliptics read
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 19 Apr 2013 13:10:39 +0400
+
 combaine (0.5.1-67) lucid; urgency=low
 
   * fix combaine-machine with error message 
