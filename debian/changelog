@@ -1,3 +1,10 @@
+combaine (0.5.1-69) lucid; urgency=low
+
+  * add metahost per agg config 
+  * fix strip in combaine-machine
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 23 Apr 2013 00:55:26 +0400
+
 combaine (0.5.1-68) lucid; urgency=low
 
   * Add logging for ellitics_http
