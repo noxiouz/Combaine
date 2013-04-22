@@ -8,6 +8,7 @@ class ParsingConfigurator(object):
     def __init__(self, parsingconf, aggregation_config=None):
         self.logger = CommonLogger()
         self.logger.debug("read combaine.json")
+        self.metahost = None
         try:
             _combaine = json.load(open('/etc/combaine/combaine.json'))
             _parsing = json.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
@@ -15,6 +16,7 @@ class ParsingConfigurator(object):
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
                 _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), aggregation_config), ]
+                self.metahost = _aggregations[0][0].get('metahost') or _parsing.get('metahost')
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
             self.db = _combaine["cloud_config"]["LocalDatabase"]
@@ -23,7 +25,6 @@ class ParsingConfigurator(object):
             _db = _parsing.get("LocalDatabase")
             self.hosts_fetcher_http_hand = _combaine['Combainer'].get('HTTP_HAND')
             self.parser = _parsing.get("parser")
-            self.metahost = _parsing.get("metahost")
             if not _ds is None:
                 self.logger.debug("Update ds from parsing")
                 self.ds.update(_ds)

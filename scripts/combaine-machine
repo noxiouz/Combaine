@@ -46,7 +46,7 @@ def stop():
     print "Finding %s. " % COMBAINER_PROC_NAME,
     find = subprocess.Popen(['ps', '-o', 'pid,command', 'ax'], stdout=subprocess.PIPE)
     ps_aux = find.stdout.read().splitlines()[1:]
-    combaine_pids = [int(ps.split(' ')[0]) for ps in ps_aux if COMBAINER_PROC_NAME in ps]
+    combaine_pids = [int(ps.strip(' ').split(' ')[0]) for ps in ps_aux if COMBAINER_PROC_NAME in ps]
     if len(combaine_pids) == 0:
         print "There are no startCombainer processes in this host"
         return
