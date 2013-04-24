@@ -17,7 +17,8 @@ class AverageAggregator(RawAbstractAggregator):
         normalize = (timeperiod[1] - timeperiod[0]) if self._is_rps == "YES" else 1
         def format_me(i):
             try:
-                ret = i[0][0]/normalize
+                ret = float(i[0][0])/normalize
+                self.logger.debug("Recalculate to rps: %d/%d = %f" % (i[0][0], normalize, ret))
             except Exception as err:
                 #self.logger.exception("Wrong type for normalization")
                 # May be invalid format - so drop it

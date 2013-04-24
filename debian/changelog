@@ -1,3 +1,15 @@
+combaine (0.5.1-73) lucid; urgency=low
+
+  *  add logger for normalization process
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 24 Apr 2013 15:24:26 +0400
+
+combaine (0.5.1-72) lucid; urgency=low
+
+  * fix build (instead of 70 and 71)
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 24 Apr 2013 14:03:25 +0400
+
 combaine (0.5.1-69) lucid; urgency=low
 
   * add metahost per agg config 
