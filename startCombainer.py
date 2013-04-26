@@ -25,6 +25,7 @@ import json
 
 from combaine.combainer import combainer
 from combaine.common import configlog
+from combaine.common.configloader import parse_common_cfg
 
 
 log = logging.getLogger('combaine')
@@ -35,7 +36,7 @@ DEFAULT_STORAGE = {
 }
 
 def parseConfig():
-    combaine_json = json.load(open('/etc/combaine/combaine.json','r'))["Combainer"]
+    combaine_json = parse_common_cfg("combaine")["Combainer"]
     combainer_dict = combaine_json["Main"]
     lockserver_dict = combaine_json["Lockserver"]
     storage_dict = combaine_json.get("Storage", DEFAULT_STORAGE)

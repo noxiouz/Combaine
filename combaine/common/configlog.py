@@ -1,5 +1,8 @@
-import logging, sys, json
+import logging
+import sys
 import logging.handlers
+
+from combaine.common.configloader import parse_common_cfg
 
 def init_logging(loggers):
     """
@@ -51,7 +54,8 @@ def init_logging(loggers):
         return False
     return True
 
-init_logging((json.load(open('/etc/combaine/combaine.json','r'))["Combainer"]["logger"], ) )
+#init_logging((json.load(open('/etc/combaine/combaine.json','r'))["Combainer"]["logger"], ) )
+init_logging([parse_common_cfg('combaine')["Combainer"]["logger"]])
 
 class configChecker(object):
 
