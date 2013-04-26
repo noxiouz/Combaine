@@ -23,7 +23,7 @@ import urllib
 import time
 import collections
 import os
-import json
+import yaml
 import hashlib
 import signal
 import sys
@@ -102,7 +102,7 @@ class Combainer(object):
         """
         def getSectionFromConf(confpath, key):
             try:
-                values = json.load(open(confpath, 'r'))[key] if key else json.load(open(confpath, 'r'))
+                values = yaml.load(open(confpath, 'r'))[key] if key else yaml.load(open(confpath, 'r'))
             except Exception, err:
                 log.error('No section %s in: %s %s' %(key, confpath, str(err)))
                 return []
@@ -320,7 +320,7 @@ class Combainer(object):
             if self.lockserver.getlock():
                 self.parsing_confs = [config_name]
                 try:
-                    _conf = json.load(open('/etc/combaine/parsing/%s' % config_name))
+                    _conf = yaml.load(open('/etc/combaine/parsing/%s' % config_name))
                     if _conf.has_key("Combainer"):
                         self.MIN_PERIOD = _conf["Combainer"].get('MINIMUM_PERIOD', self.MIN_PERIOD)
                         self.MAX_PERIOD = _conf["Combainer"].get('MAXIMUM_PERIOD', self.MAX_PERIOD)

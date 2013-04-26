@@ -1,4 +1,6 @@
-import json
+from combaine.common.configloader.config import parse_agg_cfg
+from combaine.common.configloader.config import parse_parsing_cfg
+from combaine.common.configloader.config import parse_common_cfg
 
 from combaine.common.loggers import CommonLogger
 
@@ -7,15 +9,15 @@ class ParsingConfigurator(object):
 
     def __init__(self, parsingconf, aggregation_config=None):
         self.logger = CommonLogger()
-        self.logger.debug("read combaine.json")
+        self.logger.debug("read combaine config")
         self.metahost = None
         try:
-            _combaine = json.load(open('/etc/combaine/combaine.json'))
-            _parsing = json.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
+            _combaine = parse_common_cfg("combaine")#yaml.load(open('/etc/combaine/combaine.json'))
+            _parsing = parse_parsing_cfg(parsingconf)#yaml.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
             if aggregation_config is None:
-                _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % agg_name)), agg_name) for agg_name in _parsing["agg_configs"]]
+                _aggregations = [(parse_agg_cfg(agg_name), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
-                _aggregations = [(json.load(open('/etc/combaine/aggregate/%s.json' % aggregation_config)), aggregation_config), ]
+                _aggregations = [(parse_agg_cfg(aggregation_config), aggregation_config), ]
                 self.metahost = _aggregations[0][0].get('metahost') or _parsing.get('metahost')
             self.ds = _combaine["cloud_config"]["DistributedStorage"]
             self.df = _combaine["cloud_config"]["DataFetcher"]
