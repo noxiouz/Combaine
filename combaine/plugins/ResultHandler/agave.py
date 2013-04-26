@@ -1,7 +1,14 @@
+import collections
+import httplib
+import types
+import itertools
+import logging
+
 from _abstractresulthandler import AbstractResultHandler
 
 from combaine.plugins.DistributedStorage import DistributedStorageFactory
 from combaine.common.loggers import CommonLogger
+from combaine.common.configloader import parse_common_cfg
 
 ##
 #
@@ -10,20 +17,16 @@ from combaine.common.loggers import CommonLogger
 #
 #3
 
-import json
-import collections
-import httplib
-import types
-import itertools
-import logging
-
 agave_headers = {
         "User-Agent": "Yandex/Agave",
         "Connection": "TE",
         "TE": "deflate,gzip;q=0.3"
 }
 
-agave_hosts = json.load(open('/etc/combaine/combaine.json'))["cloud_config"]['agave_hosts']
+try:
+    agave_hosts = parse_common_cfg('combaine')["cloud_config"]['agave_hosts']
+except Exception as err:
+    print err
 
 class Agave(AbstractResultHandler):
 

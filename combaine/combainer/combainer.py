@@ -23,7 +23,6 @@ import urllib
 import time
 import collections
 import os
-import yaml
 import hashlib
 import signal
 import sys
@@ -35,6 +34,9 @@ from combaine.plugins import LockServerAPI
 from combaine.plugins import StorageAPI
 import Observer.client
 import Scheduler.scheduler
+
+from combaine.common import constants
+from combaine.common.configloader import parse_parsing_cfg
 
 log = logging.getLogger('combaine')
 
@@ -53,6 +55,8 @@ class Combainer(object):
         self.MAX_PERIOD = config.get('MAXIMUM_PERIOD', self.MIN_PERIOD * 1.5)
         self.MAX_ATTEMPS = config.get('MAX_ATTEMPS', 2)
         self.MAX_RESP_WAIT_TIME = config.get('MAX_RESP_WAIT_TIME', self.MAX_PERIOD * 1.1)
+
+        self.__checkOsSignals()
         try:
             self.HTTP_HAND = config['HTTP_HAND']
         except Exception, err:
@@ -74,13 +78,12 @@ class Combainer(object):
                 log.debug('Destroy ST %s' % err)
 
     def getConfigsList(self):
-        pattern = '[^.]*\.json$'
+        pattern = constants.REGEX_CONFIG_PATTERN
         regex = re.compile(pattern)
         log.debug('Read configs')
-        PARSING_CONF_PATH = '/etc/combaine/parsing'
-        AGGREGATE_CONF_PATH = '/etc/combaine/aggregate'
         try:
-            self.parsing_confs = [filename for filename in os.listdir(PARSING_CONF_PATH) if regex.match(filename)]
+            #self.parsing_confs = [rege for filename in os.listdir(constants.PARS_PATH) if regex.match(filename)]
+            self.parsing_confs = [regex.match(filename).groups()[0] for filename in filter(regex.match, os.listdir(constants.PARS_PATH))]
             print self.parsing_confs
         except Exception, err:
             log.error('No configs: '+ str(err) )
@@ -100,18 +103,19 @@ class Combainer(object):
         }
 
         """
-        def getSectionFromConf(confpath, key):
+        def getSectionFromConf(config, key):
             try:
-                values = yaml.load(open(confpath, 'r'))[key] if key else yaml.load(open(confpath, 'r'))
-            except Exception, err:
-                log.error('No section %s in: %s %s' %(key, confpath, str(err)))
+                values = parse_parsing_cfg(config)[key]
+                print key, values
+            except Exception as err:
+                print err
+                #log.error('No section %s in: %s %s' %(key, confpath, str(err)))
                 return []
             else:
                 return values
 
         self.messages = {}
-        AGGREGATE_CONF_PATH = '/etc/combaine/aggregate'
-        PARSING_CONF_PATH = '/etc/combaine/parsing'
+        PARSING_CONF_PATH = constants.PARS_PATH
         #---------------------------------------------
         try:
             ParConfs = self.parsing_confs
@@ -120,7 +124,7 @@ class Combainer(object):
             return False
         print ParConfs
         #-----------------------------------------------------
-        for conf, groups in dict(map(lambda x: (x, getSectionFromConf(PARSING_CONF_PATH + '/' + x, "groups")), ParConfs)).items():
+        for conf, groups in dict(map(lambda x: (x, getSectionFromConf(x, "groups")), ParConfs)).items():
             for group in groups:
                 self.groups_conf[group] = self.groups_conf[group] + [conf] if self.groups_conf.has_key(group) else [conf]
         if not self.__getHosts():
@@ -142,7 +146,7 @@ class Combainer(object):
 
         for group, confs in self.groups_conf.items():
             for conf in confs:
-                for agg_conf in getSectionFromConf(PARSING_CONF_PATH + '/'+ conf, "agg_configs"):
+                for agg_conf in getSectionFromConf(conf, "agg_configs"):
                     self.messages[group][1].add( "%(group)s;%(confs)s;%(agg_conf)s;%(time)s;%(suff)s" % { 'group' : group,
                                                                                      'confs' : conf.rsplit('.', 1)[0],
                                                                                      'agg_conf' : agg_conf,
@@ -285,7 +289,7 @@ class Combainer(object):
             log.debug('Create storage object %s' % str(config))
             #------ Hack
             if len(self.parsing_confs) == 1:
-                config["app_id"] = "%s@%s" % (config["app_id"], self.parsing_confs[0].split('.')[0]) # strip .json
+                config["app_id"] = "%s@%s" % (config["app_id"], self.parsing_confs[0]) # strip .json
             #-----------
             self.storage = StorageAPI.StorageFactory(**config)
         except Exception, err:
@@ -316,11 +320,11 @@ class Combainer(object):
     def getLock(self):
         for config_name in self.parsing_confs:
             log.debug('Get the lock %s' % config_name)
-            self.lockserver.setLockName(config_name.split('.')[0]) #strip ext .json
+            self.lockserver.setLockName(config_name) #strip ext .json
             if self.lockserver.getlock():
                 self.parsing_confs = [config_name]
                 try:
-                    _conf = yaml.load(open('/etc/combaine/parsing/%s' % config_name))
+                    _conf =  parse_parsing_cfg(config_name)#yaml.load(open('/etc/combaine/parsing/%s' % config_name))
                     if _conf.has_key("Combainer"):
                         self.MIN_PERIOD = _conf["Combainer"].get('MINIMUM_PERIOD', self.MIN_PERIOD)
                         self.MAX_PERIOD = _conf["Combainer"].get('MAXIMUM_PERIOD', self.MAX_PERIOD)
@@ -411,7 +415,7 @@ class Combainer(object):
         self.msg_count = 0
         #---------------------------------------------------------------------------------
         def defineTimeBorder(progress):
-            time.sleep(10)
+            time.sleep(5)
             now_time = str(int(time.time()))
             if progress.has_key('FINISHMARK'):
                 log.debug('Start new session. There is a FINISHMARK')
@@ -475,7 +479,6 @@ class Combainer(object):
                 __sendMessagetoCloud(_msg, 'parsing/parsing', 0.8*self.MAX_RESP_WAIT_TIME)
         for resp in self._scheduler.schedule():
                 self.observer.handleAnswer(resp)
-        self.__checkOsSignals()
         #-------------------------------------------------------
         # START AGGREGATING POINT
         #-------------------------------------------------------
@@ -488,7 +491,6 @@ class Combainer(object):
                 __sendMessagetoCloud(_msg, 'aggregate_group/aggregate_group', int(time_period[1]) + self.MAX_RESP_WAIT_TIME - int(time.time()))
         for resp in self._scheduler.schedule():
                 self.observer.handleAnswer(resp)
-        self.__checkOsSignals()
         if not self.__markFinish(':'.join(time_period)):
             raise Exception
         #----------------------------------------------------------

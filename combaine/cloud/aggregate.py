@@ -17,9 +17,12 @@ from combaine.common.loggers import AggregateLogger
 from combaine.common.loggers import CommonLogger
 from combaine.common.interfaces.aggresult import AggRes
 
+from combaine.common.configloader import parse_common_cfg
+
 try:
-    http_hand_url = json.load(open('/etc/combaine/combaine.json'))['Combainer']['Main']['HTTP_HAND']
+    http_hand_url = parse_common_cfg("combaine")['Combainer']['Main']['HTTP_HAND']#json.load(open('/etc/combaine/combaine.json'))['Combainer']['Main']['HTTP_HAND']
 except Exception as err:
+    print err
     logger.error(str(err))
 
 def split_hosts_by_dc(subgroups):

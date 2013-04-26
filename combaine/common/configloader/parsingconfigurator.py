@@ -1,6 +1,6 @@
-from combaine.common.configloader.config import parse_agg_cfg
-from combaine.common.configloader.config import parse_parsing_cfg
-from combaine.common.configloader.config import parse_common_cfg
+from combaine.common.configloader import parse_agg_cfg
+from combaine.common.configloader import parse_parsing_cfg
+from combaine.common.configloader import parse_common_cfg
 
 from combaine.common.loggers import CommonLogger
 

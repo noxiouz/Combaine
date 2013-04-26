@@ -1,15 +1,16 @@
-
-import json
 import logging
 import logging.handlers
 
-__all__ = ["ParsingLogger", "AggregateLogger"]
+import combaine.common.configloader.config
+
+__all__ = ["ParsingLogger", "AggregateLogger", "CommonLogger"]
 
 def _initLogger(name):
     try:
-        config = json.load(open('/etc/combaine/combaine.json'))['cloud_config']
+        config = combaine.common.configloader.config.parse_common_cfg("combaine")['cloud_config']
     except Exception as err:
         pass
+        print err
     else:
         _format = logging.Formatter("%(levelname)-5s %(asctime)s %(id)s %(message)s", "%Y-%m-%d %H:%M:%S")
         parsing_log = logging.getLogger('combaine.%s' % name)
