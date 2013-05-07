@@ -80,8 +80,8 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         if not db.putData(handle_data , tablename):
             logger.warning('Empty data for localdb')
             return 'failed; No data for local db'
-    # TBD end of wrap
 
+    # TBD end of wrap
     if any(_agg.agg_type == TYPES.index("PROCESSED") for _agg in aggs):
         [_agg.set_data(handle_data) for _agg in aggs if _agg.agg_type == TYPES.index("PROCESSED")]
 
