@@ -23,6 +23,7 @@ setup(
             'combaine.combainer',
             'combaine.combainer.Scheduler',
             'combaine.combainer.Observer',
+            'combaine.plugins',
             'combaine.plugins.Aggregators',
             'combaine.plugins.DataGrid',
             'combaine.plugins.DistributedStorage',
@@ -42,6 +43,7 @@ setup(
             ('/usr/sbin/',['./scripts/combaine-deploy']),
             ('/usr/sbin/',['./utils/combaine-check-conf']),
             ('/usr/sbin/',['./utils/combaine-find-parser']),
+            ('/usr/sbin/',['./utils/combaine-check-work']),
             ('/etc/init.d/',['./scripts/combaine-machine']),
         ],
         requires = ['yaml', 'zookeeper', 'pymongo']

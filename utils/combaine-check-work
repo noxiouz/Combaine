@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+# Run as %prog parsing_config_name agg_config_name
+
+import combaine.cloud.parsing as pr
+import combaine.cloud.aggregate as ag
+from combaine.common.configloader.config import parse_parsing_cfg
+from combaine.common.configloader.config import parse_agg_cfg
+from combaine.common.configloader.config import parse_common_cfg
+import time
+import urllib
+import sys
+
+stime = int(time.time()-5)
+etime = int(time.time())
+
+if len(sys.argv) != 3:
+    print "Usage: prog parsing_config_name agg_config_name"
+    sys.exit(0)
+else:
+    parsing_confing = sys.argv[1]
+    agg_config = sys.argv[2]
+
+cfg = parse_parsing_cfg(parsing_confing)
+agg_cfg = parse_agg_cfg(agg_config)
+group = cfg['groups'][0]
+
+
+http_hand_url = parse_common_cfg("combaine")['Combainer']['Main']['HTTP_HAND']
+hosts = urllib.urlopen("%s/%s" % (http_hand_url, group)).read().splitlines()
+
+
+for i in hosts:
+    pr.Main(i, parsing_confing, group, stime, etime)
+
+time.sleep(5)
+ag.Main(group, parsing_confing, agg_config, stime,etime)

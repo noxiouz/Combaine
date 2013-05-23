@@ -18,6 +18,7 @@ from combaine.common.interfaces.aggresult import AggRes
 from combaine.common.configloader import parse_common_cfg
 
 try:
+    http_hand_url = parse_common_cfg("combaine")['Combainer']['Main']['HTTP_HAND']
 except Exception as err:
     print err
     logger.error(str(err))

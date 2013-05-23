@@ -84,4 +84,6 @@ class CommonLogger(object):
             return logging.LoggerAdapter(logging.getLogger("combaine.parsing"), {"id" : GlobalLogId.get_id()})
         elif hasattr(AggregateLogger, "_instanse"):
             return logging.LoggerAdapter(logging.getLogger("combaine.aggregate"), {"id" : GlobalLogId.get_id()})
+        else:
+            return logging.LoggerAdapter(logging.getLogger("combaine"), {"id" : GlobalLogId.get_id()})
 
