@@ -2,20 +2,44 @@
 
 import sys
 import types
+from pprint import pprint
+
+def OK(text="OK", linebreak=True):
+    print '\033[1;32m%10s\033[00m' % text,
+    if linebreak: print
+
+def FAIL(text="FAIL", linebreak=True):
+    print '\033[1;91m%s\033[00m' % text,
+    if linebreak: print
+
+def INFO(text, linebreak=True):
+    print '\033[1;m%-30s\033[00m' % text,
+    if linebreak: print
+
+def GINFO(text, linebreak=False):
+    print '\033[1;30m%-40s\033[00m' % text,
+    if linebreak: print
 
 sys.path.insert(0, "/usr/lib/yandex/combaine/")
 
-
 from parsers import PARSERS
 
-available = ((name, func) for name, func in PARSERS.iteritems() if isinstance(func, types.FunctionType))
+even_one = False
 
+available = [(name, func) for name, func in PARSERS.iteritems() if isinstance(func, types.FunctionType)]
 f = open(sys.argv[1]).read().splitlines()
 for name, func in available:
     try:
         t = [ _ for _ in func(f)]
         if len(t) > 0:
-            print name
-            print t
+            even_one = True
+            OK(name)
+            pprint(t[0])
+        else:
+            FAIL(name)
     except Exception as err:
-        pass
+        FAIL(name)
+
+if not even_one:
+    FAIL("Cann't find parser.")
+

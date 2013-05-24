@@ -37,7 +37,15 @@ class AverageAggregator(RawAbstractAggregator):
         return res
 
     def _unpack(self, data):
+        """
+        Expected:
+        [ [ {"time" : 12231432, "res" : 13}, ....],
+          [ ..... ],
+        ]
+        """
         subgroups_count = len(data)
+        print data
+        raw_input()
         data_dict = dict()
         for group_num, group in enumerate(data): #iter over subgroups
             for item in (k for k in group if k is not None):
