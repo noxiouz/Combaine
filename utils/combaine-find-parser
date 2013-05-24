@@ -31,7 +31,7 @@ f = open(sys.argv[1]).read().splitlines()
 for name, func in available:
     try:
         t = [ _ for _ in func(f)]
-        if len(gt) > 0:
+        if len(t) > 0:
             even_one = True
             OK(name)
             pprint(t[0])
