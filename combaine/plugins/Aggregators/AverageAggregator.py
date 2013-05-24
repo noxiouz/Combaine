@@ -44,15 +44,16 @@ class AverageAggregator(RawAbstractAggregator):
         ]
         """
         subgroups_count = len(data)
-        print data
-        raw_input()
         data_dict = dict()
         for group_num, group in enumerate(data): #iter over subgroups
             for item in (k for k in group if k is not None):
-                if data_dict.get(item['time']) is None:
-                    data_dict[item['time']] = list()
-                    [data_dict[item['time']].append(list()) for i in xrange(0,subgroups_count)]
-                data_dict[item['time']][group_num].append(item['res'])
+                try:
+                    if data_dict.get(item['time']) is None:
+                        data_dict[item['time']] = list()
+                        [data_dict[item['time']].append(list()) for i in xrange(0,subgroups_count)]
+                    data_dict[item['time']][group_num].append(item['res'])
+                except Exception as err:
+                    self.logger.warning("Unexpected format: %s" % str(item))
         data_sec = data_dict.popitem()
         return data_sec
    

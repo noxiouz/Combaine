@@ -49,20 +49,20 @@ def Main():
         cl = combainer.Combainer(**combainer_dict)
         if not cl.getConfigsList():
             log.debug('There is no configs in /etc/combaine/parsing')
-            raise Exception
+            raise Exception("There is no configs")
         if not cl.createLockServer(lockserver_dict):
             log.debug('Cannot create lockserver')
-            raise Exception
+            raise Exception('Cannot create LockServer')
         if not cl.getLock():
             log.debug('Cannot acquire any lock')
-            raise Exception
+            raise Exception('Cannot acquire lock')
         if not cl.createStorage(storage_dict):
             raise Exception
         if not cl.createClientPool('/etc/combaine/combainer.json'):
             raise Exception
         while True:
             cl.distribute()
-    except Exception, err:
+    except Exception as err:
         log.debug('Try to destroy combainer.'+str(err))
         print str(err)
         try:
@@ -74,5 +74,4 @@ def Main():
 
 if __name__ == "__main__":
     Main()
-    print 'EXIT!!!'
     sys.exit(1)

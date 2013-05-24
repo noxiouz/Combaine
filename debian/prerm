@@ -1,7 +1,7 @@
 #! /bin/sh
 
 
-for app in 'combainer@1' 'parsing@1' 'recurring@1' 'aggregate@1';
+for app in 'combainer@1' 'parsing@1' 'aggregate@1';
 do
     /usr/bin/cocaine-engine-delete $app
     rm -rf /var/lib/cocaine/apps/$app

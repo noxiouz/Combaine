@@ -66,6 +66,10 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     handle_data = (l for l in parser(data) if df.filter(l))
     handle_data = [l for l in handle_data if l is not None]
 
+    if len(handle_data) == 0:
+        logger.info("Zero size of handling data list after parsing and filter")
+        return 'failed; Zero size of handling data list after parsing and filter'
+
     # TBD wrap in separate fucntion ->
     if any(_agg.agg_type == TYPES.index("RAW") for _agg in aggs):
         db = DataGridFactory(**conf.db)  # Get DataGrid
