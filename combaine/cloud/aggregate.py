@@ -49,7 +49,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         logger.error('Cannot connect to distributed storage like MongoRS')
         return 'failed'
 
-    res_handlers = [ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers]
+    res_handlers = [item for item in (ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers) if item is not None]
 
     aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
 
@@ -76,6 +76,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
 
     #==== Clean RS from sourse data for aggregation ====
     logger.info("Hadling data by result handlers")
+    print res_handlers
     try:
         for _res_handler in res_handlers:
             _res_handler.send(res) 
