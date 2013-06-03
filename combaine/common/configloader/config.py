@@ -69,6 +69,7 @@ def _combaine_config(path, name):
 parse_common_cfg = partial(_combaine_config, constants.COMMON_PATH)
 parse_agg_cfg = partial(_combaine_config, constants.AGG_PATH)
 parse_parsing_cfg = partial(_combaine_config, constants.PARS_PATH)
+parse_misc_cfg = partial(_combaine_config, constants.MISC_PATH)
 
 if __name__ == "__main__":
     print parse_agg_cfg("http_ok")

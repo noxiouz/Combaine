@@ -1,10 +1,10 @@
-import requests
 import hashlib
 import string
 import random
-
 from cPickle import dumps as PACK
 from cPickle import loads as UNPACK
+
+import requests
 
 from __AbstractStorage import AbstractDistributedStorage
 from combaine.common.loggers import CommonLogger

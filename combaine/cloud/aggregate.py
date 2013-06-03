@@ -79,7 +79,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     print res_handlers
     try:
         for _res_handler in res_handlers:
-            _res_handler.send(res) 
+            _res_handler.handle(res) 
     except Exception as err:
         logger.exception(err)
         

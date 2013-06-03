@@ -6,7 +6,6 @@ import logging
 
 from _abstractresulthandler import AbstractResultHandler
 
-from combaine.plugins.DistributedStorage import DistributedStorageFactory
 from combaine.common.loggers import CommonLogger
 from combaine.common.configloader import parse_common_cfg
 
@@ -61,7 +60,7 @@ class Agave(AbstractResultHandler):
             else:
                 _r.close()
 
-    def send(self, data):
+    def handle(self, data):
         for_send = collections.defaultdict(list)
         for aggres in data:
             for sbg_name, val in aggres.values:
@@ -80,6 +79,5 @@ class Agave(AbstractResultHandler):
                           "time"    : time
             }
             self.__makeUrls(frmt_dict)
-
 
 PLUGIN_CLASS = Agave

@@ -3,6 +3,7 @@ import re
 
 from _abstractresulthandler import AbstractResultHandler
 from combaine.common.loggers import CommonLogger
+from combaine.plugins.Senders import SendersFactory
 
 pattern = re.compile(r"\${([^}]*)}")
 
@@ -48,12 +49,13 @@ def make_template_placeholders(inp_aggresults):
         print "Stop"
 
 
-class Aggregator(AbstractResultHandler):
+class MathExp(AbstractResultHandler):
 
     def __init__(self, **config):
         self.logger = CommonLogger()
         try:
             self.expression = make_eval_string_safe(config["expression"])
+            self.senders = config.get("send", [])
             self.logger.info("Evaluation expression: %s" % self.expression)
         except UnsafelyCodeError as err:
             self.logger.error(str(err))
@@ -63,7 +65,7 @@ class Aggregator(AbstractResultHandler):
             raise
         self._aggs = pattern.findall(self.expression)
 
-    def send(self, data):
+    def handle(self, data):
         interest_results = [_ for _ in data if _.aggname in self._aggs]
         for subgroup_name, subgroup_data in make_template_placeholders(interest_results):
             code = self.expression
@@ -77,4 +79,4 @@ class Aggregator(AbstractResultHandler):
             except Exception as err:
                 self.logger.error("Exception in evaluation %s: %s" % (code, err))
 
-PLUGIN_CLASS = Aggregator
+PLUGIN_CLASS = MathExp

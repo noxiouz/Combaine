@@ -5,5 +5,5 @@ class AbstractResultHandler(object):
     __meta__ = ABCMeta
 
     @abstractmethod
-    def send(self, data):
+    def handle(self, data):
         pass
