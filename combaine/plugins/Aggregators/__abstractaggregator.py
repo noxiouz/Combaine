@@ -2,7 +2,7 @@ import re
 from abc import ABCMeta, abstractmethod
 
 
-TYPES = ( "RAW", "PROCESSED" )
+TYPES = ("RAW", "PROCESSED")
 
 class AbstractAggregator(object):
     

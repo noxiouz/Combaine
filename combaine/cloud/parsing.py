@@ -54,7 +54,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         return 'failed; Failed to init DF'
 
     # Construct aggregators
-    aggs = [AggregatorFactory(**agg_config) for agg_config in conf.aggregators]
+    aggs = filter(lambda x: x is not None, (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
 
     #fetch data
     data = df.getData(host_name, (previous_time, current_time))

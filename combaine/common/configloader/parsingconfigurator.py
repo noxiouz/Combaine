@@ -12,8 +12,8 @@ class ParsingConfigurator(object):
         self.logger.debug("read combaine config")
         self.metahost = None
         try:
-            _combaine = parse_common_cfg("combaine")#yaml.load(open('/etc/combaine/combaine.json'))
-            _parsing = parse_parsing_cfg(parsingconf)#yaml.load(open('/etc/combaine/parsing/%s.json' % parsingconf))
+            _combaine = parse_common_cfg("combaine")
+            _parsing = parse_parsing_cfg(parsingconf)
             if aggregation_config is None:
                 _aggregations = [(parse_agg_cfg(agg_name), agg_name) for agg_name in _parsing["agg_configs"]]
             else:
@@ -45,6 +45,7 @@ class ParsingConfigurator(object):
             }
             self.aggregators = []
             self.resulthadlers = list()
+            self.senders = list()
             for aggregator, _agg_name in _aggregations:
                 for name, dic in aggregator["data"].iteritems():
                     tmp = dict()
@@ -54,14 +55,20 @@ class ParsingConfigurator(object):
                     tmp.update(dic)
                     if dic["type"] == "quant":
                         tmp["values"] = dic["values"]
+
                     tmp["type"] = agg_bind.get(dic["type"])  #DIRTY  HOOK!!!!!!!
                     if not tmp["type"] is None:
                         self.aggregators.append(tmp)
-                if aggregator.has_key("ResultHandlers"):
-                    for name, dic in aggregator["ResultHandlers"].iteritems():
-                        dic['type'] = name
-                        dic['parsing_conf'] = _parsing
-                        self.resulthadlers.append(dic)
+
+                # ResultHandlers configs - now in data
+                for name, dic in aggregator["data"].iteritems():
+                    #dic['type'] = name
+                    dic['parsing_conf'] = _parsing
+                    self.resulthadlers.append(dic)
+
+                for name, dic in aggregator.get("senders", {}).iteritems():
+                    dic['parsing_conf'] = _parsing
+                    self.senders.append(dic)
         except Exception as err:
             self.logger.exception("Error in read confing")
             raise

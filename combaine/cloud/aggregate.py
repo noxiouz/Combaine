@@ -11,6 +11,7 @@ import hashlib
 from combaine.plugins.Aggregators import AggregatorFactory
 from combaine.plugins.DistributedStorage import DistributedStorageFactory
 from combaine.plugins.ResultHandler import ResultHandlerFactory
+from combaine.plugins.Senders import SenderFactory
 from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
 from combaine.common.loggers import AggregateLogger
 from combaine.common.loggers import CommonLogger
@@ -51,7 +52,10 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
 
     res_handlers = [item for item in (ResultHandlerFactory(**_cfg) for _cfg in conf.resulthadlers) if item is not None]
 
-    aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config) for agg_config in conf.aggregators))
+    res_senders = [item for item in (SenderFactory(**_cfg) for _cfg in conf.senders) if item is not None]
+
+    aggs = dict((_agg.name, _agg) for _agg in (AggregatorFactory(**agg_config)\
+                         for agg_config in conf.aggregators) if _agg is not None)
 
     hosts = split_hosts_by_dc(groupname)
 
@@ -74,7 +78,14 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         one_agg_result.store_result(next(aggs[key].aggregate_group(l)))
         res.append(one_agg_result)
 
-    #==== Clean RS from sourse data for aggregation ====
+    logger.info("Hadling data by senders")
+    print res_senders
+    try:
+        for _res_sender in res_senders:
+            _res_sender.send(res) 
+    except Exception as err:
+        logger.exception(err)
+
     logger.info("Hadling data by result handlers")
     print res_handlers
     try:
@@ -82,6 +93,8 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
             _res_handler.handle(res) 
     except Exception as err:
         logger.exception(err)
+
+    
         
     ds.close()
     logger.info("Aggregation has finished successfully")

@@ -30,6 +30,7 @@ setup(
             'combaine.plugins.DataFetcher',
             'combaine.plugins.StorageAPI',
             'combaine.plugins.LockServerAPI',
+            'combaine.plugins.Senders',
             'combaine.plugins.ResultHandler',
         ],
         data_files = [

@@ -3,7 +3,6 @@ import re
 
 from _abstractresulthandler import AbstractResultHandler
 from combaine.common.loggers import CommonLogger
-from combaine.plugins.Senders import SendersFactory
 
 pattern = re.compile(r"\${([^}]*)}")
 
@@ -29,7 +28,6 @@ def make_eval_string_safe(inp):
 def coroutine(func):
     def start(*args, **kwargs):
         g = func(*args, **kwargs)
-        #g.next()
         return g
     return start
 
