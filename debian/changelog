@@ -1,3 +1,10 @@
+combaine (0.5.2) lucid; urgency=low
+
+  * New aggregation config format - sorry, bro! =)
+  * Senders: in one aggregation config you can specify what send by what
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 04 Jun 2013 10:38:19 +0400
+
 combaine (0.5.1-77) lucid; urgency=low
 
   * Add MathExp result handler - beta 

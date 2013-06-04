@@ -52,6 +52,7 @@ class MathExp(AbstractResultHandler):
     def __init__(self, **config):
         self.logger = CommonLogger()
         try:
+            self.name = config['name']
             self.expression = make_eval_string_safe(config["expression"])
             self.senders = config.get("send", [])
             self.logger.info("Evaluation expression: %s" % self.expression)
@@ -65,6 +66,7 @@ class MathExp(AbstractResultHandler):
 
     def handle(self, data):
         interest_results = [_ for _ in data if _.aggname in self._aggs]
+        returned_result = dict()
         for subgroup_name, subgroup_data in make_template_placeholders(interest_results):
             code = self.expression
             for key, value in subgroup_data.iteritems():
@@ -74,7 +76,9 @@ class MathExp(AbstractResultHandler):
             try:
                 res = eval(code)
                 self.logger.info("MathExp: Result %s %s" % (subgroup_name, res))
+                returned_result[subgroup_name] = res
             except Exception as err:
                 self.logger.error("Exception in evaluation %s: %s" % (code, err))
+        return returned_result
 
 PLUGIN_CLASS = MathExp

@@ -16,6 +16,7 @@ from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
 from combaine.common.loggers import AggregateLogger
 from combaine.common.loggers import CommonLogger
 from combaine.common.interfaces.aggresult import AggRes
+from combaine.common.interfaces.aggresult import HandlerRes
 from combaine.common.configloader import parse_common_cfg
 
 try:
@@ -78,24 +79,25 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         one_agg_result.store_result(next(aggs[key].aggregate_group(l)))
         res.append(one_agg_result)
 
+    logger.info("Hadling data by result handlers")
+    print res_handlers
+    handler_results = list()
+    try:
+        for _res_handler in res_handlers:
+            handler_result = HandlerRes(_res_handler.name, hosts.keys(), conf.metahost or groupname, agg_config_name)
+            handler_result.store_result(_res_handler.handle(res), previous_time)
+            handler_results.append(handler_result)
+    except Exception as err:
+        logger.exception(err)
+    res.extend(handler_results)
+
     logger.info("Hadling data by senders")
-    print res_senders
     try:
         for _res_sender in res_senders:
             _res_sender.send(res) 
     except Exception as err:
         logger.exception(err)
 
-    logger.info("Hadling data by result handlers")
-    print res_handlers
-    try:
-        for _res_handler in res_handlers:
-            _res_handler.handle(res) 
-    except Exception as err:
-        logger.exception(err)
-
-    
-        
     ds.close()
     logger.info("Aggregation has finished successfully")
     return "Success"

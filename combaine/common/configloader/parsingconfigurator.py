@@ -62,12 +62,13 @@ class ParsingConfigurator(object):
 
                 # ResultHandlers configs - now in data
                 for name, dic in aggregator["data"].iteritems():
-                    #dic['type'] = name
+                    dic['name'] = name
                     dic['parsing_conf'] = _parsing
                     self.resulthadlers.append(dic)
 
                 for name, dic in aggregator.get("senders", {}).iteritems():
                     dic['parsing_conf'] = _parsing
+                    dic['name'] = name
                     self.senders.append(dic)
         except Exception as err:
             self.logger.exception("Error in read confing")
