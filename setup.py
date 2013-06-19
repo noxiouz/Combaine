@@ -45,6 +45,7 @@ setup(
             ('/usr/sbin/',['./utils/combaine-check-conf']),
             ('/usr/sbin/',['./utils/combaine-find-parser']),
             ('/usr/sbin/',['./utils/combaine-check-work']),
+            ('/usr/sbin/',['./utils/convert_51to52']),
             ('/etc/init.d/',['./scripts/combaine-machine']),
         ],
         requires = ['yaml', 'zookeeper', 'pymongo']

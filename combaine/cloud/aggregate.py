@@ -80,7 +80,6 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         res.append(one_agg_result)
 
     logger.info("Hadling data by result handlers")
-    print res_handlers
     handler_results = list()
     try:
         for _res_handler in res_handlers:

@@ -68,7 +68,7 @@ class Agave(AbstractSender):
             for sbg_name, val in aggres.values:
                 _sbg = sbg_name if sbg_name == aggres.groupname else "-".join((aggres.groupname, sbg_name))
                 if isinstance(val, types.ListType): # Quantile
-                    l = itertools.izip(self.fields[aggres.aggname], val)
+                    l = itertools.izip(self.fields, val)
                     _value = "+".join(("%s:%s" % x for x in l))
                 else: # Simle single value
                     _value = "%s:%s" % (aggres.aggname, val)

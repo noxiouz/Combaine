@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+
+import yaml
+import json
+import sys
+import types
+import os
+from pprint import pprint
+
+try:
+    INPUT = open(sys.argv[1], 'r')
+except IndexError as err:
+    INPUT = sys.stdin
+
+
+with INPUT as f:
+    data = yaml.load(f)
+    if not data.has_key('ResultHandlers'):
+        print "Nothing to convert"
+        exit(0)
+    old = data['ResultHandlers']['agave']
+
+    new = dict()
+    new['graph_template'] = old['graph_template']
+    new['graph_name'] = old['graph_name']
+    new['type'] = "agave"
+    new['items'] = data['data'].keys()
+    if old.has_key("Fields"):
+        x = next(old['Fields'].itervalues())
+        if isinstance(x, types.ListType):
+            new['Fields'] = x
+    data.pop('ResultHandlers')
+    data['senders'] = {"A" : new}
+
+
+try:
+    OUTPUT = open(sys.argv[2], 'w')
+except IndexError:
+    OUTPUT = sys.stdout
+
+with OUTPUT:
+    yaml.dump(data, OUTPUT)
