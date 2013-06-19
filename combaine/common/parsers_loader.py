@@ -34,4 +34,3 @@ def _plugin_import():
 
 PARSERS = _plugin_import()
 
-print PARSERS
