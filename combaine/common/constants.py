@@ -7,3 +7,6 @@ COMMON_PATH = "/etc/combaine/"
 AGG_PATH = "%saggregate/" % COMMON_PATH
 PARS_PATH = "%sparsing/" % COMMON_PATH
 MISC_PATH = "%smisc/" % COMMON_PATH
+
+# Parsers
+PARSERS_PATH="/usr/lib/yandex/combaine/parsers"

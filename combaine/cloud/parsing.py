@@ -16,26 +16,23 @@ from combaine.plugins.Aggregators import AggregatorFactory
 from combaine.plugins.DistributedStorage import DistributedStorageFactory
 from combaine.common.configloader.parsingconfigurator import ParsingConfigurator
 from combaine.common.loggers import ParsingLogger
+import combaine.common.parsers_loader as ALL_PARSERS
 
-sys.path.insert(0, '/usr/lib/yandex/combaine/')
-from parsers import * # PARSERS
 
 TYPES = ("RAW", "PROCESSED")
 
-
-
 def Main(host_name, config_name, group_name, previous_time, current_time):
-    reload(parsers) # for d0uble - he wants to reload parsing functions
+    reload(ALL_PARSERS) # for d0uble - he wants to reload parsing functions
     uuid = hashlib.md5("%s%s%s%i%i" %(host_name, config_name, group_name, previous_time, current_time)).hexdigest()[:10]
     logger = ParsingLogger(uuid)
     logger.info("Start parsing: %s %s %s %i %i" %(host_name, config_name, group_name, previous_time, current_time))
     conf = ParsingConfigurator(config_name)
 
     # Construct parser function
-    parser = PARSERS.get(conf.parser, None)
+    parser = ALL_PARSERS.PARSERS.get(conf.parser, None)
 
     if parser is None:
-        logger.error('No properly parser available')
+        logger.error('No properly parser available with name %s' % conf.parser)
         return "failed; No parser"
 
     # Construct Distributed Storage

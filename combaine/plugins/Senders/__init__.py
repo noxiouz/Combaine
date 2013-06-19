@@ -8,7 +8,6 @@ def SenderFactory(**config):
         return None
     except Exception, err:
         print str(err)
-        raw_input()
         return None
     else:
         return constructor

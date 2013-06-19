@@ -34,7 +34,6 @@ def Agave(group_name=None, **config):
             headers['Host'] = host+':80'
             url = template + "values=%s&ts=%i" % (point_data, point_time)
             print url
-            raw_input()
             try:
                 conn.request("GET", url, None, headers)
                 #print url, agv_host, conn.getresponse().read().splitlines()[0]

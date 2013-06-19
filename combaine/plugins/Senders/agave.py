@@ -2,7 +2,6 @@ import collections
 import httplib
 import types
 import itertools
-import logging
 
 from _abstractsender import AbstractSender
 
@@ -21,6 +20,12 @@ except Exception as err:
     print err
 
 class Agave(AbstractSender):
+    """
+    type: agave
+    items: [20x, 30x, 50/20x]
+    graph_name: http_ok
+    graph_template: http_ok
+    """
 
     def __init__(self, **config):
         self.logger = CommonLogger()

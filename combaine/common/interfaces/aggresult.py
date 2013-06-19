@@ -47,7 +47,6 @@ class HandlerRes(object):
         self._aggconfig = aggconfig
         self._groupname = groupname
         self._subgroupnames = subgroupnames
-        self._res = dict()
         self._time = None
 
 
