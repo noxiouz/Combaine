@@ -13,8 +13,21 @@ except IndexError as err:
     INPUT = sys.stdin
 
 
+fmt = None
+
 with INPUT as f:
-    data = yaml.load(f)
+    raw = f.read()
+    try:
+        data = yaml.load(raw)
+        fmt = "yaml"
+    except Exception as err:
+        try:
+            data = json.loads(raw)
+            fmt = "json"
+        except Exception:
+            print "INvalid file format"
+            exit(1)
+
     if not data.has_key('ResultHandlers'):
         print "Nothing to convert"
         exit(0)
@@ -39,4 +52,7 @@ except IndexError:
     OUTPUT = sys.stdout
 
 with OUTPUT:
-    yaml.dump(data, OUTPUT)
+    if fmt == "yaml":
+        yaml.dump(data, OUTPUT)
+    elif fmt == "json":
+        json.dump(data, OUTPUT)
