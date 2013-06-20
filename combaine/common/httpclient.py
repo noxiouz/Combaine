@@ -19,22 +19,19 @@ class AsyncHTTP(object):
     def fetch(self, urls, **kwargs):
         self._buffer = dict() 
         self._counter = 0  
-        timeout = kwargs.get("timeout", 1)
-        handler = self.io_loop.add_timeout(time.time() + timeout, self.io_loop.stop)
 
         for label, url in urls.iteritems():
             self._counter += 1
             asCli = AsyncHTTPClient(self.io_loop)
-            asCli.fetch(url, partial(self.callback, handler, label))
+            asCli.fetch(url, partial(self.callback, label), request_timeout=kwargs.get("timeout", 1))
 
         self.io_loop.start()
         return self._buffer
 
 
-    def callback(self, timeout_handler, label, response):
+    def callback(self, label, response):
         self._counter -= 1
         if self._counter <= 0:
-            self.io_loop.remove_timeout(timeout_handler)
             self.io_loop.stop()
         self._buffer[label] = response
 
