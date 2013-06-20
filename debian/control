@@ -3,16 +3,20 @@ Section: misc
 Priority: extra
 Maintainer: Anton Tyurin <noxiouz@yandex.ru>
 Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7.0.13), python (>= 2.6), python-support, python-central
-Standards-Version: 3.8.3
+Standards-Version: 3.9.1
+XS-Python-Version: >= 2.6
 Homepage: https://github.com/noxiouz/Combaine
 
 Package: combaine
 Architecture: all
 Depends: 
  ${shlibs:Depends},
+ ${Python:Depends},
  ${misc:Depends},
+ python (>= 2.6),
  python-zookeeper,
  python-zmq,
+ python-tornado,
  python-pymongo,
  python-yaml,
  python-requests,
@@ -32,5 +36,6 @@ Depends:
  libcocaine-plugin-python (= 0.9.0),
  combaine-parsers (>= 0.5.1-3),
  combaine-global-configs
-Description: Combaine cloud machine
+XB-Python-Version: >= 2.6
+Description: cloud machine
  Fast cloud

@@ -65,8 +65,11 @@ class Juggler(AbstractSender):
                 code = expression
                 for key, value in data.iteritems():
                     code, n = re.subn(r"\${%s}" % key, str(value), code)
-                res = eval(code)
-                self.logger.debug("After substitution in %s %s %s" % (name, code, res))
+                try:
+                    res = eval(code)
+                    self.logger.debug("After substitution in %s %s %s" % (name, code, res))
+                except Exception as err:
+                    res = False
                 if res:
                     cmd = ("juggler_queue_event", "--host=" + name, "-n", self.checkname, "-s", str(status), "-d", self.description)
                     try:

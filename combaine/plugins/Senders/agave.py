@@ -7,6 +7,7 @@ from _abstractsender import AbstractSender
 
 from combaine.common.loggers import CommonLogger
 from combaine.common.configloader import parse_common_cfg
+from combaine.common.httpclient import AsyncHTTP, HTTPReq
 
 agave_headers = {
         "User-Agent": "Yandex/Agave",
@@ -26,7 +27,6 @@ class Agave(AbstractSender):
     graph_name: http_ok
     graph_template: http_ok
     """
-
     def __init__(self, **config):
         self.logger = CommonLogger()
         self.graph_name = config.get("graph_name")
@@ -44,7 +44,7 @@ class Agave(AbstractSender):
         template = "/api/update/%(group)s/%(graphname)s?values=%(values)s&ts=%(time)i&template=%(template)s&title=%(title)s" % self.template_dict
         self.__send_point(template)
 
-    def __send_point(self, url):
+    def __send_point2(self, url):
         for agv_host in agave_hosts:
             conn = httplib.HTTPConnection(agv_host, timeout=1)
             headers = agave_headers
@@ -57,6 +57,17 @@ class Agave(AbstractSender):
                 self.logger.exception("Unable to connect to one agave")
             else:
                 _r.close()
+
+    def __send_point(self, url):
+        AsCli = AsyncHTTP()
+        res = AsCli.fetch(dict((agv_host, "http://%s%s" % (agv_host, url)) for agv_host in agave_hosts),\
+                             timeout=1)
+        for label, ans in res.iteritems():
+            self.logger.info("%s %s %s %s" % (ans.request.url,
+                                             ans.code,
+                                             ans.reason,
+                                             ans.body.rstrip('\r\n')))
+
 
     def data_filter(self, data):
         return [res for res in data if res.aggname in self.items]
