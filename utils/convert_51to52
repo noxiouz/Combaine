@@ -52,7 +52,4 @@ except IndexError:
     OUTPUT = sys.stdout
 
 with OUTPUT:
-    if fmt == "yaml":
-        yaml.dump(data, OUTPUT)
-    elif fmt == "json":
-        json.dump(data, OUTPUT)
+    yaml.dump(data, OUTPUT)

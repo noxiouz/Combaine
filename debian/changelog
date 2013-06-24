@@ -1,3 +1,16 @@
+combaine (0.5.2-3) lucid; urgency=low
+
+  * fix bug in parser's import
+  * fix converter - it always converts to yaml
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 24 Jun 2013 13:04:02 +0400
+
+combaine (0.5.2-2) lucid; urgency=low
+
+  * universla converter 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 20 Jun 2013 14:10:01 +0400
+
 combaine (0.5.2-1) lucid; urgency=low
 
   * New aggregation config format - sorry, bro! =)

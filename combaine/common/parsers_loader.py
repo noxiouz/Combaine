@@ -27,6 +27,10 @@ def _plugin_import():
                     candidate = getattr(_temp, item)
                     if callable(candidate):
                         all_parser_functions[item] = candidate
+            except ImportError as err:
+                pass
+            except Exception as err:
+                pass
             finally:
                 if fp:
                     fp.close()
