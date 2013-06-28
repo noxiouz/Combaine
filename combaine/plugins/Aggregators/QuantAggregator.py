@@ -91,12 +91,15 @@ class QuantilAggregator(RawAbstractAggregator):
         count_dict = dict()
         for group_num, group in enumerate(data): #iter over subgroups
             for item in (k for k in group if k is not None):
-                count_dict.setdefault(item['time'], [0]*subgroups_count)[group_num] += item['res']['count']
-                for k in item['res']['data']:
-                    if data_dict.get(item['time']) is None:
-                        data_dict[item['time']] = list()
-                        [data_dict[item['time']].append(list()) for i in xrange(0, subgroups_count)]
-                    data_dict[item['time']][group_num].append(k)
+                try:
+                    count_dict.setdefault(item['time'], [0]*subgroups_count)[group_num] += item['res']['count']
+                    for k in item['res']['data']:
+                        if data_dict.get(item['time']) is None:
+                            data_dict[item['time']] = list()
+                            [data_dict[item['time']].append(list()) for i in xrange(0, subgroups_count)]
+                        data_dict[item['time']][group_num].append(k)
+                except TypeError:
+                    pass
         data_sec = data_dict.iteritems()
         count_sec = count_dict.iteritems()
         ret = itertools.izip(data_sec, count_sec)
