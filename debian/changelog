@@ -1,3 +1,9 @@
+combaine (0.5.2-4) lucid; urgency=low
+
+  * fix httpclient 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 04 Jul 2013 16:08:55 +0400
+
 combaine (0.5.2-3) lucid; urgency=low
 
   * fix bug in parser's import

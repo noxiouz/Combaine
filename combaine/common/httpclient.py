@@ -33,7 +33,8 @@ class AsyncHTTP(object):
         self._counter -= 1
         if self._counter <= 0:
             self.io_loop.stop()
-        self._buffer[label] = response
+        if response.body is not None:
+            self._buffer[label] = response
 
 HTTPReq = HTTPRequest
 
