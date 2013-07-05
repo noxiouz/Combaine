@@ -1,3 +1,9 @@
+combaine (0.5.2-5) lucid; urgency=low
+
+  * fix juggler 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 05 Jul 2013 15:20:48 +0400
+
 combaine (0.5.2-4) lucid; urgency=low
 
   * fix httpclient 

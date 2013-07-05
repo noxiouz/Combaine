@@ -59,7 +59,10 @@ class Juggler(AbstractSender):
         self._aggs = list()
         for item in itertools.chain(self._INFO, self._WARNING, self._CRITICAL, self._OK):
             self._aggs += self.pattern.findall(item)
-        self.juggler_hosts =  parse_common_cfg('combaine')["cloud_config"]['juggler_hosts']
+        try:
+            self.juggler_hosts =  parse_common_cfg('combaine')["cloud_config"]['juggler_hosts']
+        except KeyError:
+            self.juggler_hosts = []
         self._aggs = list(set(self._aggs))
 
     def _handling_one_expression(self, level, data, name, status):
