@@ -54,11 +54,16 @@ class AverageAggregator(RawAbstractAggregator):
                     data_dict[item['time']][group_num].append(item['res'])
                 except Exception as err:
                     self.logger.warning("Unexpected format: %s" % str(item))
-        data_sec = data_dict.popitem()
-        return data_sec
+        try:
+            data_sec = data_dict.popitem()
+            return data_sec
+        except KeyError:
+            return None, None
    
     def aggregate_group(self, data):
         sec, value = self._unpack(data)
+        if sec is None:
+            raise StopIteration
         per_subgroup_count = list()
         for subgroup in value:
             per_subgroup_count.append((sum(subgroup)))

@@ -60,7 +60,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
         logger.warning('%s Empty data from datafetcher' % uuid)
         return 'failed; Empty data from DF'
 
-    handle_data = (l for l in parser(data) if df.filter(l))
+    handle_data = (l for l in parser(data) if l is not None and df.filter(l))
     handle_data = [l for l in handle_data if l is not None]
 
     if len(handle_data) == 0:

@@ -1,3 +1,15 @@
+combaine (0.5.2-7) lucid; urgency=low
+
+  * fix empty dictionary exception
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 25 Jul 2013 15:51:23 +0400
+
+combaine (0.5.2-6) lucid; urgency=low
+
+  * check returning value from parser for is not None
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 24 Jul 2013 22:30:50 +0400
+
 combaine (0.5.2-5) lucid; urgency=low
 
   * fix juggler 

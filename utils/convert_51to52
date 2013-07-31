@@ -52,4 +52,4 @@ except IndexError:
     OUTPUT = sys.stdout
 
 with OUTPUT:
-    yaml.dump(data, OUTPUT)
+    yaml.safe_dump(data, OUTPUT)

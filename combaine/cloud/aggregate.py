@@ -76,8 +76,12 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
     for key in aggs.iterkeys():
         l = [ _item[key] for _item in all_data if _item.has_key(key)]
         one_agg_result = AggRes(aggs[key].name, hosts.keys(), conf.metahost or groupname, agg_config_name)
-        one_agg_result.store_result(next(aggs[key].aggregate_group(l)))
-        res.append(one_agg_result)
+        try:  # For empty results
+            one_agg_result.store_result(next(aggs[key].aggregate_group(l)))
+        except StopIteration:
+            pass
+        else:
+            res.append(one_agg_result)
 
     logger.info("Hadling data by result handlers")
     handler_results = list()
