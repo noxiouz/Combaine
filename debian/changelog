@@ -1,3 +1,9 @@
+combaine (0.5.2-8) lucid; urgency=low
+
+  * some juggler improvements 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 01 Aug 2013 12:59:32 +0400
+
 combaine (0.5.2-7) lucid; urgency=low
 
   * fix empty dictionary exception
