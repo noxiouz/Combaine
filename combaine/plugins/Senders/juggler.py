@@ -9,10 +9,11 @@ from combaine.common.loggers import CommonLogger
 from combaine.common.httpclient import AsyncHTTP, HTTPReq
 from combaine.common.configloader import parse_common_cfg
 
-STATUSES = { "OK" : 0,
-             "INFO" : 3,
-             "WARNING" : 1,
-             "CRITICAL" : 2 }
+STATUSES = {"OK": 0,
+            "INFO": 3,
+            "WARNING": 1,
+            "CRITICAL": 2}
+
 
 def coroutine(func):
     def start(*args, **kwargs):
@@ -20,17 +21,17 @@ def coroutine(func):
         return g
     return start
 
+
 @coroutine
 def make_template_placeholders(inp_aggresults):
     """ Make from aggresults:
     '20x': <dictionary-itemiterator object at 0x27c4998>,
     '30x': <dictionary-itemiterator object at 0x27c4ba8>}
     """
-    subgroups = [name for name, value in inp_aggresults[0].values]
+    subgroups = [name for name, _ in inp_aggresults[0].values]
     out_put = dict(((_.aggname, _.values) for _ in inp_aggresults))
     try:
         for subgroup in subgroups:
-            #('subgroupname', {'30x': 46.800000000000004, '20x': 741.20000000000005})
             yield subgroup, dict((key, next(out_put[key])[1]) for key in out_put.keys())
     except StopIteration:
         print "Stop"
@@ -55,6 +56,7 @@ class Juggler(AbstractSender):
         self._CRITICAL = cfg.get("CRITICAL", [])
         self.checkname = cfg["checkname"]
         self.Host = cfg['Host']
+        self.Method = cfg['Method']
         self.description = cfg.get("description", "no description")
         self._OK = cfg.get("OK", [])
         self._aggs = list()
@@ -63,6 +65,7 @@ class Juggler(AbstractSender):
         try:
             self.juggler_hosts =  parse_common_cfg('combaine')["cloud_config"]['juggler_hosts']
         except KeyError:
+            self.logger.error("There are no juggler hosts")
             self.juggler_hosts = []
         self._aggs = list(set(self._aggs))
 
@@ -93,12 +96,12 @@ class Juggler(AbstractSender):
         params = {"host": self.Host,
                   "service": urllib.quote(self.checkname),
                   "description": urllib.quote(self.description),
-                  "methods": "GOLEM",
+                  "methods": self.Method,
                   "child": host}
 
         add_check_urls = dict((juggler_host,
                                 "http://%s" % juggler_host + 
-                                "/api/checks/set_check?host_name={host}&service_name={service}&description={description}&do=1".format(**params))
+                                "/api/checks/set_check?host_name={host}&service_name={service}&description={description}&aggregator=logic_or&do=1".format(**params))
                                 for juggler_host in self.juggler_hosts)
 
         add_children = dict((juggler_host,
