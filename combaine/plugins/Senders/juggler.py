@@ -6,7 +6,7 @@ import urllib
 from _abstractsender import AbstractSender
 
 from combaine.common.loggers import CommonLogger
-from combaine.common.httpclient import AsyncHTTP, HTTPReq
+from combaine.common.httpclient import AsyncHTTP
 from combaine.common.configloader import parse_common_cfg
 
 STATUSES = {"OK": 0,
@@ -32,10 +32,10 @@ def make_template_placeholders(inp_aggresults):
     out_put = dict(((_.aggname, _.values) for _ in inp_aggresults))
     try:
         for subgroup in subgroups:
-            yield subgroup, dict((key, next(out_put[key])[1]) for key in out_put.keys())
+            yield subgroup, dict((key, next(out_put[key])[1])
+                                 for key in out_put.keys())
     except StopIteration:
         print "Stop"
-
 
 
 class Juggler(AbstractSender):
@@ -55,6 +55,7 @@ class Juggler(AbstractSender):
         self._WARNING = cfg.get("WARNING", [])
         self._CRITICAL = cfg.get("CRITICAL", [])
         self.checkname = cfg["checkname"]
+        self.Aggregator = cfg['Aggregator']
         self.Host = cfg['Host']
         self.Method = cfg['Method']
         self.description = cfg.get("description", "no description")
@@ -77,7 +78,7 @@ class Juggler(AbstractSender):
             try:
                 res = eval(code)
                 self.logger.debug("After substitution in %s %s %s" % (name, code, res))
-            except Exception as err:
+            except Exception:
                 res = False
             if res:
                 self._add_check_if_needed(name)
@@ -97,11 +98,12 @@ class Juggler(AbstractSender):
                   "service": urllib.quote(self.checkname),
                   "description": urllib.quote(self.description),
                   "methods": self.Method,
-                  "child": host}
+                  "child": host,
+                  "aggregator": self.Aggregator}
 
         add_check_urls = dict((juggler_host,
-                                "http://%s" % juggler_host + 
-                                "/api/checks/set_check?host_name={host}&service_name={service}&description={description}&aggregator=logic_or&do=1".format(**params))
+                                "http://%s" % juggler_host +
+                                "/api/checks/set_check?host_name={host}&service_name={service}&description={description}&aggregator={aggregator}&do=1".format(**params))
                                 for juggler_host in self.juggler_hosts)
 
         add_children = dict((juggler_host,
@@ -110,7 +112,7 @@ class Juggler(AbstractSender):
                                 for juggler_host in self.juggler_hosts)
 
         add_methods_urls = dict((juggler_host,
-                                "http://%s" % juggler_host + 
+                                "http://%s" % juggler_host +
                                 "/api/checks/add_methods?host_name={host}&service_name={service}&methods_list={methods}&do=1".format(**params))
                                 for juggler_host in self.juggler_hosts)
         
@@ -145,9 +147,8 @@ class Juggler(AbstractSender):
                 try:
                     self.logger.info(' '.join(cmd))
                     subprocess.check_call(cmd)
-                except subprocess.CalledProcessError as err:
+                except subprocess.CalledProcessError:
                     self.logger.error("Calling juggler client was failed")
-
            
 PLUGIN_CLASS = Juggler
 
