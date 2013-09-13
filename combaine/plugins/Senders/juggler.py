@@ -86,8 +86,8 @@ class Juggler(AbstractSender):
                 try:
                     self.logger.info(' '.join(cmd))
                     subprocess.check_call(cmd)
-                except subprocess.CalledProcessError:
-                    self.logger.error("Calling juggler client was failed")
+                except subprocess.CalledProcessError as err:
+                    self.logger.error("Calling juggler client was failed %s" % err)
                 else:
                     return True
         return False
@@ -147,8 +147,8 @@ class Juggler(AbstractSender):
                 try:
                     self.logger.info(' '.join(cmd))
                     subprocess.check_call(cmd)
-                except subprocess.CalledProcessError:
-                    self.logger.error("Calling juggler client was failed")
+                except subprocess.CalledProcessError as err:
+                    self.logger.error("Calling juggler client was failed %s" % err)
            
 PLUGIN_CLASS = Juggler
 
