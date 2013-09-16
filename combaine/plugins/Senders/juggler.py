@@ -71,6 +71,13 @@ class Juggler(AbstractSender):
         self._aggs = list(set(self._aggs))
 
     def _handling_one_expression(self, level, data, name, status):
+        http_cli = AsyncHTTP()
+        params = {"host": self.Host,
+                  "service": urllib.quote(self.checkname),
+                  "description": urllib.quote(self.description),
+                  "level": STATUSES[level],
+        }
+
         for expression in level:
             code = expression
             for key, value in data.iteritems():
@@ -82,15 +89,29 @@ class Juggler(AbstractSender):
                 res = False
             if res:
                 self._add_check_if_needed(name)
-                cmd = ("juggler_queue_event", "--host=" + name, "-n", self.checkname, "-s", str(status), "-d", self.description)
-                try:
-                    self.logger.info(' '.join(cmd))
-                    subprocess.check_call(cmd)
-                except subprocess.CalledProcessError as err:
-                    self.logger.error("Calling juggler client was failed %s" % err)
-                else:
-                    return True
+                URLS = dict((juggler_hosts,
+                            "http://%s" % juggler_host +
+                            "/api/events/add_event_proxy?host_name={host}&service_name={service}&description={description}&instace_name&status={level}&do=1".format(**params))
+                            for juggler_host in self.juggler_hosts)
+                http_cli.fetch_any(URLS)
+                return True
         return False
+
+    def send_OK(self):
+        http_cli = AsyncHTTP()
+        params = {"host": self.Host,
+                  "service": urllib.quote(self.checkname),
+                  "description": urllib.quote(self.description),
+                  "level": "OK",
+        }
+        self._add_check_if_needed(name)
+        URLS = dict((juggler_hosts,
+                    "http://%s" % juggler_host +
+                    "/api/events/add_event_proxy?host_name={host}&service_name={service}&description={description}&instace_name&status={level}&do=1".format(**params))
+                    for juggler_host in self.juggler_hosts)
+        http_cli.fetch_any(URLS)
+
+
 
     def _add_check_if_needed(self, host):
         http_cli = AsyncHTTP()
@@ -142,13 +163,7 @@ class Juggler(AbstractSender):
                                           check_host_name, 0)
             if not OK:
                 self.logger.debug("Emit OK manually")
-                self._add_check_if_needed(check_host_name)
-                cmd = ("juggler_queue_event", "--host=%s" % check_host_name , "-n", self.checkname, "-s", "0", "-d", self.description)
-                try:
-                    self.logger.info(' '.join(cmd))
-                    subprocess.check_call(cmd)
-                except subprocess.CalledProcessError as err:
-                    self.logger.error("Calling juggler client was failed %s" % err)
+                self.send_OK()
            
 PLUGIN_CLASS = Juggler
 

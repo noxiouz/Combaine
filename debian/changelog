@@ -1,8 +1,14 @@
+combaine (0.5.2-11) lucid; urgency=low
+
+  * use juggler via http 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 16 Sep 2013 20:28:33 +0400
+
 combaine (0.5.2-10) lucid; urgency=low
 
   * add some debug to juggler caller
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 13 Sep 2013 15:55:26 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 13 Sep 2013 16:00:53 +0400
 
 combaine (0.5.2-9) lucid; urgency=low
 
