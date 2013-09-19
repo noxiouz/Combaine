@@ -1,8 +1,8 @@
-combaine (0.5.2-19) lucid; urgency=low
+combaine (0.5.2-20) lucid; urgency=low
 
   * suppress tracebacks 
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 19 Sep 2013 13:23:57 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 19 Sep 2013 13:31:06 +0400
 
 combaine (0.5.2-17) lucid; urgency=low
 
