@@ -57,7 +57,7 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     data = df.getData(host_name, (previous_time, current_time))
 
     if not data:
-        logger.warning('%s Empty data from datafetcher' % uuid)
+        logger.warning('No data from %s' % host_name)
         return 'failed; Empty data from DF'
 
     handle_data = (l for l in parser(data) if l is not None and df.filter(l))

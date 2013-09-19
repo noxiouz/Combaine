@@ -56,7 +56,7 @@ def _combaine_config(path, name):
     if len(cfg) == 0:
         raise MissingConfigError("%s/%s" % (path, name))
     elif len(cfg) > 1:
-        L.warning("More than one config with name %s. Use %s" % (name, cfg[0]))
+        L.debug("More than one config with name %s. Use %s" % (name, cfg[0]))
 
     with open(cfg[0]) as f:
         _data = f.read()

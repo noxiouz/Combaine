@@ -54,7 +54,7 @@ class Agave(AbstractSender):
                 _r = conn.getresponse()
                 self.logger.info("%s %s %s %s %s" % (agv_host, _r.status, _r.reason, _r.read().strip('\r\n'), url))
             except Exception as err:
-                self.logger.exception("Unable to connect to one agave")
+                self.logger.error("Unable to connect to one agave")
             else:
                 _r.close()
 

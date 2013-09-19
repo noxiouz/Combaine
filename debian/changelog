@@ -1,8 +1,26 @@
-combaine (0.5.2-11) lucid; urgency=low
+combaine (0.5.2-19) lucid; urgency=low
+
+  * suppress tracebacks 
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 19 Sep 2013 13:23:57 +0400
+
+combaine (0.5.2-17) lucid; urgency=low
+
+  * log to syslog
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 18 Sep 2013 15:19:33 +0400
+
+combaine (0.5.2-16) lucid; urgency=low
+
+  * decrease output data in logs
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 17 Sep 2013 18:35:50 +0400
+
+combaine (0.5.2-14) lucid; urgency=low
 
   * use juggler via http 
 
- -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 16 Sep 2013 20:28:33 +0400
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 16 Sep 2013 22:06:29 +0400
 
 combaine (0.5.2-10) lucid; urgency=low
 

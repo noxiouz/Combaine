@@ -2,8 +2,17 @@ import logging
 import logging.handlers
 
 import combaine.common.configloader.config
+from logging.handlers import SysLogHandler
+
+from tornado.log import LogFormatter
 
 __all__ = ["ParsingLogger", "AggregateLogger", "CommonLogger"]
+
+
+class CombaineLogAdapter(logging.LoggerAdapter):
+
+    def process(self, msg, kwargs):
+        return '%s %s %s' % (self.extra['id'], self.extra['ident'], msg), kwargs
 
 def _initLogger(name):
     try:
@@ -12,16 +21,19 @@ def _initLogger(name):
         pass
         print err
     else:
-        _format = logging.Formatter("%(levelname)-5s %(asctime)s %(id)s %(message)s", "%Y-%m-%d %H:%M:%S")
+        _format = logging.Formatter("%(name)s: %(levelname)-5s %(message)s")
         parsing_log = logging.getLogger('combaine.%s' % name)
         log_level = eval('logging.' + config['log_level'])
 
-        fh = logging.handlers.TimedRotatingFileHandler('/var/log/combaine/%s.log' % name, when="midnight", backupCount=3)
+        fh = SysLogHandler()
+        #fh = logging.handlers.TimedRotatingFileHandler('/var/log/combaine/%s.log' % name, when="midnight", backupCount=3)
         fh.setFormatter(_format)
         fh.setLevel(log_level)
 
         sh = logging.StreamHandler()
-        sh.setFormatter(_format)
+        #sh.setFormatter(_format)
+        fmt = "%(ident)s %(levelname)-5s %(id)s %(message)s"
+        sh.setFormatter(LogFormatter(fmt))
         sh.setLevel(log_level)
     
         parsing_log.addHandler(fh)
@@ -50,7 +62,7 @@ class ParsingLogger(object):
             cls._instanse = super(ParsingLogger, cls).__new__(cls)
             _initLogger("parsing")
         GlobalLogId(_id)
-        return logging.LoggerAdapter(logging.getLogger("combaine.parsing"), {"id" : _id})
+        return CombaineLogAdapter(logging.getLogger("combaine.parsing"), {"id": _id, "ident": "combaine/parsing"})
 
 class AggregateLogger(object):
 
@@ -59,7 +71,7 @@ class AggregateLogger(object):
             cls._instanse = super(AggregateLogger, cls).__new__(cls)
             _initLogger("aggregate")
         GlobalLogId(_id)
-        return logging.LoggerAdapter(logging.getLogger("combaine.aggregate"), {"id" : _id})
+        return CombaineLogAdapter(logging.getLogger("combaine.aggregate"), {"id" : _id, "ident": "combaine/aggregate"})
 
 class DataFetcherLogger(object):
 
@@ -67,7 +79,7 @@ class DataFetcherLogger(object):
         if not hasattr(cls, "_instanse"):
             cls._instanse = super(DataFetcherLogger, cls).__new__(cls)
             _initLogger("datafetcher")
-        return logging.LoggerAdapter(logging.getLogger("combaine.datafetcher"), {"id" : GlobalLogId.get_id()})
+        return CombaineLogAdapter(logging.getLogger("combaine.datafetcher"), {"id" : GlobalLogId.get_id(), "ident": "combaine/parsing"})
 
 class DataGridLogger(object):
 
@@ -75,15 +87,15 @@ class DataGridLogger(object):
         if not hasattr(cls, "_instanse"):
             cls._instanse = super(DataGridLogger, cls).__new__(cls)
             _initLogger("datagrid")
-        return logging.LoggerAdapter(logging.getLogger("combaine.datagrid"), {"id" : GlobalLogId.get_id()})
+        return CombaineLogAdapter(logging.getLogger("combaine.datagrid"), {"id" : GlobalLogId.get_id(), "ident": "combaine/parsing"})
 
 class CommonLogger(object):
 
     def __new__(cls):
         if hasattr(ParsingLogger, "_instanse"):
-            return logging.LoggerAdapter(logging.getLogger("combaine.parsing"), {"id" : GlobalLogId.get_id()})
+            return CombaineLogAdapter(logging.getLogger("combaine.parsing"), {"id" : GlobalLogId.get_id(), "ident": "combaine/parsing"})
         elif hasattr(AggregateLogger, "_instanse"):
-            return logging.LoggerAdapter(logging.getLogger("combaine.aggregate"), {"id" : GlobalLogId.get_id()})
+            return CombaineLogAdapter(logging.getLogger("combaine.aggregate"), {"id" : GlobalLogId.get_id(), "ident": "combaine/aggregate"})
         else:
-            return logging.LoggerAdapter(logging.getLogger("combaine"), {"id" : GlobalLogId.get_id()})
+            return CombaineLogAdapter(logging.getLogger("combaine"), {"id" : GlobalLogId.get_id(), "ident": "combaine"})
 

@@ -71,5 +71,5 @@ class ParsingConfigurator(object):
                     dic['name'] = name
                     self.senders.append(dic)
         except Exception as err:
-            self.logger.exception("Error in read confing")
+            self.logger.error("Error in read confing %s" % err)
             raise

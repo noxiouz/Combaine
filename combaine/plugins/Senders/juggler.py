@@ -9,10 +9,10 @@ from combaine.common.loggers import CommonLogger
 from combaine.common.httpclient import AsyncHTTP
 from combaine.common.configloader import parse_common_cfg
 
-STATUSES = {"OK": 0,
-            "INFO": 3,
-            "WARNING": 1,
-            "CRITICAL": 2}
+STATUSES = {0: "OK",
+            3: "INFO",
+            1: "WARN",
+            2: "CRIT"}
 
 
 def coroutine(func):
@@ -42,8 +42,8 @@ class Juggler(AbstractSender):
     """
     type: juggler
     INFO: ["${50and20x}>-100", "${20x}<0"]
-    WARNING: ["${50and20x}>1", "${50and20x}<0"]
-    CRITICAL: ["${50and20x}>10", "${50and20x}<0"]
+    WARN: ["${50and20x}>1", "${50and20x}<0"]
+    CRIT: ["${50and20x}>10", "${50and20x}<0"]
     OK: ["${50and20x}>10", "${50and20x}<0"]
     """
 
@@ -52,8 +52,8 @@ class Juggler(AbstractSender):
     def __init__(self, **cfg):
         self.logger = CommonLogger()
         self._INFO = cfg.get("INFO", [])
-        self._WARNING = cfg.get("WARNING", [])
-        self._CRITICAL = cfg.get("CRITICAL", [])
+        self._WARNING = cfg.get("WARN", [])
+        self._CRITICAL = cfg.get("CRIT", [])
         self.checkname = cfg["checkname"]
         self.Aggregator = cfg['Aggregator']
         self.Host = cfg['Host']
@@ -72,10 +72,10 @@ class Juggler(AbstractSender):
 
     def _handling_one_expression(self, level, data, name, status):
         http_cli = AsyncHTTP()
-        params = {"host": self.Host,
+        params = {"host": name,
                   "service": urllib.quote(self.checkname),
                   "description": urllib.quote(self.description),
-                  "level": STATUSES[level],
+                  "level": STATUSES[status],
         }
 
         for expression in level:
@@ -84,32 +84,34 @@ class Juggler(AbstractSender):
                 code, n = re.subn(r"\${%s}" % key, str(value), code)
             try:
                 res = eval(code)
-                self.logger.debug("After substitution in %s %s %s" % (name, code, res))
+                self.logger.info("After substitution in %s %s %s" % (name, code, res))
             except Exception:
                 res = False
             if res:
                 self._add_check_if_needed(name)
-                URLS = dict((juggler_hosts,
+                extra = params.copy()
+                extra['description'] = urllib.quote("%s trigger: %s" % (extra['description'], code))
+                URLS = dict((juggler_host,
                             "http://%s" % juggler_host +
-                            "/api/events/add_event_proxy?host_name={host}&service_name={service}&description={description}&instace_name&status={level}&do=1".format(**params))
+                            "/api/events/add_event_proxy?host_name={host}&service_name={service}&description={description}&instance_name&status={level}&do=1".format(**extra))
                             for juggler_host in self.juggler_hosts)
-                http_cli.fetch_any(URLS)
+                map(self.logger.info, URLS.itervalues())
+                http_cli.fetch(URLS)
                 return True
         return False
 
-    def send_OK(self):
+    def send_OK(self, name):
         http_cli = AsyncHTTP()
-        params = {"host": self.Host,
+        params = {"host": name,
                   "service": urllib.quote(self.checkname),
                   "description": urllib.quote(self.description),
                   "level": "OK",
         }
-        self._add_check_if_needed(name)
-        URLS = dict((juggler_hosts,
+        URLS = dict((juggler_host,
                     "http://%s" % juggler_host +
-                    "/api/events/add_event_proxy?host_name={host}&service_name={service}&description={description}&instace_name&status={level}&do=1".format(**params))
+                    "/api/events/add_event_proxy?host_name={host}&service_name={service}&description={description}&instance_name&status={level}&do=1".format(**params))
                     for juggler_host in self.juggler_hosts)
-        http_cli.fetch_any(URLS)
+        http_cli.fetch(URLS)
 
 
 
@@ -137,9 +139,9 @@ class Juggler(AbstractSender):
                                 "/api/checks/add_methods?host_name={host}&service_name={service}&methods_list={methods}&do=1".format(**params))
                                 for juggler_host in self.juggler_hosts)
         
-        http_cli.fetch_any(add_check_urls)
-        http_cli.fetch_any(add_children)
-        http_cli.fetch_any(add_methods_urls)
+        http_cli.fetch(add_check_urls)
+        http_cli.fetch(add_children)
+        http_cli.fetch(add_methods_urls)
 
     def send(self, data):
         interest_results = filter(lambda x: x.aggname in self._aggs, data)
@@ -163,7 +165,7 @@ class Juggler(AbstractSender):
                                           check_host_name, 0)
             if not OK:
                 self.logger.debug("Emit OK manually")
-                self.send_OK()
+                self.send_OK(check_host_name)
            
 PLUGIN_CLASS = Juggler
 

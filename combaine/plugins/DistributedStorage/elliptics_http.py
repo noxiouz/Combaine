@@ -55,14 +55,14 @@ class Elliptics(AbstractDistributedStorage):
                     r.close()
                     return ret
                 elif r.status_code == 404:
-                    self.logger.info("Elliptics: Key %s (%s) is missing" % (key, raw_key))
+                    self.logger.debug("Elliptics: Key %s (%s) is missing" % (key, raw_key))
                     return None
             except requests.exceptions.Timeout as err:
                 self.hostsinfo.remove((host, r_port, w_port))
             except requests.exceptions.ConnectionError as err:
                 self.hostsinfo.remove((host, r_port, w_port))
             except Exception as err:
-                self.logger.exception("Read error in elliptics proxy")
+                self.logger.error("Read error in elliptics proxy %s" % err)
         self.logger.error("Elliptics: failed to read key %s (%s)" % (key, raw_key))
         return None
 

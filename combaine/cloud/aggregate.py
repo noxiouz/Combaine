@@ -91,7 +91,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
             handler_result.store_result(_res_handler.handle(res), previous_time)
             handler_results.append(handler_result)
     except Exception as err:
-        logger.exception(err)
+        logger.error(err)
     res.extend(handler_results)
 
     logger.info("Hadling data by senders")
@@ -99,7 +99,7 @@ def Main(groupname, config_name, agg_config_name, previous_time, current_time):
         for _res_sender in res_senders:
             _res_sender.send(res) 
     except Exception as err:
-        logger.exception(err)
+        logger.error(err)
 
     ds.close()
     logger.info("Aggregation has finished successfully")

@@ -55,7 +55,7 @@ class MathExp(AbstractResultHandler):
             self.name = config['name']
             self.expression = make_eval_string_safe(config["expression"])
             self.senders = config.get("send", [])
-            self.logger.info("Evaluation expression: %s" % self.expression)
+            self.logger.debug("Evaluation expression: %s" % self.expression)
         except UnsafelyCodeError as err:
             self.logger.error(str(err))
             raise
@@ -75,7 +75,7 @@ class MathExp(AbstractResultHandler):
             self.logger.debug("After substitution %s" % code)
             try:
                 res = eval(code)
-                self.logger.info("MathExp: Result %s %s" % (subgroup_name, res))
+                self.logger.debug("MathExp: Result %s %s" % (subgroup_name, res))
                 returned_result[subgroup_name] = res
             except Exception as err:
                 self.logger.error("Exception in evaluation %s: %s" % (code, err))

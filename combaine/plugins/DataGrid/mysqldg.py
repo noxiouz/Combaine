@@ -28,8 +28,8 @@ class MySqlDG(AbstractDataGrid):
             self.cursor.execute('CREATE DATABASE IF NOT EXISTS %s' % self.dbname)
             self.db.commit()
             self.db.select_db(self.dbname)
-        except Exception, err:
-            self.logger.exception('Error in init MySQLdb')
+        except Exception as err:
+            self.logger.error('Error in init MySQLdb %s' % err)
             raise Exception
 
     def putData(self, data, tablename):
@@ -46,7 +46,7 @@ class MySqlDG(AbstractDataGrid):
                     os.remove(table_file.name)
                     return False
 
-                self.logger.info('Data written to a temporary file %s, size: %d bytes' % (table_file.name, os.lstat(table_file.name).st_size))
+                self.logger.debug('Data written to a temporary file %s, size: %d bytes' % (table_file.name, os.lstat(table_file.name).st_size))
 
             if not self._preparePlace(line):
                 self.logger.error('Unsupported field types. Look at preparePlace()')
@@ -64,8 +64,8 @@ class MySqlDG(AbstractDataGrid):
             self.db.commit()
             if os.path.isfile(table_file.name):
                 os.remove(table_file.name)
-        except Exception, err:
-            self.logger.exception('Error in putData')
+        except Exception as err:
+            self.logger.error('Error in putData %s' % err)
             if os.path.isfile(table_file.name):
                 os.remove(table_file.name)
             return False
@@ -82,7 +82,7 @@ class MySqlDG(AbstractDataGrid):
         try:
             self.place = '( %s )' % ','.join([" %s %s" % (field_name, ftypes[type(field_type)]) for field_name, field_type in example.items()])
         except Exception as err:
-            self.logger.exception('Error in preparePlace()')
+            self.logger.error('Error in preparePlace() %s' % err)
             self.place = None
             return False
         else:
