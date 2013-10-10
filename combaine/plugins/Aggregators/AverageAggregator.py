@@ -53,7 +53,7 @@ class AverageAggregator(RawAbstractAggregator):
                         [data_dict[item['time']].append(list()) for i in xrange(0,subgroups_count)]
                     data_dict[item['time']][group_num].append(item['res'])
                 except Exception as err:
-                    self.logger.warning("Unexpected format: %s" % str(item))
+                    self.logger.warning("Unexpected format: %s %s" % (str(item), group))
         try:
             data_sec = data_dict.popitem()
             return data_sec

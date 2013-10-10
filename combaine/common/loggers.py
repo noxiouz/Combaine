@@ -25,8 +25,8 @@ def _initLogger(name):
         parsing_log = logging.getLogger('combaine.%s' % name)
         log_level = eval('logging.' + config['log_level'])
 
-        fh = SysLogHandler()
-        #fh = logging.handlers.TimedRotatingFileHandler('/var/log/combaine/%s.log' % name, when="midnight", backupCount=3)
+        #fh = SysLogHandler()
+        fh = logging.handlers.TimedRotatingFileHandler('/var/log/combaine/%s.log' % name, when="midnight", backupCount=3)
         fh.setFormatter(_format)
         fh.setLevel(log_level)
 
