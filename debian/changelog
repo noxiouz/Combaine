@@ -1,3 +1,15 @@
+combaine (0.5.2-22) lucid; urgency=low
+
+  * Increase capped collection size
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 16 Oct 2013 12:37:35 +0400
+
+combaine (0.5.2-21) lucid; urgency=low
+
+  * pretty logs
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 10 Oct 2013 14:43:10 +0400
+
 combaine (0.5.2-20) lucid; urgency=low
 
   * suppress tracebacks 

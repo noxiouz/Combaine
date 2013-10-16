@@ -22,9 +22,9 @@ class MongoReplicaSet(AbstractDistributedStorage):
             if collection in self.db.collection_names():
                 if not self.db[collection].options().get("capped"):
                     self.db.drop_collection(collection)
-                    self.db.create_collection(collection, capped=True, size=500000000, max=2000)
+                    self.db.create_collection(collection, capped=True, size=500000000, max=100000)
             else:
-                self.db.create_collection(collection, capped=True, size=500000000, max=2000)
+                self.db.create_collection(collection, capped=True, size=500000000, max=100000)
             self.db_cursor = self.db[collection]
             self.db_cursor.ensure_index("_id")
         except Exception, err:
