@@ -86,14 +86,14 @@ def Main(host_name, config_name, group_name, previous_time, current_time):
     if any(_agg.agg_type == TYPES.index("PROCESSED") for _agg in aggs):
         [_agg.set_data(handle_data) for _agg in aggs if _agg.agg_type == TYPES.index("PROCESSED")]
 
-    res = itertools.chain([_agg.aggregate((previous_time, current_time)) for _agg in aggs])
+    res = itertools.chain([_agg.aggregate(host_name, group_name, (previous_time, current_time)) for _agg in aggs])
     logger.debug("Send data to storage: %s" % [ds.insert("%(host)s;%(conf)s;%(time)s;%(etime)s;%(aggname)s" % {\
                                                                     'host'  : host_name.replace('.','_').replace('-','_'),\
                                                                     'conf'  : config_name,\
                                                                     'time'  : previous_time,\
                                                                     'etime' : current_time,\
                                                                   'aggname' : l[0]},
-                                                                                     l[1]) for l in res])
+                                                                                     l[1]) for l in res if l])
     ds.close()
     logger.info('Parsing has finished successfully')
     return 'success'
