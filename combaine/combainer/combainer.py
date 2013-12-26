@@ -185,7 +185,7 @@ class Combainer(object):
                 if aggregatehostfile == 'No groups found':
                     log.warning('Invalid group name: %s' % str(group))
                 else:
-                    self.aggrhosts[group] = aggregatehostfile.split('\n')[:-1]
+                    self.aggrhosts[group] = aggregatehostfile.splitlines()
         except Exception, err:
             log.error('Failed to load hosts %s' % str(err))
             return False

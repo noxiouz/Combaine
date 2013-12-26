@@ -1,3 +1,9 @@
+combaine (0.5.2-23) lucid; urgency=low
+
+  * Fix parsing of hostlist. typo fix.
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Thu, 26 Dec 2013 10:30:14 +0400
+
 combaine (0.5.2-22) lucid; urgency=low
 
   * Increase capped collection size

@@ -36,7 +36,7 @@ class Timetail(AbstractFetcher):
                 self.log.warning('HTTP responce code for %s is not 200 %i' % (host_name, resp.status))
                 return None
         except Exception as err:
-            self.log.err('Error while getting data from %s: %s' % (host_name, err))
+            self.log.error('Error while getting data from %s: %s' % (host_name, err))
             return None
 
 PLUGIN_CLASS = Timetail
