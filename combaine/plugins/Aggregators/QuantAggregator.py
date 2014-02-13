@@ -64,7 +64,7 @@ class QuantilAggregator(RawAbstractAggregator):
         self.name = config['name']
         self.quants = config['values']
 
-    def aggregate(self, timeperiod):
+    def aggregate(self, host_name, timeperiod):
         db = self.dg
         self.query = self.table_regex.sub(db.tablename, self.query)
         self.query = self.time_regex.sub("1=1", self.query) # DEPRECATED: Only for backward compability

@@ -13,7 +13,7 @@ class AbstractAggregator(object):
         self.time_regex = re.compile("TIME\s*=\s*%%")
 
     @abstractmethod
-    def aggregate(self, datagrid_object):
+    def aggregate(self, host_name, datagrid_object):
         raise Exception
 
     @abstractmethod

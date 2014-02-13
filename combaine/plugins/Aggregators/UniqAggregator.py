@@ -13,7 +13,7 @@ class Uniq(ProcessedAbstractAggregator):
         self.terminator = config["terminator"]
         self.skipvalues = config["skipvalues"]
 
-    def aggregate(self, timeperiod):
+    def aggregate(self, host_name, timeperiod):
         res = set()
         for line in self.data:
             [res.add(i) for i in str(line.get(self.query,"")).split(self.terminator)]
