@@ -38,7 +38,7 @@ class ErrCountAggregator(RawAbstractAggregator):
         q = " ".join(q)
         return self.table_regex.sub(self.dg.tablename, q)
 
-    def aggregate(self, host_name, group_name, timeperiod):
+    def aggregate(self, host_name, timeperiod):
         config.loadConfigs()
         def send_juggler(msg):
             print host_name, msg

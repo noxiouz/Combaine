@@ -13,7 +13,7 @@ class AverageAggregator(RawAbstractAggregator):
         self.name = config['name']
         self._is_rps = config.get("rps", "YES")
 
-    def aggregate(self, host_name, group_name, timeperiod):
+    def aggregate(self, host_name, timeperiod):
         normalize = (timeperiod[1] - timeperiod[0]) if self._is_rps == "YES" else 1
         def format_me(i):
             try:
