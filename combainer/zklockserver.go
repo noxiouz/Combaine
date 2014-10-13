@@ -71,7 +71,13 @@ func (ls *zkLockServer) Lock(lockname string) <-chan error {
 }
 
 func (ls *zkLockServer) Unlock(lockname string) error {
-	return ls.Zk.Delete(lockname, -1)
+	full_lockname := fmt.Sprintf("/%s/%s", ls.config.Id, lockname)
+	LogInfo("Unlock `%s`", full_lockname)
+	err := ls.Zk.Delete(full_lockname, -1)
+	if err != nil {
+		LogErr("Unlocking of `%s`has been failed: %s", full_lockname, err)
+	}
+	return err
 }
 
 func (ls *zkLockServer) Close() error {
