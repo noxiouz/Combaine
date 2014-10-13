@@ -183,6 +183,7 @@ func (cl *Client) Dispatch() {
 	} else {
 		return
 	}
+	defer cl.DLS.Unlock(cl.lockname)
 
 	// Create inotify filewatcher
 	watcher, err := fsnotify.NewWatcher()
@@ -259,8 +260,8 @@ func (cl *Client) Dispatch() {
 
 		select {
 		// Does lock exist?
-		case <-lockpoller: // Lock
-			LogInfo("%s Drop lock %s", uniqueID, cl.lockname)
+		case reason := <-lockpoller: // Lock
+			LogInfo("%s Drop lock %s: %s", uniqueID, cl.lockname, reason)
 			return
 
 		// Wait for next iteration

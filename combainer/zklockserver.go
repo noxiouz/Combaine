@@ -10,7 +10,8 @@ import (
 )
 
 type Lockserver interface {
-	Lock(name string) <-chan error
+	Lock(string) <-chan error
+	Unlock(string) error
 	Close() error
 	OnDisconnection() <-chan struct{}
 }
@@ -67,6 +68,10 @@ func (ls *zkLockServer) Lock(lockname string) <-chan error {
 	}
 
 	return ls.poller(path)
+}
+
+func (ls *zkLockServer) Unlock(lockname string) error {
+	return ls.Zk.Delete(lockname, -1)
 }
 
 func (ls *zkLockServer) Close() error {
