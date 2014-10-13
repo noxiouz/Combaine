@@ -261,7 +261,7 @@ func (cl *Client) Dispatch() {
 		select {
 		// Does lock exist?
 		case reason := <-lockpoller: // Lock
-			LogInfo("%s Drop lock %s: %s", uniqueID, cl.lockname, reason)
+			LogErr("%s Drop lock %s: %s", uniqueID, cl.lockname, reason)
 			return
 
 		// Wait for next iteration
