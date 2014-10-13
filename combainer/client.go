@@ -96,10 +96,6 @@ func NewClient(config CombainerConfig, distibutedLockServer Lockserver) (*Client
 	}, nil
 }
 
-func (cl *Client) Close() {
-	cl.DLS.Close()
-}
-
 func (cl *Client) UpdateSessionParams(config string) (err error) {
 	LogInfo("Updating session parametrs")
 	// tasks
@@ -181,8 +177,6 @@ func (cl *Client) UpdateSessionParams(config string) (err error) {
 }
 
 func (cl *Client) Dispatch() {
-	defer cl.Close()
-
 	lockpoller := cl.acquireLock()
 	if lockpoller != nil {
 		LogInfo("Acquire Lock %s", cl.lockname)

@@ -76,13 +76,14 @@ func main() {
 	}
 
 	// Initialize distributed lock server
-	lockServer, err := combainer.NewLockServer(combainer_config.Combainer.LockServerCfg)
+	lockserver, err := combainer.NewLockServer(combainer_config.Combainer.LockServerCfg)
 	if err != nil {
-		log.Fatalf("Unable to initialize Lockserver: %s", err)
+		log.Fatalf("Unable to initialize lockserver: %s", err)
 	}
+	defer lockserver.Close()
 
 	// Subscribe to lockserver state
-	lockserver_is_disconnected := lockServer.OnDisconnection()
+	lockserver_is_disconnected := lockserver.OnDisconnection()
 
 	for {
 		//log.Println("Try to start client")
@@ -93,7 +94,7 @@ func main() {
 				}
 			}()
 
-			Work(combainer_config, lockServer)
+			Work(combainer_config, lockserver)
 		}()
 		select {
 		case <-lockserver_is_disconnected:
