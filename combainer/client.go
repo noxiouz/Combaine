@@ -4,15 +4,12 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/cocaine/cocaine-framework-go/cocaine"
 	"github.com/howeyc/fsnotify"
-	"launchpad.net/goyaml"
 
 	"github.com/noxiouz/Combaine/common"
 )
@@ -23,17 +20,10 @@ type combainerMainCfg struct {
 	CloudHosts    string "cloud"
 }
 
-type combainerLockserverCfg struct {
-	Id      string   "app_id"
-	Hosts   []string "host"
-	Name    string   "name"
-	timeout uint     "timeout"
-}
-
-type combainerConfig struct {
+type CombainerConfig struct {
 	Combainer struct {
-		Main          combainerMainCfg       "Main"
-		LockServerCfg combainerLockserverCfg "Lockserver"
+		Main          combainerMainCfg "Main"
+		LockServerCfg LockserverConfig "Lockserver"
 	} "Combainer"
 }
 
@@ -53,8 +43,7 @@ type clientStats struct {
 
 type Client struct {
 	Main       combainerMainCfg
-	LSCfg      combainerLockserverCfg
-	DLS        LockServer
+	DLS        Lockserver
 	lockname   string
 	cloudHosts []string
 	clientStats
@@ -93,43 +82,18 @@ func (cs *clientStats) GetStats() (info *StatInfo) {
 
 // Public API
 
-func NewClient(config string) (*Client, error) {
-	// Read combaine.yaml
-	data, err := ioutil.ReadFile(config)
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse combaine.yaml
-	var m combainerConfig
-	err = goyaml.Unmarshal(data, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	// Zookeeper hosts. Connect to Zookeeper
-	hosts := m.Combainer.LockServerCfg.Hosts
-	dls, err := NewLockServer(strings.Join(hosts, ","))
-	if err != nil {
-		return nil, err
-	}
-
-	cloudHosts, err := GetHosts(m.Combainer.Main.Http_hand, m.Combainer.Main.CloudHosts)
+func NewClient(config CombainerConfig, distibutedLockServer Lockserver) (*Client, error) {
+	cloudHosts, err := GetHosts(config.Combainer.Main.Http_hand, config.Combainer.Main.CloudHosts)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
-		Main:       m.Combainer.Main,
-		LSCfg:      m.Combainer.LockServerCfg,
-		DLS:        *dls,
+		Main:       config.Combainer.Main,
+		DLS:        distibutedLockServer,
 		lockname:   "",
 		cloudHosts: cloudHosts,
 		sp:         nil,
 	}, nil
-}
-
-func (cl *Client) Close() {
-	cl.DLS.Close()
 }
 
 func (cl *Client) UpdateSessionParams(config string) (err error) {
@@ -213,14 +177,13 @@ func (cl *Client) UpdateSessionParams(config string) (err error) {
 }
 
 func (cl *Client) Dispatch() {
-	defer cl.Close()
-
 	lockpoller := cl.acquireLock()
 	if lockpoller != nil {
 		LogInfo("Acquire Lock %s", cl.lockname)
 	} else {
 		return
 	}
+	defer cl.DLS.Unlock(cl.lockname)
 
 	// Create inotify filewatcher
 	watcher, err := fsnotify.NewWatcher()
@@ -297,8 +260,8 @@ func (cl *Client) Dispatch() {
 
 		select {
 		// Does lock exist?
-		case <-lockpoller: // Lock
-			LogInfo("%s Drop lock %s", uniqueID, cl.lockname)
+		case reason := <-lockpoller: // Lock
+			LogErr("%s Drop lock %s: %s", uniqueID, cl.lockname, reason)
 			return
 
 		// Wait for next iteration
@@ -466,12 +429,12 @@ func (cl *Client) getRandomHost() string {
 }
 
 // Private API
-func (cl *Client) acquireLock() chan bool {
-	for _, i := range getParsings() {
-		lockname := fmt.Sprintf("/%s/%s", cl.LSCfg.Id, i)
-		poller := cl.DLS.AcquireLock(lockname)
+func (cl *Client) acquireLock() <-chan error {
+	for _, lockname := range getParsings() {
+		// lockname := fmt.Sprintf("/%s/%s", cl.LSCfg.Id, i)
+		poller := cl.DLS.Lock(lockname)
 		if poller != nil {
-			cl.lockname = i
+			cl.lockname = lockname
 			return poller
 		}
 	}
