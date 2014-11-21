@@ -29,7 +29,11 @@ class Handystats(object):
         if 'metric' not in self.config or 'stat' not in self.config:
             raise RuntimeError("'metric' and 'stat' config options are mandatory")
 
-        self.metric_name = self.config['metric']
+        # Support for multiple metrics
+        self.metrics = [self.config['metric']] if isinstance(self.config['metric'], str) else list(self.config['metric'])
+        if not all(map(lambda x: isinstance(x, str), self.metrics)):
+            raise RuntimeError("'metric' config option must be string or list of strings: {0}".format(self.metrics))
+
         self.stat = self.config['stat']
 
     def aggregate_host(self, payload, prevtime, currtime):
@@ -39,17 +43,26 @@ class Handystats(object):
         dump = json.loads(dump_str)
 
         query_interval = currtime - prevtime
+        if query_interval <= 0:
+            raise RuntimeError("task's time frame must be positive: prevtime = {0}, currtime = {1}".format(prevtime, currtime))
 
-        if self.metric_name not in dump:
-            raise RuntimeError("'%s' metric is not found" % self.metric_name)
+        metrics_data = None
 
-        metric_data = Data.from_json(json.dumps(dump[self.metric_name]))
-        metric_data.truncate(
-            before = Timepoint.from_unixtime(dump_timestamp - query_interval),
-            after = Timepoint.from_unixtime(dump_timestamp)
-            )
+        for metric in self.metrics:
+            if metric not in dump:
+                continue
 
-        return metric_data.to_json()
+            data = Data.from_json(json.dumps(dump[metric]))
+            data.truncate(
+                before = Timepoint.from_unixtime(dump_timestamp - query_interval),
+                after = Timepoint.from_unixtime(dump_timestamp)
+                )
+            if not metrics_data:
+                metrics_data = data
+            else:
+                metrics_data.merge(data)
+
+        return metrics_data.to_json() if metrics_data else None
 
     def aggregate_group(self, payload):
         merged_data = None
@@ -58,15 +71,15 @@ class Handystats(object):
             if host_payload is None:
                 continue
 
-            metric = Data.from_json(host_payload)
+            data = Data.from_json(host_payload)
             if merged_data is None:
-                merged_data = metric
+                merged_data = data
             else:
-                merged_data.merge(metric)
+                merged_data.merge(data)
 
         if not merged_data:
             # NOTE: return 0 instead?
-            raise RuntimeError("No data for metric '%s'" % self.metric_name)
+            raise RuntimeError("No data for metrics {0}".format(self.metrics))
 
         if self.stat == 'value':
             return merged_data.value()
@@ -96,7 +109,10 @@ class Handystats(object):
             return merged_data.moving_avg()
 
         elif self.stat == 'quantile':
-            levels = list(self.config.get('levels', [75, 90, 93, 94, 95, 96, 97, 98, 99]))
+            levels = map(int, list(self.config.get('levels', [75, 90, 93, 94, 95, 96, 97, 98, 99])))
+
+            if not all(map(lambda x: x > 0 and x < 100, levels)):
+                raise RuntimeError("'levels' config option must be list of integers between 0 and 100 (exclusive)")
 
             res = []
             for level in levels:
