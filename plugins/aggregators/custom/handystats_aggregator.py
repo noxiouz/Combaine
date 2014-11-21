@@ -44,7 +44,7 @@ class Handystats(object):
 
         query_interval = currtime - prevtime
         if query_interval <= 0:
-            raise RuntimeError("task's time frame must be positive: prevtime = {0}, currtime = {1}".format(prevtime, currtime))
+            raise RuntimeError("task's time frame interval must be positive: prevtime = {0}, currtime = {1}".format(prevtime, currtime))
 
         metrics_data = None
 
@@ -130,4 +130,4 @@ class Handystats(object):
             return merged_data.frequency()
 
         else:
-            raise NotImplementedError("'%s' statistic is not implemented" % self.stat)
+            raise NotImplementedError("'{0}' statistic is not implemented".format(self.stat))
