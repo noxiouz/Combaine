@@ -50,6 +50,9 @@ func NewClient(ctx *Context, repo configs.Repository) (*Client, error) {
 }
 
 func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err error) {
+	startTime := time.Now()
+	defer cl.Stats.timingPreparing.UpdateSince(startTime)
+
 	cl.Log.WithFields(logrus.Fields{
 		"config": config,
 	}).Info("updating session parametrs")
@@ -173,6 +176,8 @@ func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err err
 }
 
 func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait bool) error {
+	cl.Stats.sessions.Inc(1)
+
 	if uniqueID == "" {
 		uniqueID = GenerateSessionId()
 	}
@@ -197,7 +202,6 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		}).Error("unable to update session parametrs")
 		return err
 	}
-	cl.Stats.timingPreparing.UpdateSince(startTime)
 
 	deadline = startTime.Add(sessionParameters.ParsingTime)
 	cl.Log.WithFields(contextFields).Info("Start new iteration")

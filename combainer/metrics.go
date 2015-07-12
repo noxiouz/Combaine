@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/noxiouz/Combaine/vendor/github.com/rcrowley/go-metrics"
+	"io"
 	"net/http"
 	"runtime"
 	"sync"
@@ -71,6 +72,18 @@ func (m *Metrics) GetRegistry(config string) metrics.Registry {
 	m.RLock()
 	defer m.RUnlock()
 	return m.registries[config]
+}
+
+func JsonToWriter(w io.Writer, v interface{}) error {
+	var out bytes.Buffer
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	json.Indent(&out, b, "", "\t")
+	_, err = out.WriteTo(w)
+	return err
 }
 
 func Dashboard(w http.ResponseWriter, r *http.Request) {
@@ -177,6 +190,7 @@ func Launch(s ServerContext, w http.ResponseWriter, r *http.Request) {
 	err = cl.Dispatch(name, ID, false)
 	fmt.Fprintf(w, "%s\n", ID)
 	w.(http.Flusher).Flush()
+	defer JsonToWriter(w, cl.Stats.Registry)
 	if err != nil {
 		fmt.Fprintf(w, "FAILED: %v\n", err)
 		return

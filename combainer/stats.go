@@ -9,6 +9,8 @@ import (
 type Stats struct {
 	Registry metrics.Registry
 
+	sessions metrics.Counter
+
 	timingPreparing metrics.Timer
 	timingIdle      metrics.Timer
 
@@ -29,6 +31,8 @@ func NewStats() *Stats {
 	return &Stats{
 		Registry: registry,
 
+		sessions: metrics.NewRegisteredCounter("sessions", registry),
+
 		timingPreparing: metrics.NewRegisteredTimer("preparing_timings", registry),
 		timingIdle:      metrics.NewRegisteredTimer("idle_timings", registry),
 
@@ -36,8 +40,8 @@ func NewStats() *Stats {
 		failedParsing:  metrics.NewRegisteredCounter("parsing_fail", registry),
 		timingParsing:  metrics.NewRegisteredTimer("parsing_timings", registry),
 
-		successAggregate: metrics.NewRegisteredCounter("parsing_ok", registry),
-		failedAggregate:  metrics.NewRegisteredCounter("parsing_fail", registry),
+		successAggregate: metrics.NewRegisteredCounter("aggregate_ok", registry),
+		failedAggregate:  metrics.NewRegisteredCounter("aggregate_fail", registry),
 		timingAggregate:  metrics.NewRegisteredTimer("aggregate_timings", registry),
 
 		last: metrics.NewRegisteredGauge("last", registry),
