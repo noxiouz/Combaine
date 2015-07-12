@@ -6,6 +6,8 @@ import (
 	"github.com/noxiouz/Combaine/common/hosts"
 )
 
+type TaskResult string
+
 type Task interface {
 	Tid() string
 	Raw() ([]byte, error)

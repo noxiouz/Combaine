@@ -314,7 +314,7 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 	)
 
 	for deadline.After(time.Now()) {
-		host = fmt.Sprintf("%s:10053", getRandomHost(hosts))
+		host = getRandomHost(hosts) + ":10053"
 		select {
 		case r := <-resolve(appName, host):
 			err, slave = r.Err, r.Slave
@@ -350,9 +350,8 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 	}
 
 	raw, _ := task.Raw()
-	var res string
-	err = slave.Do("enqueue", "handleTask", raw).Wait(ctx, &res)
-	if err != nil {
+	var res tasks.TaskResult
+	if err := slave.Do("enqueue", "handleTask", raw).Wait(ctx, &res); err != nil {
 		cl.Log.WithFields(logrus.Fields{
 			"session": task.Tid(),
 			"error":   err,
@@ -389,18 +388,4 @@ func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.Aggregati
 func getRandomHost(input []string) string {
 	max := len(input)
 	return input[rand.Intn(max)]
-}
-
-func PerformTask(ctx context.Context, app *cocaine.Service, payload []byte) (interface{}, error) {
-	select {
-	case res := <-app.Call("enqueue", "handleTask", payload):
-		if res.Err() != nil {
-			return nil, res.Err()
-		}
-		var i interface{}
-		err := res.Extract(&i)
-		return i, err
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	}
 }
