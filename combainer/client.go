@@ -3,14 +3,11 @@ package combainer
 import (
 	"fmt"
 	"golang.org/x/net/context"
-	"math/rand"
 	"sync"
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/cocaine/cocaine-framework-go/cocaine"
 
-	"github.com/noxiouz/Combaine/combainer/slave"
 	"github.com/noxiouz/Combaine/common"
 	"github.com/noxiouz/Combaine/common/configs"
 	"github.com/noxiouz/Combaine/common/hosts"
@@ -18,7 +15,6 @@ import (
 )
 
 var (
-	ErrAppUnavailable = fmt.Errorf("Application is unavailable")
 	ErrHandlerTimeout = fmt.Errorf("Timeout")
 )
 
@@ -39,14 +35,6 @@ type Client struct {
 }
 
 func NewClient(ctx *Context, repo configs.Repository) (*Client, error) {
-	if ctx.Hosts == nil {
-		err := fmt.Errorf("Hosts delegate must be specified")
-		ctx.Logger.WithFields(logrus.Fields{
-			"error": err,
-		}).Error("Unable to create Client")
-		return nil, err
-	}
-
 	id := GenerateSessionId()
 	cl := &Client{
 		Id:         id,
@@ -210,17 +198,6 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 	deadline = startTime.Add(sessionParameters.ParsingTime)
 	cl.Log.WithFields(contextFields).Info("Start new iteration")
 
-	hosts, err := cl.Context.Hosts()
-	if err != nil || len(hosts) == 0 {
-		cl.Log.WithFields(logrus.Fields{
-			"session": uniqueID,
-			"config":  parsingConfigName,
-			"error":   err,
-		}).Error("unable to get (or empty) the list of the cloud hosts")
-
-		return err
-	}
-
 	// Parsing phase
 	totalTasksAmount := len(sessionParameters.PTasks)
 	parsingCtx, parsingCancel := context.WithDeadline(cl.context, deadline)
@@ -235,7 +212,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			cl.doParsingTask(parsingCtx, task, hosts)
+			cl.doParsingTask(parsingCtx, task)
 		}()
 	}
 	wg.Wait()
@@ -259,7 +236,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			cl.doAggregationHandler(aggContext, task, hosts)
+			cl.doAggregationHandler(aggContext, task)
 		}()
 	}
 	wg.Wait()
@@ -278,75 +255,21 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 	return nil
 }
 
-type resolveInfo struct {
-	Slave slave.Slave
-	Err   error
-}
-
-func resolve(appname, endpoint string) <-chan resolveInfo {
-	res := make(chan resolveInfo)
-	go func() {
-		app, err := cocaine.NewService(appname, endpoint)
-		select {
-		case res <- resolveInfo{
-			Slave: slave.NewSlave(app),
-			Err:   err,
-		}:
-		default:
-			if err == nil {
-				app.Close()
-			}
-		}
-	}()
-	return res
-}
-
-func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.Task, hosts []string) error {
-	deadline, ok := ctx.Deadline()
+func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.Task) error {
+	_, ok := ctx.Deadline()
 	if !ok {
 		return fmt.Errorf("no deadline is set")
 	}
+	ctx = context.WithValue(ctx, "session", task.Tid())
 
-	var (
-		err   error
-		slave slave.Slave
-		host  string
-	)
-
-	for deadline.After(time.Now()) {
-		host = getRandomHost(hosts) + ":10053"
-		select {
-		case r := <-resolve(appName, host):
-			err, slave = r.Err, r.Slave
-		case <-time.After(1 * time.Second):
-			err = fmt.Errorf("service resolvation was timeouted %s %s %s", task.Tid(), host, appName)
-		}
-		if err == nil {
-			defer slave.Close()
-			cl.Log.WithFields(logrus.Fields{
-				"session": task.Tid(),
-				"host":    host,
-				"appname": appName,
-			}).Debug("application successfully connected")
-			break
-		}
-
+	slave, err := cl.Resolver.Resolve(ctx, appName)
+	if err != nil {
 		cl.Log.WithFields(logrus.Fields{
 			"session": task.Tid(),
 			"error":   err,
 			"appname": appName,
-			"host":    host,
-		}).Warning("unable to connect to application")
-		time.Sleep(200 * time.Microsecond)
-	}
-
-	if slave == nil {
-		cl.Log.WithFields(logrus.Fields{
-			"session": task.Tid(),
-			"error":   ErrAppUnavailable,
-			"appname": appName,
 		}).Error("unable to send task")
-		return ErrAppUnavailable
+		return err
 	}
 
 	raw, _ := task.Raw()
@@ -356,7 +279,7 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 			"session": task.Tid(),
 			"error":   err,
 			"appname": appName,
-			"host":    host,
+			"host":    slave.Endpoint(),
 		}).Errorf("task for group %s failed", task.Group())
 		return err
 	}
@@ -364,28 +287,23 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 	cl.Log.WithFields(logrus.Fields{
 		"session": task.Tid(),
 		"appname": appName,
-		"host":    host,
+		"host":    slave.Endpoint(),
 	}).Infof("task for group %s done: %s", task.Group(), res)
 	return nil
 }
 
-func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask, hosts []string) {
-	if err := cl.doGeneralTask(ctx, common.PARSING, &task, hosts); err != nil {
+func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask) {
+	if err := cl.doGeneralTask(ctx, common.PARSING, &task); err != nil {
 		cl.clientStats.AddFailedParsing()
 		return
 	}
 	cl.clientStats.AddSuccessParsing()
 }
 
-func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.AggregationTask, hosts []string) {
-	if err := cl.doGeneralTask(ctx, common.AGGREGATE, &task, hosts); err != nil {
+func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.AggregationTask) {
+	if err := cl.doGeneralTask(ctx, common.AGGREGATE, &task); err != nil {
 		cl.clientStats.AddFailedAggregate()
 		return
 	}
 	cl.clientStats.AddSuccessAggregate()
-}
-
-func getRandomHost(input []string) string {
-	max := len(input)
-	return input[rand.Intn(max)]
 }

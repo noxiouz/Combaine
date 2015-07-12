@@ -1,15 +1,16 @@
 package combainer
 
 import (
-	"github.com/noxiouz/Combaine/common/cache"
-
 	"github.com/Sirupsen/logrus"
-)
 
-type CloudHostsDelegate func() ([]string, error)
+	"github.com/noxiouz/Combaine/combainer/discovery"
+	"github.com/noxiouz/Combaine/combainer/slave"
+	"github.com/noxiouz/Combaine/common/cache"
+)
 
 type Context struct {
 	*logrus.Logger
-	Cache cache.Cache
-	Hosts CloudHostsDelegate
+	Cache     cache.Cache
+	Discovery discovery.Discovery
+	Resolver  slave.Resolver
 }

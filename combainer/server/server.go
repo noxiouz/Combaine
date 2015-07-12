@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/noxiouz/Combaine/combainer/discovery"
 	"net/http"
 	"os"
 	"os/signal"
@@ -74,9 +75,10 @@ func NewCombainer(config CombaineServerConfig) (*CombaineServer, error) {
 	// Get Combaine hosts
 	cloud_group := combainerConfig.MainSection.CloudGroup
 	context := &combainer.Context{
-		Cache:  cacher,
-		Hosts:  nil,
-		Logger: logrus.StandardLogger(),
+		Cache: cacher,
+		// ToDo: should setup in New*
+		Discovery: nil,
+		Logger:    logrus.StandardLogger(),
 	}
 
 	s, err := combainer.LoadHostFetcher(context, combainerConfig.CloudSection.HostFetcher)
@@ -84,13 +86,13 @@ func NewCombainer(config CombaineServerConfig) (*CombaineServer, error) {
 		return nil, err
 	}
 
-	context.Hosts = func() ([]string, error) {
+	context.Discovery = discovery.NewHTTPDiscovery(func() ([]string, error) {
 		h, err := s.Fetch(cloud_group)
 		if err != nil {
 			return nil, err
 		}
 		return h.AllHosts(), nil
-	}
+	})
 
 	server := &CombaineServer{
 		Configuration:   config,

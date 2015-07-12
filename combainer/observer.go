@@ -181,9 +181,10 @@ func Launch(s ServerContext, w http.ResponseWriter, r *http.Request) {
 	logger.Out = w
 
 	ctx := &Context{
-		Logger: logger,
-		Cache:  s.GetContext().Cache,
-		Hosts:  s.GetContext().Hosts,
+		Logger:    logger,
+		Cache:     s.GetContext().Cache,
+		Discovery: s.GetContext().Discovery,
+		Resolver:  s.GetContext().Resolver,
 	}
 
 	cl, err := NewClient(ctx, s.GetRepository())
