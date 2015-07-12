@@ -2,11 +2,11 @@ package combainer
 
 import (
 	"fmt"
-	"golang.org/x/net/context"
 	"sync"
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"golang.org/x/net/context"
 
 	"github.com/noxiouz/Combaine/common"
 	"github.com/noxiouz/Combaine/common/configs"
@@ -26,23 +26,26 @@ type sessionParams struct {
 }
 
 type Client struct {
+	*Context
+	*Stats
 	Id         string
 	Repository configs.Repository
-	*Context
-	Log *logrus.Entry
-	clientStats
-	context context.Context
+	Log        *logrus.Entry
+	context    context.Context
 }
 
 func NewClient(ctx *Context, repo configs.Repository) (*Client, error) {
 	id := GenerateSessionId()
 	cl := &Client{
+		Context: ctx,
+		Stats:   NewStats(),
+
 		Id:         id,
 		Repository: repo,
-		Context:    ctx,
 		Log:        ctx.Logger.WithField("client", id),
 		context:    context.Background(),
 	}
+
 	return cl, nil
 }
 
@@ -170,9 +173,6 @@ func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err err
 }
 
 func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait bool) error {
-	GlobalObserver.RegisterClient(cl, parsingConfigName)
-	defer GlobalObserver.UnregisterClient(parsingConfigName)
-
 	if uniqueID == "" {
 		uniqueID = GenerateSessionId()
 	}
@@ -181,8 +181,12 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		"session": uniqueID,
 		"config":  parsingConfigName}
 
-	var deadline, startTime time.Time
-	var wg sync.WaitGroup
+	var (
+		deadline time.Time
+		wg       sync.WaitGroup
+
+		startTime = time.Now()
+	)
 
 	sessionParameters, err := cl.UpdateSessionParams(parsingConfigName)
 	if err != nil {
@@ -193,8 +197,8 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		}).Error("unable to update session parametrs")
 		return err
 	}
+	cl.Stats.timingPreparing.UpdateSince(startTime)
 
-	startTime = time.Now()
 	deadline = startTime.Add(sessionParameters.ParsingTime)
 	cl.Log.WithFields(contextFields).Info("Start new iteration")
 
@@ -247,7 +251,9 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 
 	// Wait for next iteration
 	if shouldWait {
-		time.Sleep(deadline.Sub(time.Now()))
+		idleTime := deadline.Sub(time.Now())
+		cl.Stats.timingIdle.Update(idleTime)
+		time.Sleep(idleTime)
 	}
 
 	cl.Log.WithFields(contextFields).Debug("Go to the next iteration")
@@ -293,17 +299,23 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 }
 
 func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask) {
+	start := time.Now()
+	defer cl.TrackParsing(start)
+
 	if err := cl.doGeneralTask(ctx, common.PARSING, &task); err != nil {
-		cl.clientStats.AddFailedParsing()
+		cl.AddFailedParsing()
 		return
 	}
-	cl.clientStats.AddSuccessParsing()
+	cl.AddSuccessParsing()
 }
 
 func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.AggregationTask) {
+	start := time.Now()
+	defer cl.TrackAggregate(start)
+
 	if err := cl.doGeneralTask(ctx, common.AGGREGATE, &task); err != nil {
-		cl.clientStats.AddFailedAggregate()
+		cl.AddFailedAggregate()
 		return
 	}
-	cl.clientStats.AddSuccessAggregate()
+	cl.AddSuccessAggregate()
 }

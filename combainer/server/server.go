@@ -188,6 +188,10 @@ LOCKSERVER_LOOP:
 
 							c.log.Info("creating new client", lockname)
 							cl, err := combainer.NewClient(c.Context, c.Repository)
+							// think about unique ID for metrics name
+							combainer.GlobalMetrics.RegisterRegistry(cl.Registry, lockname)
+							defer combainer.GlobalMetrics.UnregisterRegistry(lockname)
+
 							if err != nil {
 								c.log.WithFields(logrus.Fields{
 									"error":    err,

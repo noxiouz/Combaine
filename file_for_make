@@ -16,6 +16,7 @@ BUILD_DIR=$(CURDIR)/build
 OS := $(shell uname)
 ifeq ($(OS), Darwin)
 	export CGO_CFLAGS=-I/usr/local/include/zookeeper
+	export BUILDARGS=-race
 endif
 
 all: deps combainer_ agave_ parsing_ graphite_ razladki_ cbb_
@@ -34,7 +35,7 @@ deps:
 
 combainer_: deps
 
-	go build -o $(BUILD_DIR)/main_combainer $(MAIN_FILES_DIR)/combainer_main.go
+	go build $(BUILDARGS) -o $(BUILD_DIR)/main_combainer $(MAIN_FILES_DIR)/combainer_main.go
 
 parsing_: deps
 	go build -o $(BUILD_DIR)/main_parsing-core $(MAIN_FILES_DIR)/parsing_main.go

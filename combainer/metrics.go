@@ -1,13 +1,15 @@
 package combainer
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"github.com/noxiouz/Combaine/vendor/github.com/rcrowley/go-metrics"
 	"net/http"
 	"runtime"
 	"sync"
-	"syscall"
+	"time"
+	// "syscall"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -17,90 +19,68 @@ import (
 	"github.com/noxiouz/Combaine/common/configs"
 )
 
-type StatInfo struct {
-	ParsingSuccess   int
-	ParsingFailed    int
-	ParsingTotal     int
-	AggregateSuccess int
-	AggregateFailed  int
-	AggregateTotal   int
-	Heartbeated      int64
-}
-type OpenFiles struct {
-	Open  uint64
-	Limit syscall.Rlimit
+func init() {
+	registry := metrics.NewRegistry()
+	goroutines := metrics.NewRegisteredHistogram(
+		"goroutines",
+		registry,
+		metrics.NewUniformSample(1024))
+
+	GlobalMetrics.RegisterRegistry(registry, "combainer.system")
+
+	go func() {
+		t := time.NewTicker(time.Second * 5)
+		for _ = range t.C {
+			goroutines.Update(int64(runtime.NumGoroutine()))
+		}
+	}()
 }
 
-type info struct {
-	GoRoutines int
-	Files      OpenFiles
-	Clients    map[string]*StatInfo
+var GlobalMetrics = Metrics{
+	registries: make(map[string]metrics.Registry),
 }
 
-var GlobalObserver = Observer{
-	clients: make(map[string]*Client),
-}
-
-type Observer struct {
+type Metrics struct {
 	sync.RWMutex
-	clients map[string]*Client // map active clients to configs
+	registries map[string]metrics.Registry
 }
 
-func (o *Observer) RegisterClient(cl *Client, config string) {
-	o.RWMutex.Lock()
-	defer o.RWMutex.Unlock()
-	o.clients[config] = cl
+func (m *Metrics) RegisterRegistry(r metrics.Registry, name string) {
+	m.RWMutex.Lock()
+	m.registries[name] = r
+	m.RWMutex.Unlock()
 }
 
-func (o *Observer) UnregisterClient(config string) {
-	o.RWMutex.Lock()
-	defer o.RWMutex.Unlock()
-	delete(o.clients, config)
+func (m *Metrics) UnregisterRegistry(name string) {
+	m.RWMutex.Lock()
+	delete(m.registries, name)
+	m.RWMutex.Unlock()
 }
 
-func (o *Observer) GetClients() (clients map[string]*Client) {
-	o.RLock()
-	defer o.RUnlock()
-	clients = make(map[string]*Client)
-	clients = o.clients
-	return
+func (m *Metrics) GetRegistries() map[string]metrics.Registry {
+	m.RLock()
+	defer m.RUnlock()
+	cpy := make(map[string]metrics.Registry, len(m.registries))
+	for k, v := range m.registries {
+		cpy[k] = v
+	}
+	return cpy
 }
 
-func (o *Observer) GetClient(config string) *Client {
-	o.RLock()
-	defer o.RUnlock()
-	return o.clients[config]
+func (m *Metrics) GetRegistry(config string) metrics.Registry {
+	m.RLock()
+	defer m.RUnlock()
+	return m.registries[config]
 }
 
 func Dashboard(w http.ResponseWriter, r *http.Request) {
-	getNumberOfOpenfiles := func() uint64 {
-		files, _ := ioutil.ReadDir("/proc/self/fd")
-		return uint64(len(files))
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	stats := make(map[string]*StatInfo)
-	for config, client := range GlobalObserver.GetClients() {
-		stats[config] = client.GetStats()
-	}
 
-	var limit syscall.Rlimit
-	if err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &limit); err != nil {
-		fmt.Fprintf(w, "{\"error\": \"unable to dump json %s\"", err)
-		return
-	}
+	b, _ := json.Marshal(GlobalMetrics.GetRegistries())
+	var out bytes.Buffer
 
-	if err := json.NewEncoder(w).Encode(info{
-		GoRoutines: runtime.NumGoroutine(),
-		Files: OpenFiles{
-			getNumberOfOpenfiles(),
-			limit,
-		},
-		Clients: stats,
-	}); err != nil {
-		fmt.Fprintf(w, "{\"error\": \"unable to dump json %s\"", err)
-		return
-	}
+	json.Indent(&out, b, "", "\t")
+	out.WriteTo(w)
 }
 
 func ParsingConfigs(s ServerContext, w http.ResponseWriter, r *http.Request) {

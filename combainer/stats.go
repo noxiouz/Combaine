@@ -1,59 +1,73 @@
 package combainer
 
 import (
-	"sync"
 	"time"
+
+	"github.com/noxiouz/Combaine/vendor/github.com/rcrowley/go-metrics"
 )
 
-type clientStats struct {
-	sync.RWMutex
-	successParsing   int
-	failedParsing    int
-	successAggregate int
-	failedAggregate  int
-	last             int64
+type Stats struct {
+	Registry metrics.Registry
+
+	timingPreparing metrics.Timer
+	timingIdle      metrics.Timer
+
+	successParsing metrics.Counter
+	failedParsing  metrics.Counter
+	timingParsing  metrics.Timer
+
+	successAggregate metrics.Counter
+	failedAggregate  metrics.Counter
+	timingAggregate  metrics.Timer
+
+	last metrics.Gauge
 }
 
-func (cs *clientStats) AddSuccessParsing() {
-	cs.Lock()
-	cs.successParsing++
-	cs.last = time.Now().Unix()
-	cs.Unlock()
-}
+func NewStats() *Stats {
+	registry := metrics.NewRegistry()
 
-func (cs *clientStats) AddFailedParsing() {
-	cs.Lock()
-	cs.failedParsing++
-	cs.last = time.Now().Unix()
-	cs.Unlock()
-}
+	return &Stats{
+		Registry: registry,
 
-func (cs *clientStats) AddSuccessAggregate() {
-	cs.Lock()
-	cs.successAggregate++
-	cs.last = time.Now().Unix()
-	cs.Unlock()
-}
+		timingPreparing: metrics.NewRegisteredTimer("preparing_timings", registry),
+		timingIdle:      metrics.NewRegisteredTimer("idle_timings", registry),
 
-func (cs *clientStats) AddFailedAggregate() {
-	cs.Lock()
-	cs.failedAggregate++
-	cs.last = time.Now().Unix()
-	cs.Unlock()
-}
+		successParsing: metrics.NewRegisteredCounter("parsing_ok", registry),
+		failedParsing:  metrics.NewRegisteredCounter("parsing_fail", registry),
+		timingParsing:  metrics.NewRegisteredTimer("parsing_timings", registry),
 
-func (cs *clientStats) GetStats() (info *StatInfo) {
-	cs.RLock()
-	defer cs.RUnlock()
+		successAggregate: metrics.NewRegisteredCounter("parsing_ok", registry),
+		failedAggregate:  metrics.NewRegisteredCounter("parsing_fail", registry),
+		timingAggregate:  metrics.NewRegisteredTimer("aggregate_timings", registry),
 
-	info = &StatInfo{
-		ParsingSuccess:   cs.successParsing,
-		ParsingFailed:    cs.failedParsing,
-		ParsingTotal:     cs.successParsing + cs.failedParsing,
-		AggregateSuccess: cs.successAggregate,
-		AggregateFailed:  cs.failedAggregate,
-		AggregateTotal:   cs.successAggregate + cs.failedAggregate,
-		Heartbeated:      cs.last,
+		last: metrics.NewRegisteredGauge("last", registry),
 	}
-	return
+}
+
+func (s *Stats) AddSuccessParsing() {
+	s.successParsing.Inc(1)
+	s.last.Update(time.Now().Unix())
+}
+
+func (s *Stats) AddFailedParsing() {
+	s.failedParsing.Inc(1)
+	s.last.Update(time.Now().Unix())
+}
+
+func (s *Stats) TrackParsing(start time.Time) {
+	s.timingParsing.UpdateSince(start)
+}
+
+func (s *Stats) AddSuccessAggregate() {
+	s.successAggregate.Inc(1)
+	s.last.Update(time.Now().Unix())
+}
+
+func (s *Stats) AddFailedAggregate() {
+	s.failedAggregate.Inc(1)
+	s.last.Update(time.Now().Unix())
+}
+
+func (s *Stats) TrackAggregate(start time.Time) {
+	s.timingAggregate.UpdateSince(start)
 }
