@@ -54,10 +54,6 @@ func (s *Stats) AddFailedParsing() {
 	s.last.Update(time.Now().Unix())
 }
 
-func (s *Stats) TrackParsing(start time.Time) {
-	s.timingParsing.UpdateSince(start)
-}
-
 func (s *Stats) AddSuccessAggregate() {
 	s.successAggregate.Inc(1)
 	s.last.Update(time.Now().Unix())
@@ -66,8 +62,4 @@ func (s *Stats) AddSuccessAggregate() {
 func (s *Stats) AddFailedAggregate() {
 	s.failedAggregate.Inc(1)
 	s.last.Update(time.Now().Unix())
-}
-
-func (s *Stats) TrackAggregate(start time.Time) {
-	s.timingAggregate.UpdateSince(start)
 }

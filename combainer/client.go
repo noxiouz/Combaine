@@ -300,7 +300,7 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 
 func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask) {
 	start := time.Now()
-	defer cl.TrackParsing(start)
+	defer cl.Stats.timingParsing.UpdateSince(start)
 
 	if err := cl.doGeneralTask(ctx, common.PARSING, &task); err != nil {
 		cl.AddFailedParsing()
@@ -311,7 +311,7 @@ func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask) {
 
 func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.AggregationTask) {
 	start := time.Now()
-	defer cl.TrackAggregate(start)
+	defer cl.Stats.timingAggregate.UpdateSince(start)
 
 	if err := cl.doGeneralTask(ctx, common.AGGREGATE, &task); err != nil {
 		cl.AddFailedAggregate()
