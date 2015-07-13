@@ -1,3 +1,10 @@
+combaine (0.7.1.0-rc1) unstable; urgency=low
+
+  * [Metrics] Add a lot of timers
+  * [Resolver] Reimplement resolver
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Mon, 13 Jul 2015 15:11:46 +0300
+
 combaine (0.7.0.1-rc57) unstable; urgency=low
 
   * [Razladki] Remove the slash from URI
