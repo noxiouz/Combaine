@@ -1,7 +1,6 @@
 package server
 
 import (
-	"github.com/noxiouz/Combaine/combainer/discovery"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,7 +10,9 @@ import (
 	"github.com/noxiouz/Combaine/vendor/launchpad.net/gozk/zookeeper"
 
 	"github.com/noxiouz/Combaine/combainer"
+	"github.com/noxiouz/Combaine/combainer/discovery"
 	"github.com/noxiouz/Combaine/combainer/lockserver"
+	"github.com/noxiouz/Combaine/combainer/slave"
 	"github.com/noxiouz/Combaine/common/cache"
 	"github.com/noxiouz/Combaine/common/configs"
 )
@@ -93,6 +94,8 @@ func NewCombainer(config CombaineServerConfig) (*CombaineServer, error) {
 		}
 		return h.AllHosts(), nil
 	})
+
+	context.Resolver = slave.NewCocaineResolver(context.Discovery)
 
 	server := &CombaineServer{
 		Configuration:   config,
