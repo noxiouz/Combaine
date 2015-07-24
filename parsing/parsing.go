@@ -95,7 +95,7 @@ func Parsing(task tasks.ParsingTask) error {
 
 		res := <-datagrid.Call("enqueue", "put", blob)
 		if err = res.Err(); err != nil {
-			logger.Errf("%s %v", task.Id, err)
+			logger.Errf("%s unable to put data to DG %v", task.Id, err)
 			return err
 		}
 		var token string

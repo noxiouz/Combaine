@@ -101,10 +101,9 @@ class MySqlDG(object):
             self.logger.error('Error in putData %s' % err)
             if os.path.isfile(table_file.name):
                 os.remove(table_file.name)
-            return False
-        else:
-            self.tablename = tablename
-            return True
+            raise
+        self.tablename = tablename
+        return True
 
     def _preparePlace(self, example):
         ftypes = {types.IntType: "BIGINT",

@@ -54,6 +54,7 @@ def put(request, response):
         mysqldg.putData(data, tablename)
     except Exception as err:
         response.error(-100, str(err))
+        log.error("unable to put data: %s", str(err))
     else:
         response.write(tablename)
         response.close()
