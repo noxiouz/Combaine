@@ -281,6 +281,7 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 		}).Error("unable to send task")
 		return err
 	}
+	defer slave.Close()
 
 	raw, _ := task.Raw()
 	var res tasks.TaskResult
