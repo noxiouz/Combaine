@@ -5,7 +5,9 @@ import (
 	"runtime"
 
 	"github.com/cocaine/cocaine-framework-go/cocaine"
+	"golang.org/x/net/context"
 
+	"github.com/noxiouz/Combaine/combainer/slave"
 	"github.com/noxiouz/Combaine/common"
 	"github.com/noxiouz/Combaine/common/tasks"
 	"github.com/noxiouz/Combaine/parsing"
@@ -15,7 +17,10 @@ import (
 	_ "github.com/noxiouz/Combaine/fetchers/timetail"
 )
 
-var logger *cocaine.Logger
+var (
+	logger     *cocaine.Logger
+	ctxParsing *parsing.ParsingContext
+)
 
 func handleTask(request *cocaine.Request, response *cocaine.Response) {
 	defer response.Close()
@@ -26,7 +31,7 @@ func handleTask(request *cocaine.Request, response *cocaine.Response) {
 		response.ErrorMsg(-100, err.Error())
 		return
 	}
-	err = parsing.Parsing(task)
+	err = parsing.Parsing(ctxParsing, task)
 	if err != nil {
 		response.ErrorMsg(-100, err.Error())
 	} else {
@@ -41,6 +46,12 @@ func main() {
 	binds := map[string]cocaine.EventHandler{
 		"handleTask": handleTask,
 	}
+
+	ctxParsing = &parsing.ParsingContext{
+		Ctx:      context.Background(),
+		Resolver: slave.NewLocalResolver(),
+	}
+
 	Worker, err := cocaine.NewWorker()
 	if err != nil {
 		log.Fatal(err)

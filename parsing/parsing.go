@@ -2,15 +2,15 @@ package parsing
 
 import (
 	"fmt"
+	"github.com/noxiouz/Combaine/combainer/slave"
 	"sync"
 	"time"
 
-	"github.com/cocaine/cocaine-framework-go/cocaine"
+	"golang.org/x/net/context"
 
 	"github.com/noxiouz/Combaine/common"
 	"github.com/noxiouz/Combaine/common/logger"
 
-	"github.com/noxiouz/Combaine/common/servicecacher"
 	"github.com/noxiouz/Combaine/common/tasks"
 )
 
@@ -18,10 +18,10 @@ const (
 	storageServiceName = "elliptics"
 )
 
-var (
-	storage *cocaine.Service     = logger.MustCreateService(storageServiceName)
-	cacher  servicecacher.Cacher = servicecacher.NewCacher()
-)
+type ParsingContext struct {
+	Ctx      context.Context
+	Resolver slave.Resolver
+}
 
 func fetchDataFromTarget(task *tasks.ParsingTask) ([]byte, error) {
 	fetcherType, err := task.ParsingConfig.DataFetcher.Type()
@@ -49,16 +49,7 @@ func fetchDataFromTarget(task *tasks.ParsingTask) ([]byte, error) {
 	return blob, nil
 }
 
-func parseData(task *tasks.ParsingTask, data []byte) ([]byte, error) {
-	parser, err := GetParser()
-	if err != nil {
-		return nil, err
-	}
-
-	return parser.Parse(task.Id, task.ParsingConfig.Parser, data)
-}
-
-func Parsing(task tasks.ParsingTask) error {
+func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
 	logger.Infof("%s start parsing", task.Id)
 
 	var (
@@ -76,8 +67,16 @@ func Parsing(task tasks.ParsingTask) error {
 
 	if !task.ParsingConfig.SkipParsingStage() {
 		logger.Infof("%s Send data to parsing", task.Id)
-		blob, err = parseData(&task, blob)
+
+		parsingApp, err := ctx.Resolver.Resolve(ctx.Ctx, common.PARSINGAPP)
 		if err != nil {
+			logger.Errf("%s error `%v` occured while resolving %s",
+				task.Id, err, common.PARSINGAPP)
+			return err
+		}
+
+		taskToParser, _ := common.Pack([]interface{}{task.Id, task.ParsingConfig.Parser, blob})
+		if err := parsingApp.Do("enqueue", "parse", taskToParser).Wait(ctx.Ctx, &blob); err != nil {
 			logger.Errf("%s error `%v` occured while parsing data", task.Id, err)
 			return err
 		}
@@ -87,26 +86,22 @@ func Parsing(task tasks.ParsingTask) error {
 
 	if !task.ParsingConfig.Raw {
 		logger.Debugf("%s Use %s for handle data", task.Id, common.DATABASEAPP)
-		datagrid, err := cacher.Get(common.DATABASEAPP)
+
+		datagrid, err := ctx.Resolver.Resolve(ctx.Ctx, common.DATABASEAPP)
 		if err != nil {
-			logger.Errf("%s %v", task.Id, err)
+			logger.Errf("%s unable to get DG %v", task.Id, err)
 			return err
 		}
 
-		res := <-datagrid.Call("enqueue", "put", blob)
-		if err = res.Err(); err != nil {
-			logger.Errf("%s unable to put data to DG %v", task.Id, err)
-			return err
-		}
 		var token string
-		if err = res.Extract(&token); err != nil {
-			logger.Errf("%s %v", task.Id, err)
+		if err := datagrid.Do("enqueue", "put", blob).Wait(ctx.Ctx, &token); err != nil {
+			logger.Errf("%s unable to put data to DG %v", task.Id, err)
 			return err
 		}
 
 		defer func() {
 			taskToDatagrid, _ := common.Pack([]interface{}{token})
-			<-datagrid.Call("enqueue", "drop", taskToDatagrid)
+			datagrid.Do("enqueue", "drop", taskToDatagrid)
 			logger.Debugf("%s Drop table", task.Id)
 		}()
 		payload = token
@@ -118,12 +113,13 @@ func Parsing(task tasks.ParsingTask) error {
 			if err != nil {
 				return err
 			}
+
 			logger.Debugf("%s Send to %s %s type %s %v", task.Id, aggLogName, k, aggType, v)
 
 			wg.Add(1)
 			go func(name string, k string, v interface{}, logName string, deadline time.Duration) {
 				defer wg.Done()
-				app, err := cacher.Get(name)
+				app, err := ctx.Resolver.Resolve(ctx.Ctx, name)
 				if err != nil {
 					logger.Errf("%s %s %s", task.Id, name, err)
 					return
@@ -140,27 +136,26 @@ func Parsing(task tasks.ParsingTask) error {
 					"id":       task.Id,
 				})
 
-				select {
-				case res := <-app.Call("enqueue", "aggregate_host", t):
-					if res.Err() != nil {
-						logger.Errf("%s Task failed  %s", task.Id, res.Err())
-						return
-					}
-
-					var raw_res []byte
-					if err := res.Extract(&raw_res); err != nil {
-						logger.Errf("%s Unable to extract result. %s", task.Id, err.Error())
-						return
-					}
-
-					key := fmt.Sprintf("%s;%s;%s;%s;%v",
-						task.Host, task.ParsingConfigName,
-						logName, k, task.CurrTime)
-					<-storage.Call("cache_write", "combaine", key, raw_res)
-					logger.Debugf("%s Write data with key %s", task.Id, key)
-				case <-time.After(deadline):
-					logger.Errf("%s Failed task %s", task.Id, deadline)
+				var rawRes []byte
+				aggHostCtx, aggHostCtxCancel := context.WithTimeout(ctx.Ctx, deadline)
+				defer aggHostCtxCancel()
+				if err := app.Do("enqueue", "aggregate_host", t).Wait(aggHostCtx, &rawRes); err != nil {
+					logger.Errf("%s Failed task: %v", task.Id, err)
+					return
 				}
+
+				key := fmt.Sprintf("%s;%s;%s;%s;%v", task.Host, task.ParsingConfigName,
+					logName, k, task.CurrTime)
+
+				storage, err := ctx.Resolver.Resolve(aggHostCtx, storageServiceName)
+				if err != nil {
+					logger.Errf("%s Failed to get storage: %v", task.Id, err)
+					return
+				}
+
+				storage.Do("cache_write", "combaine", key, rawRes)
+				logger.Debugf("%s Write data with key %s", task.Id, key)
+
 			}(aggType, k, v, aggLogName, time.Second*time.Duration(task.CurrTime-task.PrevTime))
 		}
 	}

@@ -16,7 +16,7 @@ type AsyncResult interface {
 type Slave interface {
 	Close()
 	Endpoint() string
-	Do(name string, event string, payload []byte) AsyncResult
+	Do(name string, args ...interface{}) AsyncResult
 }
 
 type asyncResult struct {
@@ -49,9 +49,9 @@ func (s *slave) Close() {
 	s.Service.Close()
 }
 
-func (s *slave) Do(name string, event string, payload []byte) AsyncResult {
+func (s *slave) Do(name string, args ...interface{}) AsyncResult {
 	return &asyncResult{
-		ch: s.Service.Call(name, event, payload),
+		ch: s.Service.Call(name, args...),
 	}
 }
 
