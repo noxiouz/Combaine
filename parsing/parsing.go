@@ -1,13 +1,11 @@
 package parsing
 
 import (
-	"fmt"
-	"github.com/noxiouz/Combaine/combainer/slave"
 	"sync"
-	"time"
 
 	"golang.org/x/net/context"
 
+	"github.com/noxiouz/Combaine/combainer/slave"
 	"github.com/noxiouz/Combaine/common"
 	"github.com/noxiouz/Combaine/common/logger"
 
@@ -49,7 +47,24 @@ func fetchDataFromTarget(task *tasks.ParsingTask) ([]byte, error) {
 	return blob, nil
 }
 
-func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
+type ParsingResult struct {
+	data map[string][]byte
+	mu   sync.Mutex
+}
+
+func NewParsingResult() *ParsingResult {
+	return &ParsingResult{
+		data: make(map[string][]byte),
+	}
+}
+
+func (pr *ParsingResult) Put(config, item string, result []byte) {
+	pr.mu.Lock()
+	pr.data[config+":"+item] = result
+	pr.mu.Unlock()
+}
+
+func Parsing(ctx *ParsingContext, task tasks.ParsingTask) (*ParsingResult, error) {
 	logger.Infof("%s start parsing", task.Id)
 
 	var (
@@ -62,7 +77,7 @@ func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
 	blob, err = fetchDataFromTarget(&task)
 	if err != nil {
 		logger.Errf("%s error `%v` occured while fetching data", task.Id, err)
-		return err
+		return nil, err
 	}
 
 	if !task.ParsingConfig.SkipParsingStage() {
@@ -72,13 +87,13 @@ func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
 		if err != nil {
 			logger.Errf("%s error `%v` occured while resolving %s",
 				task.Id, err, common.PARSINGAPP)
-			return err
+			return nil, err
 		}
 
 		taskToParser, _ := common.Pack([]interface{}{task.Id, task.ParsingConfig.Parser, blob})
 		if err := parsingApp.Do("enqueue", "parse", taskToParser).Wait(ctx.Ctx, &blob); err != nil {
 			logger.Errf("%s error `%v` occured while parsing data", task.Id, err)
-			return err
+			return nil, err
 		}
 	}
 
@@ -90,13 +105,13 @@ func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
 		datagrid, err := ctx.Resolver.Resolve(ctx.Ctx, common.DATABASEAPP)
 		if err != nil {
 			logger.Errf("%s unable to get DG %v", task.Id, err)
-			return err
+			return nil, err
 		}
 
 		var token string
 		if err := datagrid.Do("enqueue", "put", blob).Wait(ctx.Ctx, &token); err != nil {
 			logger.Errf("%s unable to put data to DG %v", task.Id, err)
-			return err
+			return nil, err
 		}
 
 		defer func() {
@@ -107,27 +122,29 @@ func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
 		payload = token
 	}
 
+	pr := NewParsingResult()
+
 	for aggLogName, aggCfg := range task.AggregationConfigs {
 		for k, v := range aggCfg.Data {
 			aggType, err := v.Type()
 			if err != nil {
-				return err
+				logger.Errf("no type in configuration: %s %s %v", aggLogName, k, v)
+				return nil, err
 			}
 
 			logger.Debugf("%s Send to %s %s type %s %v", task.Id, aggLogName, k, aggType, v)
 
 			wg.Add(1)
-			go func(name string, k string, v interface{}, logName string, deadline time.Duration) {
+			go func(name string, dataName string, v interface{}, configName string) {
 				defer wg.Done()
+
 				app, err := ctx.Resolver.Resolve(ctx.Ctx, name)
 				if err != nil {
 					logger.Errf("%s %s %s", task.Id, name, err)
 					return
 				}
 
-				/*
-					Task structure
-				*/
+				// Task structure
 				t, _ := common.Pack(map[string]interface{}{
 					"config":   v,
 					"token":    payload,
@@ -137,30 +154,20 @@ func Parsing(ctx *ParsingContext, task tasks.ParsingTask) error {
 				})
 
 				var rawRes []byte
-				aggHostCtx, aggHostCtxCancel := context.WithTimeout(ctx.Ctx, deadline)
-				defer aggHostCtxCancel()
-				if err := app.Do("enqueue", "aggregate_host", t).Wait(aggHostCtx, &rawRes); err != nil {
+				if err := app.Do("enqueue", "aggregate_host", t).Wait(ctx.Ctx, &rawRes); err != nil {
 					logger.Errf("%s Failed task: %v", task.Id, err)
 					return
 				}
 
-				key := fmt.Sprintf("%s;%s;%s;%s;%v", task.Host, task.ParsingConfigName,
-					logName, k, task.CurrTime)
+				logger.Debugf("result for %s %s: %v", configName, dataName, rawRes)
 
-				storage, err := ctx.Resolver.Resolve(aggHostCtx, storageServiceName)
-				if err != nil {
-					logger.Errf("%s Failed to get storage: %v", task.Id, err)
-					return
-				}
+				pr.Put(configName, dataName, rawRes)
 
-				storage.Do("cache_write", "combaine", key, rawRes)
-				logger.Debugf("%s Write data with key %s", task.Id, key)
-
-			}(aggType, k, v, aggLogName, time.Second*time.Duration(task.CurrTime-task.PrevTime))
+			}(aggType, k, v, aggLogName)
 		}
 	}
 	wg.Wait()
 
 	logger.Infof("%s Done", task.Id)
-	return nil
+	return pr, nil
 }

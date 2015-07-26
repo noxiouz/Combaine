@@ -30,7 +30,9 @@ func mustCreateLogger() Logger {
 	log, err := cocaine.NewLogger()
 	if err != nil {
 		// panic(fmt.Sprintf("Unable to create Cocaine logger, but must %v", err))
-		return &loggerLogrus{Logger: logrus.StandardLogger()}
+		l := loggerLogrus{Logger: logrus.StandardLogger()}
+		logrus.SetLevel(logrus.DebugLevel)
+		return &l
 	}
 	return log
 }
