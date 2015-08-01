@@ -30,3 +30,33 @@ func NewFetcher(name string, cfg map[string]interface{}) (f Fetcher, err error) 
 	f, err = initializer(cfg)
 	return
 }
+
+func unregister(name string) {
+	fLock.Lock()
+	delete(fetchers, name)
+	fLock.Unlock()
+}
+
+type mockFetcher struct {
+	data []byte
+}
+
+func (m *mockFetcher) Fetch(task *tasks.FetcherTask) ([]byte, error) {
+	if m.data != nil {
+		return m.data, nil
+	}
+
+	return nil, fmt.Errorf("No data fetcher error")
+}
+
+func newMockFetcher(cfg map[string]interface{}) (Fetcher, error) {
+	m := &mockFetcher{
+		data: nil,
+	}
+
+	if data, ok := cfg["data"].([]byte); ok {
+		m.data = data
+	}
+
+	return m, nil
+}
