@@ -1,3 +1,9 @@
+combaine (0.7.0.1-rc58) unstable; urgency=low
+
+  * Rebuild with fixed framewrok
+
+ -- Anton Tyurin <noxiouz@yandex-team.net>  Mon, 03 Aug 2015 12:53:23 +0300
+
 combaine (0.7.0.1-rc57) unstable; urgency=low
 
   * [Razladki] Remove the slash from URI
