@@ -208,6 +208,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 
 	// Parsing phase
 	totalTasksAmount := len(sessionParameters.PTasks)
+	result := tasks.NewParsingResultCollector(totalTasksAmount)
 	parsingCtx, parsingCancel := context.WithDeadline(cl.context, deadline)
 	for i, task := range sessionParameters.PTasks {
 		// Description of task
@@ -218,10 +219,12 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		cl.Log.WithFields(contextFields).Infof("Send task number %d/%d to parsing %v", i+1, totalTasksAmount, task)
 
 		wg.Add(1)
-		go func() {
+		go func(task tasks.ParsingTask) {
 			defer wg.Done()
-			cl.doParsingTask(parsingCtx, task)
-		}()
+			if res, err := cl.doParsingTask(parsingCtx, task); err == nil {
+				result.Put(task.Host, res)
+			}
+		}(task)
 	}
 	wg.Wait()
 	// release all resources connected with context
@@ -238,14 +241,15 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 		task.PrevTime = startTime.Unix()
 		task.CurrTime = startTime.Add(sessionParameters.WholeTime).Unix()
 		task.CommonTask.Id = uniqueID
+		task.Results = result.Data()
 
 		cl.Log.WithFields(contextFields).Infof("Send task number %d/%d to aggregate %v", i+1, totalTasksAmount, task)
 
 		wg.Add(1)
-		go func() {
+		go func(task tasks.AggregationTask) {
 			defer wg.Done()
 			cl.doAggregationHandler(aggContext, task)
-		}()
+		}(task)
 	}
 	wg.Wait()
 	// release all resources connected with context
@@ -265,11 +269,12 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 	return nil
 }
 
-func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.Task) error {
+func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.Task) (res tasks.TaskResult, err error) {
 	_, ok := ctx.Deadline()
 	if !ok {
-		return fmt.Errorf("no deadline is set")
+		return res, fmt.Errorf("no deadline is set")
 	}
+
 	ctx = context.WithValue(ctx, "session", task.Tid())
 
 	slave, err := cl.Resolver.Resolve(ctx, appName)
@@ -279,20 +284,19 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 			"error":   err,
 			"appname": appName,
 		}).Error("unable to send task")
-		return err
+		return res, err
 	}
 	defer slave.Close()
 
 	raw, _ := task.Raw()
-	var res tasks.TaskResult
-	if err := slave.Do("enqueue", "handleTask", raw).Wait(ctx, &res); err != nil {
+	if err = slave.Do("enqueue", "handleTask", raw).Wait(ctx, &res); err != nil {
 		cl.Log.WithFields(logrus.Fields{
 			"session": task.Tid(),
 			"error":   err,
 			"appname": appName,
 			"host":    slave.Endpoint(),
 		}).Errorf("task for group %s failed", task.Group())
-		return err
+		return res, err
 	}
 
 	cl.Log.WithFields(logrus.Fields{
@@ -300,27 +304,31 @@ func (cl *Client) doGeneralTask(ctx context.Context, appName string, task tasks.
 		"appname": appName,
 		"host":    slave.Endpoint(),
 	}).Infof("task for group %s done: %s", task.Group(), res)
-	return nil
+	return res, err
 }
 
-func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask) {
+func (cl *Client) doParsingTask(ctx context.Context, task tasks.ParsingTask) (tasks.TaskResult, error) {
 	start := time.Now()
 	defer cl.Stats.timingParsing.UpdateSince(start)
 
-	if err := cl.doGeneralTask(ctx, common.PARSING, &task); err != nil {
+	res, err := cl.doGeneralTask(ctx, common.PARSING, &task)
+	if err != nil {
 		cl.AddFailedParsing()
-		return
+	} else {
+		cl.AddSuccessParsing()
 	}
-	cl.AddSuccessParsing()
+	return res, err
 }
 
-func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.AggregationTask) {
+func (cl *Client) doAggregationHandler(ctx context.Context, task tasks.AggregationTask) (tasks.TaskResult, error) {
 	start := time.Now()
 	defer cl.Stats.timingAggregate.UpdateSince(start)
 
-	if err := cl.doGeneralTask(ctx, common.AGGREGATE, &task); err != nil {
+	res, err := cl.doGeneralTask(ctx, common.AGGREGATE, &task)
+	if err != nil {
 		cl.AddFailedAggregate()
-		return
+	} else {
+		cl.AddSuccessAggregate()
 	}
-	cl.AddSuccessAggregate()
+	return res, err
 }

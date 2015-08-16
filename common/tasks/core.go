@@ -4,6 +4,7 @@ import (
 	"github.com/noxiouz/Combaine/common"
 	"github.com/noxiouz/Combaine/common/configs"
 	"github.com/noxiouz/Combaine/common/hosts"
+	"sync"
 )
 
 type TaskResult string
@@ -68,6 +69,8 @@ type AggregationTask struct {
 	AggregationConfig configs.AggregationConfig
 	// Hosts
 	Hosts hosts.Hosts
+	// Parsing results
+	Results map[string]TaskResult
 }
 
 // func (a *AggregationTask) Id() string {
@@ -80,4 +83,25 @@ func (a *AggregationTask) Group() string {
 
 func (a *AggregationTask) Raw() ([]byte, error) {
 	return common.Pack(a)
+}
+
+type ParsingResultCollector struct {
+	mu   sync.Mutex
+	data map[string]TaskResult
+}
+
+func (p *ParsingResultCollector) Put(name string, res TaskResult) {
+	p.mu.Lock()
+	p.data[name] = res
+	p.mu.Unlock()
+}
+
+func (p *ParsingResultCollector) Data() map[string]TaskResult {
+	return p.data
+}
+
+func NewParsingResultCollector(capacity int) *ParsingResultCollector {
+	return &ParsingResultCollector{
+		data: make(map[string]TaskResult, capacity),
+	}
 }
