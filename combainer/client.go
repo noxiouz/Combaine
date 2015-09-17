@@ -1,6 +1,7 @@
 package combainer
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -15,7 +16,8 @@ import (
 )
 
 var (
-	ErrHandlerTimeout = fmt.Errorf("Timeout")
+	ErrHandlerTimeout = errors.New("Timeout")
+	ErrZeroPeriod     = errors.New("MINIMUM_PERIOD must be positive")
 )
 
 type sessionParams struct {
@@ -161,6 +163,9 @@ func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err err
 	}
 
 	parsingTime, wholeTime = GenerateSessionTimeFrame(parsingConfig.IterationDuration)
+	if parsingTime == 0 || wholeTime == 0 {
+		return nil, err
+	}
 
 	sp = &sessionParams{
 		ParsingTime: parsingTime,
