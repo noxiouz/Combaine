@@ -11,6 +11,10 @@ import sys
 
 import msgpack
 
+
+TIMINGS = ('50.00%', '75.00%', '90.00%', '95.00%', '98.00%', '99.00%', '99.95%')
+
+
 def default_info_factory():
     # default dict could be used here too
     # but it's here as scheme
@@ -37,20 +41,15 @@ def default_info_factory():
             "accepted": 0,
             "rejected": 0,
             },
-        "timings": {
-            "50.00%": 0.,
-            '75.00%': 0.,
-            '90.00%': 0.,
-            '95.00%': 0.,
-            '98.00%': 0.,
-            '99.00%': 0.,
-            '99.95%': 0.,
-            },
+        # "50.00%", '75.00%', '90.00%', '95.00%', '98.00%', '99.00%', '99.95%',
+        "timings": [0, 0, 0, 0, 0, 0, 0],
         }
+
 
 def avg(curr_avg, count, value):
     # avg = (curr_avg * curr_count + curr_value)/(curr_count + 1)
     return (curr_avg * count + value)/(count + 1)
+
 
 class CocaineToolInfo(object):
     def __init__(self, config):
@@ -128,8 +127,8 @@ class CocaineToolInfo(object):
                 # avg timings
                 app_timings = app["timings"]
                 app_info_timings = app_info["timings"]
-                for k in app_info_timings:
-                    app_info_timings[k] = avg(app_info_timings[k], curr_count, app_timings[k])
+                for i, k in enumerate(TIMINGS):
+                    app_info_timings[i] = avg(app_info_timings[i], curr_count, app_timings[k])
         return res
 
 
