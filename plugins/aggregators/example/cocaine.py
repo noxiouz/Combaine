@@ -129,7 +129,7 @@ class CocaineToolInfo(object):
                 app_info_timings = app_info["timings"]
                 for i, k in enumerate(TIMINGS):
                     app_info_timings[i] = avg(app_info_timings[i], curr_count, app_timings[k])
-        return res
+        return dict(res)
 
 
 if __name__ == '__main__':
