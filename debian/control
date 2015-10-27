@@ -47,3 +47,11 @@ Depends: ${misc:Depends},
  cocaine-framework-python (>= 0.11)
 Description: Plugin which allows to use MySQL queries.
  Cloud app for puting/getting data from parser to Mysql
+
+Package: combaine-plugin-handystats
+Architecture: amd64
+Depends: ${misc:Depends},
+ python (>= 2.6),
+ combaine-core (= ${binary:Version}),
+ python-handystats,
+Description: Plugin which allows to use handystats aggregation.
