@@ -26,11 +26,12 @@ func handleTask(request *cocaine.Request, response *cocaine.Response) {
 		response.ErrorMsg(-100, err.Error())
 		return
 	}
-	err = parsing.Parsing(task)
+	result, err := parsing.Parsing(task)
 	if err != nil {
 		response.ErrorMsg(-100, err.Error())
 	} else {
-		response.Write("OK")
+		res, _ := common.Pack(result)
+		response.Write(res)
 	}
 }
 

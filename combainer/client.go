@@ -285,7 +285,13 @@ func resolve(appname, endpoint string) <-chan resolveInfo {
 	return res
 }
 
-func (cl *Client) doGeneralTask(appName string, task tasks.Task, wg *sync.WaitGroup, deadline time.Time, hosts []string) error {
+func (cl *Client) doGeneralTask(
+	appName string,
+	task tasks.Task,
+	wg *sync.WaitGroup,
+	deadline time.Time,
+	hosts []string) error {
+
 	defer (*wg).Done()
 	limit := deadline.Sub(time.Now())
 
@@ -301,7 +307,8 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task, wg *sync.WaitGr
 		case r := <-resolve(appName, host):
 			err, app = r.Err, r.App
 		case <-time.After(1 * time.Second):
-			err = fmt.Errorf("service resolvation was timeouted %s %s %s", task.Tid(), host, appName)
+			err = fmt.Errorf("service resolvation was timeouted %s %s %s",
+				task.Tid(), host, appName)
 		}
 		if err == nil {
 			defer app.Close()
@@ -332,7 +339,7 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task, wg *sync.WaitGr
 	}
 
 	raw, _ := task.Raw()
-	res, err := PerformTask(app, raw, limit)
+	res, err := PerformTask(app, raw, limit, payload)
 	if err != nil {
 		cl.Log.WithFields(logrus.Fields{
 			"session": task.Tid(),
@@ -351,16 +358,28 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task, wg *sync.WaitGr
 	return nil
 }
 
-func (cl *Client) doParsingTask(task tasks.ParsingTask, wg *sync.WaitGroup, deadline time.Time, hosts []string) {
-	if err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts); err != nil {
+func (cl *Client) doParsingTask(
+	task tasks.ParsingTask,
+	wg *sync.WaitGroup,
+	deadline time.Time,
+	hosts []string) {
+
+	err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts, resultCollector)
+	if err != nil {
 		cl.clientStats.AddFailedParsing()
 		return
 	}
 	cl.clientStats.AddSuccessParsing()
 }
 
-func (cl *Client) doAggregationHandler(task tasks.AggregationTask, wg *sync.WaitGroup, deadline time.Time, hosts []string) {
-	if err := cl.doGeneralTask(common.AGGREGATE, &task, wg, deadline, hosts); err != nil {
+func (cl *Client) doAggregationHandler(
+	task tasks.AggregationTask,
+	wg *sync.WaitGroup,
+	deadline time.Time,
+	hosts []string) {
+
+	err := cl.doGeneralTask(common.AGGREGATE, &task, wg, deadline, hosts)
+	if err != nil {
 		cl.clientStats.AddFailedAggregate()
 		return
 	}
@@ -372,9 +391,14 @@ func getRandomHost(input []string) string {
 	return input[rand.Intn(max)]
 }
 
-func PerformTask(app *cocaine.Service, payload []byte, limit time.Duration) (interface{}, error) {
+func PerformTask(
+	app *cocaine.Service,
+	task []byte,
+	payload []byte,
+	limit time.Duration) (interface{}, error) {
+
 	select {
-	case res := <-app.Call("enqueue", "handleTask", payload):
+	case res := <-app.Call("enqueue", "handleTask", task, payload):
 		if res.Err() != nil {
 			return nil, res.Err()
 		}
