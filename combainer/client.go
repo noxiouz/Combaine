@@ -337,7 +337,7 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 			"error":   ErrAppUnavailable,
 			"appname": appName,
 		}).Error("unable to send task")
-		return ErrAppUnavailable
+		return nil, ErrAppUnavailable
 	}
 
 	raw, _ := task.Raw()
@@ -349,7 +349,7 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 			"appname": appName,
 			"host":    host,
 		}).Errorf("task for group %s failed", task.Group())
-		return err
+		return nil, err
 	}
 
 	cl.Log.WithFields(logrus.Fields{
@@ -379,7 +379,7 @@ func (cl *Client) doAggregationHandler(task tasks.AggregationTask,
 	wg *sync.WaitGroup, deadline time.Time, hosts []string, r tasks.Result) {
 
 	task.ParsingResult = r
-	err := cl.doGeneralTask(common.AGGREGATE, &task, wg, deadline, hosts)
+	_, err := cl.doGeneralTask(common.AGGREGATE, &task, wg, deadline, hosts)
 	if err != nil {
 		cl.clientStats.AddFailedAggregate()
 		return
@@ -396,14 +396,14 @@ func getRandomHost(app string, input []string) string {
 }
 
 func PerformTask(app *cocaine.Service,
-	payload []byte, limit time.Duration) (interface{}, error) {
+	payload []byte, limit time.Duration) (Tasks.Result, error) {
 
 	select {
 	case res := <-app.Call("enqueue", "handleTask", payload):
 		if res.Err() != nil {
 			return nil, res.Err()
 		}
-		var i interface{}
+		var r tasks.Result
 		err := res.Extract(&i)
 		return i, err
 	case <-time.After(limit):
