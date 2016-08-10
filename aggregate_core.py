@@ -10,9 +10,6 @@ from combaine.common.logger import get_logger_adapter
 from combaine.common import AggregationTask
 
 
-storage = Service("elliptics")
-
-
 class Cache(object):
 
     def __init__(self):
@@ -75,7 +72,6 @@ def aggreagate(request, response):
                                           task.CurrTime)
                 try:
                     data = task.parsing_result[key]
-                    # data = yield storage.read("combaine", key)
                     subgroup_data.append(data)
                     if cfg.get("perHost"):
                         res = yield app.enqueue("aggregate_group",

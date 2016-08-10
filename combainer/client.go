@@ -236,7 +236,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 	}
 	wg.Wait()
 
-	cl.Log.WithFields(contextFields).Info(
+	cl.Log.WithFields(contextFields).Infof(
 		"Parsing finished for %d hosts", len(parsingResult))
 
 	// Aggregation phase
@@ -291,8 +291,7 @@ func resolve(appname, endpoint string) <-chan resolveInfo {
 }
 
 func (cl *Client) doGeneralTask(appName string, task tasks.Task,
-	wg *sync.WaitGroup, deadline time.Time, hosts []string,
-	r tasks.Result) (tasks.Result, error) {
+	wg *sync.WaitGroup, deadline time.Time, hosts []string) (interface{}, error) {
 
 	defer (*wg).Done()
 	limit := deadline.Sub(time.Now())
@@ -340,7 +339,17 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 		return nil, ErrAppUnavailable
 	}
 
-	raw, _ := task.Raw()
+	raw, err := task.Raw()
+	if err != nil {
+		cl.Log.WithFields(logrus.Fields{
+			"session": task.Tid(),
+			"error":   err,
+			"appname": appName,
+			"host":    host,
+		}).Errorf("failed to unpack task's data for group %s", task.Group())
+		return nil, err
+
+	}
 	res, err := PerformTask(app, raw, limit)
 	if err != nil {
 		cl.Log.WithFields(logrus.Fields{
@@ -356,15 +365,20 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 		"session": task.Tid(),
 		"appname": appName,
 		"host":    host,
-	}).Infof("task for group %s done: %s", task.Group(), res)
+	}).Infof("task for group %s done", task.Group())
 	return res, nil
 }
 
 func (cl *Client) doParsingTask(task tasks.ParsingTask,
 	wg *sync.WaitGroup, deadline time.Time, hosts []string, r tasks.Result) {
 
-	res, err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts)
+	i, err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts)
 	if err != nil {
+		cl.clientStats.AddFailedParsing()
+		return
+	}
+	var res tasks.Result
+	if err := common.Unpack(i.([]byte), &res); err != nil {
 		cl.clientStats.AddFailedParsing()
 		return
 	}
@@ -389,21 +403,23 @@ func (cl *Client) doAggregationHandler(task tasks.AggregationTask,
 
 func getRandomHost(app string, input []string) string {
 	if app == common.AGGREGATE {
-		return os.Hostname()
+		if name, err := os.Hostname(); err == nil {
+			return name
+		}
 	}
 	max := len(input)
 	return input[rand.Intn(max)]
 }
 
 func PerformTask(app *cocaine.Service,
-	payload []byte, limit time.Duration) (Tasks.Result, error) {
+	payload []byte, limit time.Duration) (interface{}, error) {
 
 	select {
 	case res := <-app.Call("enqueue", "handleTask", payload):
 		if res.Err() != nil {
 			return nil, res.Err()
 		}
-		var r tasks.Result
+		var i interface{}
 		err := res.Extract(&i)
 		return i, err
 	case <-time.After(limit):
