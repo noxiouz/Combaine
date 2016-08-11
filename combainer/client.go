@@ -3,7 +3,6 @@ package combainer
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"sync"
 	"time"
 
@@ -172,9 +171,11 @@ func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err err
 		AggTasks:    aggTasks,
 	}
 
+	cl.Log.Info("Session parametrs have been updated successfully")
 	cl.Log.WithFields(logrus.Fields{
 		"config": config,
-	}).Infof("Session parametrs have been updated successfully. %v", sp)
+	}).Debugf("Current session parametrs. %v", sp)
+
 	return sp, nil
 }
 
@@ -221,7 +222,14 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 
 	// Parsing phase
 	totalTasksAmount := len(sessionParameters.PTasks)
+	concurrencyLimit := configs.MainSection.ParallelParsings
+	if concurrencyLimit < 1 || concurrencyLimit > totalTasksAmount {
+		concurrencyLimit = totalTasksAmount
+	}
+	tokens := make(chan<- struct{}, concurrencyLimit)
 	parsingResult := make(tasks.Result)
+	var mu sync.Mutex
+
 	for i, task := range sessionParameters.PTasks {
 		// Description of task
 		task.PrevTime = startTime.Unix()
@@ -232,7 +240,9 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 			"Send task number %d/%d to parsing %v", i+1, totalTasksAmount, task)
 
 		wg.Add(1)
-		go cl.doParsingTask(task, &wg, deadline, hosts, parsingResult)
+		tokens <- struct{}{} // acqure
+		go cl.doParsingTask(task, &wg, &mu, deadline, hosts, parsingResult)
+		<-tokens // release
 	}
 	wg.Wait()
 
@@ -370,7 +380,8 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 }
 
 func (cl *Client) doParsingTask(task tasks.ParsingTask,
-	wg *sync.WaitGroup, deadline time.Time, hosts []string, r tasks.Result) {
+	wg *sync.WaitGroup, m *sync.Mutex,
+	deadline time.Time, hosts []string, r tasks.Result) {
 
 	i, err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts)
 	if err != nil {
@@ -382,9 +393,11 @@ func (cl *Client) doParsingTask(task tasks.ParsingTask,
 		cl.clientStats.AddFailedParsing()
 		return
 	}
+	m.Lock()
 	for k, v := range res {
 		r[k] = v
 	}
+	m.Unlock()
 	cl.clientStats.AddSuccessParsing()
 
 }
@@ -403,9 +416,7 @@ func (cl *Client) doAggregationHandler(task tasks.AggregationTask,
 
 func getRandomHost(app string, input []string) string {
 	if app == common.AGGREGATE {
-		if name, err := os.Hostname(); err == nil {
-			return name
-		}
+		return "localhost"
 	}
 	max := len(input)
 	return input[rand.Intn(max)]
