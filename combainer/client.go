@@ -229,7 +229,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 
 	// Parsing phase
 	totalTasksAmount := len(sessionParameters.PTasks)
-	tokens := make(chan<- struct{}, sessionParameters.ParallelParsings)
+	tokens := make(chan struct{}, sessionParameters.ParallelParsings)
 	parsingResult := make(tasks.Result)
 	var mu sync.Mutex
 
@@ -382,9 +382,9 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 }
 
 func (cl *Client) doParsingTask(task tasks.ParsingTask,
-	wg *sync.WaitGroup, m *sync.Mutex, tokens chan<- struct{},
+	wg *sync.WaitGroup, m *sync.Mutex, tokens <-chan struct{},
 	deadline time.Time, hosts []string, r tasks.Result) {
-	defer func() { tokens <- struct{}{} }() // release
+	defer func() { <-tokens }() // release
 
 	i, err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts)
 	if err != nil {
