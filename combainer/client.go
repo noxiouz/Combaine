@@ -384,6 +384,7 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 func (cl *Client) doParsingTask(task tasks.ParsingTask,
 	wg *sync.WaitGroup, m *sync.Mutex, tokens chan<- struct{},
 	deadline time.Time, hosts []string, r tasks.Result) {
+	defer func() { tokens <- struct{}{} }() // release
 
 	i, err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts)
 	if err != nil {
@@ -401,7 +402,6 @@ func (cl *Client) doParsingTask(task tasks.ParsingTask,
 	}
 	m.Unlock()
 	cl.clientStats.AddSuccessParsing()
-	tokens <- struct{}{} // release
 
 }
 
