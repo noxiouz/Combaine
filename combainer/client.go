@@ -21,10 +21,11 @@ var (
 )
 
 type sessionParams struct {
-	ParsingTime time.Duration
-	WholeTime   time.Duration
-	PTasks      []tasks.ParsingTask
-	AggTasks    []tasks.AggregationTask
+	ParallelParsings int
+	ParsingTime      time.Duration
+	WholeTime        time.Duration
+	PTasks           []tasks.ParsingTask
+	AggTasks         []tasks.AggregationTask
 }
 
 type Client struct {
@@ -140,6 +141,11 @@ func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err err
 		"config": config,
 	}).Infof("hosts: %s", listOfHosts)
 
+	parallelParsings := len(listOfHosts)
+	if parsingConfig.ParallelParsings > 0 && parallelParsings > parsingConfig.ParallelParsings {
+		parallelParsings = parsingConfig.ParallelParsings
+	}
+
 	// Tasks for parsing
 	for _, host := range listOfHosts {
 		pTasks = append(pTasks, tasks.ParsingTask{
@@ -165,10 +171,11 @@ func (cl *Client) UpdateSessionParams(config string) (sp *sessionParams, err err
 	parsingTime, wholeTime = GenerateSessionTimeFrame(parsingConfig.IterationDuration)
 
 	sp = &sessionParams{
-		ParsingTime: parsingTime,
-		WholeTime:   wholeTime,
-		PTasks:      pTasks,
-		AggTasks:    aggTasks,
+		ParallelParsings: parallelParsings,
+		ParsingTime:      parsingTime,
+		WholeTime:        wholeTime,
+		PTasks:           pTasks,
+		AggTasks:         aggTasks,
 	}
 
 	cl.Log.Info("Session parametrs have been updated successfully")
@@ -222,11 +229,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 
 	// Parsing phase
 	totalTasksAmount := len(sessionParameters.PTasks)
-	concurrencyLimit := configs.MainSection.ParallelParsings
-	if concurrencyLimit < 1 || concurrencyLimit > totalTasksAmount {
-		concurrencyLimit = totalTasksAmount
-	}
-	tokens := make(chan<- struct{}, concurrencyLimit)
+	tokens := make(chan<- struct{}, sessionParameters.ParallelParsings)
 	parsingResult := make(tasks.Result)
 	var mu sync.Mutex
 
@@ -241,8 +244,7 @@ func (cl *Client) Dispatch(parsingConfigName string, uniqueID string, shouldWait
 
 		wg.Add(1)
 		tokens <- struct{}{} // acqure
-		go cl.doParsingTask(task, &wg, &mu, deadline, hosts, parsingResult)
-		<-tokens // release
+		go cl.doParsingTask(task, &wg, &mu, tokens, deadline, hosts, parsingResult)
 	}
 	wg.Wait()
 
@@ -380,7 +382,7 @@ func (cl *Client) doGeneralTask(appName string, task tasks.Task,
 }
 
 func (cl *Client) doParsingTask(task tasks.ParsingTask,
-	wg *sync.WaitGroup, m *sync.Mutex,
+	wg *sync.WaitGroup, m *sync.Mutex, tokens chan<- struct{},
 	deadline time.Time, hosts []string, r tasks.Result) {
 
 	i, err := cl.doGeneralTask(common.PARSING, &task, wg, deadline, hosts)
@@ -399,6 +401,7 @@ func (cl *Client) doParsingTask(task tasks.ParsingTask,
 	}
 	m.Unlock()
 	cl.clientStats.AddSuccessParsing()
+	tokens <- struct{}{} // release
 
 }
 
